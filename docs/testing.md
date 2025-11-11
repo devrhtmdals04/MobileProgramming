@@ -65,6 +65,12 @@ ViewModel은 fake Repository와 테스트 Main dispatcher로 검증한다. Fireb
 
 Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기준으로 SEC-01 자동 테스트에 구현한다. 테스트 파일·규칙·실행 방법과 통과 로그가 없으면 검증 완료로 기록하지 않는다.
 
+## AuthViewModel 화면 상태 검증 (2026-11-09)
+
+- `AuthViewModelTest` 7개: 복원 대기, 로그인 성공·비밀번호 초기화, 잘못된 입력 메시지, 처리 중 중복 제출 무시, 중복 이메일 가입 실패, 프로필 불가 후 재시도, 로그아웃.
+- Mock 기본 모드에서 `:app:testDebugUnitTest` 통과. 실제 Firebase 콘솔·프로세스 강제 종료·물리 기기 Navigation은 미검증이다.
+- AuthScreen은 로그인/회원가입 전환·처리 중 비활성·오류 문구를 표시한다. ProfileScreen은 역할 표시와 로그아웃을 제공한다.
+
 ## 인증 계약 fake 검증
 
 - 테스트 전용 `FakeAuthRepository`·`FakeAuthStore` 추가. 앱 실행 경로에는 연결하지 않음.

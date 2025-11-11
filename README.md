@@ -4,7 +4,7 @@
 
 대학생을 위한 동아리 홍보·탐색·문의·개설 요청 Android 앱. 모바일 프로그래밍 수업의 2인 팀 프로젝트입니다.
 
-**기본 실행은 Firebase 설정 없이 사용하는 Mock 모드입니다.** 샘플 홍보 피드·검색·상세와 화면 이동을 사용할 수 있습니다. Firebase 인증 Repository는 별도로 구현했으며 화면의 로그인 연결은 후속 작업입니다. 채팅 송수신·개설/가입 제출·프로필 편집도 아직 미연동입니다.
+**기본 실행은 Firebase 설정 없이 사용하는 Mock 모드입니다.** 샘플 홍보 피드·검색·상세와 화면 이동을 사용할 수 있습니다. Firebase 인증 Repository와 AuthViewModel·로그인/회원가입·프로필 화면은 연결했으며, Mock에서는 둘러보기만 가능합니다. 채팅 송수신·개설/가입 제출은 아직 미연동입니다.
 
 ## 핵심 기능 및 기술
 
@@ -40,7 +40,7 @@ VS Code에는 `Android: Build GRU`, `Install GRU`, `Run GRU` 작업이 있습니
 
 Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지 않습니다. 설정 파일만 추가해도 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
 
-실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. 인증 UI는 아직 연결하지 않았습니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
+실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. Mock에서는 인증 저장소 없이 둘러보기만 가능하고, emulator/firebase에서는 AuthViewModel이 로그인·가입·로그아웃을 연결합니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
 users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages를 구현했으며 다른 컬렉션은 접근을 거절합니다. 채팅 Repository와 UI 송수신은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
 
