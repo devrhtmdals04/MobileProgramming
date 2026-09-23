@@ -31,5 +31,10 @@ kotlin {
     sourceSets.getByName("main").kotlin.apply {
         setSrcDirs(listOf(projectDir))
         include("test.kt")
+        include("src/main/kotlin/**/*.kt")
     }
+}
+
+dependencies {
+    implementation("androidx.dynamicanimation:dynamicanimation:1.1.0")
 }
