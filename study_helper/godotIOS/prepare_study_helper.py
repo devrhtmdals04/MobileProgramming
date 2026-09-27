@@ -23,7 +23,7 @@ if not args.skip_export:
     subprocess.run([os.environ.get("GODOT_BIN", "/Applications/Godot.app/Contents/MacOS/Godot"), "--headless", "--path", str(ROOT / "godot-runner"),
                     "--export-debug", "iOS Study Helper", str(EXPORT / "StudyHelper.xcodeproj")], check=True)
 
-for name in ["StudyEngine.h", "StudyEngine.mm", "StudyHelperApp.swift"]:
+for name in ["StudyEngine.h", "StudyEngine.mm", "StudyHelperApp.swift", "LectureAudio.swift"]:
     shutil.copy2(ROOT / "godotIOS/StudyHelper" / name, APP / name)
 with (APP / "dummy.h").open("a") as header:
     if '#import "StudyEngine.h"' not in (APP / "dummy.h").read_text():
@@ -47,14 +47,16 @@ reference("AA0000000000000000000001", "StudyHelperApp.swift", "sourcecode.swift"
 reference("AA0000000000000000000002", "StudyEngine.mm", "sourcecode.cpp.objcpp")
 reference("AA0000000000000000000003", "StudyEngine.h", "sourcecode.c.h")
 reference("AA0000000000000000000004", "StudyHelper/Shared.xcframework", "wrapper.xcframework")
+reference("AA0000000000000000000005", "LectureAudio.swift", "sourcecode.swift")
+build_file("AA0000000000000000000015", "AA0000000000000000000005")
 build_file("AA0000000000000000000011", "AA0000000000000000000001")
 build_file("AA0000000000000000000012", "AA0000000000000000000002")
 build_file("AA0000000000000000000014", "AA0000000000000000000004")
 for obj in list(objects.values()):
     if obj.get("isa") == "PBXGroup" and obj.get("path") == "StudyHelper":
-        for ref in ["AA0000000000000000000001", "AA0000000000000000000002", "AA0000000000000000000003"]: append_unique(obj["children"], ref)
+        for ref in ["AA0000000000000000000001", "AA0000000000000000000002", "AA0000000000000000000003", "AA0000000000000000000005"]: append_unique(obj["children"], ref)
     if obj.get("isa") == "PBXSourcesBuildPhase":
-        for ref in ["AA0000000000000000000011", "AA0000000000000000000012"]: append_unique(obj["files"], ref)
+        for ref in ["AA0000000000000000000011", "AA0000000000000000000012", "AA0000000000000000000015"]: append_unique(obj["files"], ref)
     if obj.get("isa") == "PBXFrameworksBuildPhase": append_unique(obj["files"], "AA0000000000000000000014")
     if obj.get("isa") == "XCBuildConfiguration":
         settings = obj["buildSettings"]
@@ -75,7 +77,9 @@ info = plistlib.loads(plist_path.read_bytes())
 info["CFBundleDisplayName"] = "Study Helper"
 info["UIStatusBarHidden"] = False
 info["LSSupportsOpeningDocumentsInPlace"] = True
-for key in ["NSCameraUsageDescription", "NSPhotoLibraryUsageDescription", "NSMicrophoneUsageDescription"]:
+info["NSMicrophoneUsageDescription"] = "강의 녹음을 기기에 저장하기 위해 마이크를 사용합니다."
+info["UIBackgroundModes"] = ["audio"]
+for key in ["NSCameraUsageDescription", "NSPhotoLibraryUsageDescription"]:
     info.pop(key, None)
 plist_path.write_bytes(plistlib.dumps(info, sort_keys=False))
 for strings in APP.glob("*.lproj/InfoPlist.strings"):

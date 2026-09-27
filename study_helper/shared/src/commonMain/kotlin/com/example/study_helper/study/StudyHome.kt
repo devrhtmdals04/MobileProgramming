@@ -48,6 +48,7 @@ fun StudyHome(
     onStartLearning: (String) -> Unit,
     onOpenLink: (String) -> Unit,
     onBackAction: ((() -> Unit)?) -> Unit,
+    onOpenRecordings: (() -> Unit)? = null,
 ) {
     var tab by rememberSaveable { mutableStateOf("notes") }
     var reading by rememberSaveable { mutableStateOf(false) }
@@ -117,6 +118,9 @@ fun StudyHome(
                         if (tab == "notes") NoteLibrary(notebook, enabled, onImport, newNote) {
                             onSelectNote(it); reading = true
                         } else QuizLibrary(quizzes, recap, enabled, onImportQuiz) { selectedQuiz = it }
+                    }
+                    onOpenRecordings?.let { open ->
+                        TextButton(onClick = open, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("강의 녹음 · 녹음 목록") }
                     }
                     HorizontalDivider(color = colors.outlineVariant)
                     Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {

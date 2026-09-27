@@ -18,6 +18,7 @@ interface NotebookPlatform {
     fun exportDocument(filename: String, content: String)
     fun copyText(text: String)
     fun openLink(url: String)
+    fun openRecordings() {}
     fun startGame()
 }
 
@@ -216,7 +217,7 @@ class NotebookHost(private val platform: NotebookPlatform) {
                 platform.copyText(QuizFiles.prompt(notebook.id.orEmpty(), notebook.title, notebook.markdown))
                 notebook = notebook.copy(notice = "노트 내용과 문제 생성 프롬프트를 복사했어요.")
             },
-            onRetry = ::reload, onStartLearning = ::startLearning, onOpenLink = platform::openLink, onBackAction = {},
+            onRetry = ::reload, onStartLearning = ::startLearning, onOpenLink = platform::openLink, onBackAction = {}, onOpenRecordings = platform::openRecordings,
         )
     }
 }

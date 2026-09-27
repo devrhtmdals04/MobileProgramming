@@ -1,0 +1,25 @@
+{
+  "storageTests": {
+    "checks": [
+      "Saved AAC file reloads and recovers duration",
+      "Renamed title survives reopening",
+      "Stored AAC plays through native audio",
+      "Playback seek stays in bounds",
+      "Playback stop releases audio",
+      "Confirmed deletion removes audio and list entry",
+      "Invalid file IDs cannot escape recording storage"
+    ],
+    "failures": []
+  },
+  "speechSupport": {
+    "available": true,
+    "koreanInstalled": [
+      "ko_KR"
+    ],
+    "koreanSupported": [
+      "ko_KR"
+    ]
+  },
+  "date": "2026-09-27",
+  "microphoneTested": false
+}

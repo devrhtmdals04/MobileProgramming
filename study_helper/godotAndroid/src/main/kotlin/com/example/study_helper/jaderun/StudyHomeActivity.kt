@@ -136,6 +136,7 @@ class StudyHomeActivity : ComponentActivity() {
                 onSelectNote = { id -> lifecycleScope.launch { documentOperation { loadNotebook(id) } } },
                 onRetry = ::loadInitialNotes,
                 onStartLearning = ::startLearning,
+                onOpenRecordings = { startActivity(Intent(this, LectureAudioActivity::class.java)) },
             )
         }
     }
@@ -225,6 +226,11 @@ class StudyHomeActivity : ComponentActivity() {
     }
 
     private fun startLearning(quizId: String) {
+        if (LectureAudioState.recording || LectureAudioState.pending) {
+            notebook = notebook.copy(error = "강의 녹음을 종료하고 저장한 뒤 게임을 시작해 주세요.")
+            return
+        }
+
         if (launching || notebook.busy || !notebook.ready) return
         launching = true
         lifecycleScope.launch {

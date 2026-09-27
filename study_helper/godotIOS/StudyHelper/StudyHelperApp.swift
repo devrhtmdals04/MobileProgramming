@@ -2,6 +2,9 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 import Shared
+#if DEBUG
+import Speech
+#endif
 
 @main
 struct StudyHelperApp: App {
@@ -40,6 +43,8 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocum
     weak var root: UIViewController?
     private let files = FileManager.default
     private let engine = StudyEngine()
+    private lazy var lectureAudio = LectureAudio(folder: files.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent(storageName).appendingPathComponent("recordings"))
     private var game: GameContainer?
     private var mailboxTimer: Timer?
     private var importKind: String?
@@ -108,6 +113,14 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocum
         }
     }
 
+    func openRecordings() {
+        let controller = NotebookViewControllerKt.LectureViewController(host: lectureAudio.host)
+        controller.modalPresentationStyle = .fullScreen
+        lectureAudio.close = { [weak controller] in controller?.dismiss(animated: true) }
+        lectureAudio.audioCommand(action: "refresh", id: "", title: "")
+        presenter?.present(controller, animated: true)
+    }
+
     func pickDocument(kind: String) {
         importKind = kind
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
@@ -171,6 +184,9 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocum
     }
 
     func startGame() {
+        guard !lectureAudio.isRecording else {
+            host.gameFailed(message: "강의 녹음을 종료하고 저장한 뒤 게임을 시작해 주세요."); return
+        }
         guard game == nil, let root else { host.gameFailed(message: "게임 화면을 열지 못했어요."); return }
         do {
             try files.createDirectory(at: bridge, withIntermediateDirectories: true)
@@ -298,6 +314,34 @@ private final class GameContainer: UIViewController {
 // No test document or preference is written into the user's library.
 private extension StudyPlatform {
     func beginProbeIfRequested() {
+        if ProcessInfo.processInfo.arguments.contains("--lecture-probe") && !probeStarted {
+            probeStarted = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                do {
+                    let checks = try LectureAudio.runStorageProbe()
+                    NSLog("LECTURE COMPLETE %@", self.json(["checks": checks, "failures": []]))
+                } catch { NSLog("LECTURE FAILED %@", error.localizedDescription) }
+                if #available(iOS 26.0, *) {
+                    Task {
+                        let supported = await SpeechTranscriber.supportedLocales.map(\.identifier)
+                        let installed = await SpeechTranscriber.installedLocales.map(\.identifier)
+                        NSLog("LECTURE SPEECH SUPPORT %@", self.json(["available": SpeechTranscriber.isAvailable,
+                            "koreanSupported": supported.filter { $0.hasPrefix("ko") },
+                            "koreanInstalled": installed.filter { $0.hasPrefix("ko") }]))
+                    }
+                }
+                self.openRecordings()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    guard let window = self.root?.presentedViewController?.view.window ?? self.root?.view.window else { return }
+                    let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
+                        window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+                    }
+                    let documents = self.files.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    try? image.pngData()?.write(to: documents.appendingPathComponent("lecture-library.png"))
+                }
+            }
+            return
+        }
         guard probeID != nil, !probeStarted else { return }
         probeStarted = true
         Task { @MainActor in await runNotebookProbe() }
