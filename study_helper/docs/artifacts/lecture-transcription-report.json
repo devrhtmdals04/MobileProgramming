@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "Provisional revisions replace without accumulating",
+    "Repeated final result does not duplicate text",
+    "Streaming recognition finishes without errors: ",
+    "Installed Korean model transcribes synthesized lecture words",
+    "Transcript survives reopening the recording library",
+    "Transcript editor opens saved recognition text",
+    "Edited transcript saves through the Kotlin notebook",
+    "Edited transcription is also persisted with audio"
+  ],
+  "failures": [],
+  "microphoneUsed": false,
+  "noteId": "1fdbab4d-8fa2-4f07-a539-6be2e54b1430",
+  "transcript": "오늘은 디지털 시스템을 공부합니다. 이진수는 영광이를 사용합니다. 논리회로는 입력을 받아서 출력을 만듭니다. 강의 내용을 노트에 저장합니다."
+}

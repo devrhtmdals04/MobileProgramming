@@ -1,6 +1,11 @@
 package com.example.study_helper.study
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,11 +21,13 @@ interface LecturePlatform {
     fun audioCommand(action: String, id: String, title: String)
 }
 
-data class LectureRecording(val id: String, val title: String, val date: String, val seconds: Int)
+data class LectureRecording(val id: String, val title: String, val date: String, val seconds: Int, val hasTranscript: Boolean = false)
 data class LectureAudioState(
     val recordings: List<LectureRecording> = emptyList(), val recording: Boolean = false,
     val pending: Boolean = false, val seconds: Int = 0, val playing: String = "",
     val playbackSeconds: Int = 0, val message: String = "",
+    val transcript: String = "", val provisional: String = "", val speechStatus: String = "",
+    val editorId: String = "", val editorTitle: String = "", val editorText: String = "",
 )
 
 class LectureHost(private val platform: LecturePlatform) {
@@ -39,10 +46,11 @@ class LectureHost(private val platform: LecturePlatform) {
                 LectureRecording(row.getValue("id").jsonPrimitive.content,
                     row.getValue("title").jsonPrimitive.content,
                     row.getValue("date").jsonPrimitive.content,
-                    row.getValue("seconds").jsonPrimitive.int.coerceAtLeast(0))
+                    row.getValue("seconds").jsonPrimitive.int.coerceAtLeast(0), row["hasTranscript"]?.jsonPrimitive?.booleanOrNull ?: false)
             }
             state = LectureAudioState(recordings, flag("recording"), flag("pending"), number("seconds"),
-                text("playing"), number("playbackSeconds"), text("message"))
+                text("playing"), number("playbackSeconds"), text("message"),
+                text("transcript"), text("provisional"), text("speechStatus"), text("editorId"), text("editorTitle"), text("editorText"))
         } catch (_: Exception) {
             state = state.copy(message = "녹음 상태를 읽지 못했어요. 녹음 화면을 다시 열어 주세요.")
         }
@@ -50,8 +58,8 @@ class LectureHost(private val platform: LecturePlatform) {
 
     fun command(action: String, id: String = "", title: String = "") {
         if (state.pending && action != "close") return
-        if (state.recording && action in listOf("start", "play", "delete", "rename")) return
-        platform.audioCommand(action, id, title.trim().take(120))
+        if (state.recording && action in listOf("start", "play", "delete", "rename", "openTranscript", "saveTranscript")) return
+        platform.audioCommand(action, id, if (action == "saveTranscript") title.trim() else title.trim().take(120))
     }
 }
 
@@ -89,6 +97,21 @@ fun LectureRecordings(host: LectureHost) {
                     Button(onClick = { host.command("start", title = title) }, enabled = !state.pending,
                         modifier = Modifier.fillMaxWidth()) { Text("녹음 시작") }
                 }
+                if (state.speechStatus.isNotBlank() && (state.recording || state.pending)) {
+                    Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text(state.speechStatus, style = MaterialTheme.typography.labelMedium)
+                            val scroll = rememberScrollState()
+                            LaunchedEffect(state.transcript, state.provisional) { scroll.scrollTo(scroll.maxValue) }
+                            SelectionContainer {
+                                Column(Modifier.fillMaxWidth().heightIn(max = 180.dp).verticalScroll(scroll)) {
+                                    Text(state.transcript.ifEmpty { "말씀하시면 여기에 받아쓰기가 표시됩니다." })
+                                    if (state.provisional.isNotBlank()) Text(state.provisional, color = colors.onSurfaceVariant)
+                                }
+                            }
+                        }
+                    }
+                }
                 HorizontalDivider(Modifier.padding(vertical = 12.dp))
                 Text("저장된 녹음 · ${state.recordings.size}개", style = MaterialTheme.typography.titleMedium)
                 if (state.recordings.isEmpty()) Text("강의를 녹음하면 여기에 표시됩니다.", Modifier.padding(vertical = 20.dp))
@@ -105,12 +128,37 @@ fun LectureRecordings(host: LectureHost) {
                                         TextButton(onClick = { host.command("forward") }) { Text("15초 이후") }
                                     }
                                 }
+                                if (recording.hasTranscript) {
+                                    TextButton(onClick = { host.command("openTranscript", recording.id) }, enabled = !state.recording && !state.pending) {
+                                        Text("받아쓰기 보기 · 노트로 저장")
+                                    }
+                                }
                                 Row {
                                     TextButton(onClick = { host.command(if (state.playing == recording.id) "stopPlayback" else "play", recording.id) },
                                         enabled = !state.recording && !state.pending) { Text(if (state.playing == recording.id) "재생 종료" else "재생") }
                                     TextButton(onClick = { renaming = recording; editedTitle = recording.title },
                                         enabled = !state.recording && !state.pending) { Text("이름 변경") }
                                     TextButton(onClick = { deleting = recording }, enabled = !state.recording && !state.pending) { Text("삭제") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (state.editorId.isNotBlank()) {
+                var text by rememberSaveable(state.editorId) { mutableStateOf(state.editorText) }
+                Dialog(onDismissRequest = { host.command("closeTranscript") }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+                    Surface(Modifier.fillMaxSize()) {
+                        Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(20.dp)) {
+                            Text(state.editorTitle, style = MaterialTheme.typography.titleLarge)
+                            Text("잘못 인식한 내용을 고친 뒤 노트로 저장하세요. 다시 저장하면 같은 노트를 갱신합니다.")
+                            if (state.message.isNotBlank()) Text(state.message, Modifier.padding(vertical = 8.dp))
+                            OutlinedTextField(text, { text = it }, label = { Text("강의 받아쓰기") },
+                                modifier = Modifier.weight(1f).fillMaxWidth())
+                            Row {
+                                TextButton(onClick = { host.command("closeTranscript") }) { Text("닫기") }
+                                Button(onClick = { host.command("saveTranscript", state.editorId, text) }, enabled = text.isNotBlank() && !state.pending) {
+                                    Text("노트로 저장")
                                 }
                             }
                         }

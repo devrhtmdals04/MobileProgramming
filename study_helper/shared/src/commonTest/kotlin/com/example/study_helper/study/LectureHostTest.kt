@@ -42,4 +42,24 @@ class LectureHostTest {
         assertEquals(15, host.state.playbackSeconds)
         assertEquals(30, host.state.recordings.single().seconds)
     }
+    @Test fun transcriptSavingDoesNotTruncateLectureToTitleLength() {
+        val platform = Platform(); val host = LectureHost(platform)
+        val text = "강의 받아쓰기 본문입니다.\n".repeat(100)
+        host.command("saveTranscript", "recording-id", text)
+        assertEquals(text.trim(), platform.commands.single().third)
+        host.updateState("""{"recording":true}""")
+        host.command("saveTranscript", "recording-id", "덮어쓰기")
+        assertEquals(1, platform.commands.size)
+    }
+    @Test fun finalAndProvisionalTextAndEditorSurvivePlatformSnapshots() {
+        val host = LectureHost(Platform())
+        host.updateState("""{"transcript":"확정 문장","provisional":"인식 중","editorId":"a","editorTitle":"강의","editorText":"수정할 내용","recordings":[{"id":"a","title":"강의","date":"today","seconds":10,"hasTranscript":true}]}""")
+        assertEquals("확정 문장", host.state.transcript)
+        assertEquals("인식 중", host.state.provisional)
+        assertEquals("수정할 내용", host.state.editorText)
+        assertTrue(host.state.recordings.single().hasTranscript)
+        host.updateState("""{"editorId":""}""")
+        assertTrue(host.state.editorId.isEmpty())
+    }
+
 }

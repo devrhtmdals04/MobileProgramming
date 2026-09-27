@@ -1,6 +1,6 @@
 # 실시간 강의 받아쓰기 후보
 
-2026-09-27 조사. **녹음·저장·재생은 구현했으며 실시간 받아쓰기는 아직 연결하지 않았다.**
+2026-09-27 조사. **iOS 26 한국어 실시간 받아쓰기와 수정 후 노트 저장을 연결했다. Android는 녹음·재생만 지원한다.**
 
 ## 연결된 iPhone의 실제 지원 상태
 
@@ -24,10 +24,10 @@ iPhone 17 Pro Max / iOS 26.6.2에서 SpeechTranscriber를 직접 조회했다.
 
 추천 순서는 **연결된 iPhone 내장 한국어 인식 → 실제 강의 정확도 평가 → 필요하면 오픈소스 또는 온라인 방식 비교**다. 온라인 방식으로 자동 전환하거나 음성을 외부에 전송하지 않는다.
 
-## 다음 구현 구조
+## 구현 구조
 
-- 마이크 캡처 한 곳에서 녹음 파일 저장과 인식 입력으로 오디오를 분기한다. 현재 AVAudioRecorder / MediaRecorder와 별도의 인식기를 동시에 마이크에 붙이지 않는다.
-- iOS는 AVAudioEngine 등의 PCM 캡처와 파일 인코딩, SpeechAnalyzer 입력을 통합하는 방향으로 변경한다. 인식이 실패해도 원본 녹음은 유지한다.
+- 마이크 캡처 한 곳에서 녹음 파일 저장과 인식 입력으로 오디오를 분기한다. iOS 26에서는 AVAudioEngine 입력을 공유하며 별도의 인식기를 동시에 마이크에 붙이지 않는다.
+- iOS 26은 AVAudioEngine PCM 캡처와 AAC 파일 인코딩, SpeechAnalyzer 입력을 통합했다. 인식이 실패해도 원본 녹음은 유지한다.
 - 화면에서 임시 문장과 확정 문장을 구분하고, 확정 문장에 시간 정보를 저장한다. 중간 결과 갱신을 문장 추가로 잘못 처리하지 않도록 한다.
 - 종료 후 사용자가 받아쓰기 내용을 수정하고 **마크다운 노트로 저장**한다.
 - 요약·문제 생성은 받아쓰기에 이어지는 별도 단계다. 기존 노트→프롬프트→문제 JSON 흐름을 유지한다.
@@ -41,3 +41,5 @@ iPhone 17 Pro Max / iOS 26.6.2에서 SpeechTranscriber를 직접 조회했다.
 - [Deepgram live WebSocket API](https://developers.deepgram.com/reference/speech-to-text/listen-streaming)
 - [Deepgram pricing](https://deepgram.com/pricing) — 조회 당시 Nova-3 Monolingual streaming PAYG 프로모션 $0.0048/분, 정규 표시 $0.0077/분. 추가 기능·서버 비용 제외. 가격은 도입 시 다시 확인.
 - [Android SpeechRecognizer](https://developer.android.com/reference/android/speech/SpeechRecognizer)
+
+실기기 합성 한국어 음성 검사에서 실제 전사와 Kotlin 노트 저장을 확인했다. 예문 “영과 일을”이 “영광이를”로 인식되는 오류도 확인하여 편집 단계를 유지한다. 이 결과는 실제 강의의 정확도를 보장하지 않는다. 인식 결과 전문은 [검사 보고서](artifacts/lecture-transcription-report.json)에 보관한다.

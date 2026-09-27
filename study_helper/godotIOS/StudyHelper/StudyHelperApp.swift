@@ -43,15 +43,22 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocum
     weak var root: UIViewController?
     private let files = FileManager.default
     private let engine = StudyEngine()
-    private lazy var lectureAudio = LectureAudio(folder: files.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent(storageName).appendingPathComponent("recordings"))
+    private lazy var lectureAudio: LectureAudio = {
+        let audio = LectureAudio(folder: files.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(storageName).appendingPathComponent("recordings"))
+        audio.saveNote = { [weak self] id, title, body in
+            guard let self else { return "서재가 닫혀 있어요." }
+            return self.host.saveNote(id: id, title: title, body: body)
+        }
+        return audio
+    }()
     private var game: GameContainer?
     private var mailboxTimer: Timer?
     private var importKind: String?
     private var closing = false
     private var gameStartedAt: Date?
     #if DEBUG
-    private let probeID = ProcessInfo.processInfo.arguments.contains("--notebook-probe") ? UUID().uuidString : nil
+    private let probeID = (ProcessInfo.processInfo.arguments.contains("--notebook-probe") || ProcessInfo.processInfo.arguments.contains("--lecture-transcription-probe")) ? UUID().uuidString : nil
     private var probeStarted = false
     #endif
     private lazy var preferences: UserDefaults = {
@@ -314,6 +321,25 @@ private final class GameContainer: UIViewController {
 // No test document or preference is written into the user's library.
 private extension StudyPlatform {
     func beginProbeIfRequested() {
+        if ProcessInfo.processInfo.arguments.contains("--lecture-transcription-probe") && !probeStarted {
+            probeStarted = true
+            Task { @MainActor in
+                do {
+                    guard #available(iOS 26.0, *) else { throw self.message("iOS 26 is required") }
+                    let documents = files.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    let report = try await LectureAudio.runTranscriptionProbe(input: documents.appendingPathComponent("lecture-korean-fixture.aiff"), save: { id, title, body in
+                        self.host.saveNote(id: id, title: title, body: body)
+                    })
+                    host.reload()
+                    guard host.notebook.markdown.contains("직접 수정한 필기"), host.notebook.notes.count == 2 else {
+                        throw self.message("Kotlin saved note content or idempotent update failed")
+                    }
+                    try self.json(report).write(to: documents.appendingPathComponent("lecture-transcription-report.json"), atomically: true, encoding: .utf8)
+                    NSLog("TRANSCRIPTION COMPLETE %@", self.json(report))
+                } catch { NSLog("TRANSCRIPTION FAILED %@", error.localizedDescription) }
+            }
+            return
+        }
         if ProcessInfo.processInfo.arguments.contains("--lecture-probe") && !probeStarted {
             probeStarted = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
