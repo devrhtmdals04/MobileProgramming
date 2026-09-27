@@ -34,6 +34,8 @@ val unpackGodotGame by tasks.registering(Sync::class) {
 
 android {
     namespace = "com.example.study_helper.jaderun"
+    ndkVersion = "28.2.13676358"
+    externalNativeBuild { cmake { path = file("../native-whisper/CMakeLists.txt"); version = "3.22.1" } }
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -45,6 +47,7 @@ android {
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
     sourceSets["main"].assets.directories.add(generatedAssets.get().asFile.absolutePath)
+    sourceSets["main"].assets.directories.add(rootProject.file("native-whisper/notices").absolutePath)
     androidResources {
         ignoreAssetsPattern = "!.svn:!.git:!.gitignore:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
         // Godot seeks within these resources. APK deflate makes each seek costly.

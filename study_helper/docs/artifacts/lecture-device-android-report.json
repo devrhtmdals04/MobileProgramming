@@ -1,0 +1,1 @@
+{"checks":5,"failures":[],"text":"오늘은 디지털 시스템을 공부합니다.\n 이진수는 0과 1을 사용합니다.\n 논리회로는 입력을 받아서 출력을 만듭니다.\n 강의 내용을 노트에 저장합니다.","model":"whisper-small-q5_1","networkUsedForInference":false,"microphoneUsed":false,"elapsedSeconds":26.421445596}

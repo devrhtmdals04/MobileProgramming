@@ -58,7 +58,7 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocum
     private var closing = false
     private var gameStartedAt: Date?
     #if DEBUG
-    private let probeID = (ProcessInfo.processInfo.arguments.contains("--notebook-probe") || ProcessInfo.processInfo.arguments.contains("--lecture-transcription-probe")) ? UUID().uuidString : nil
+    private let probeID = (ProcessInfo.processInfo.arguments.contains("--notebook-probe") || ProcessInfo.processInfo.arguments.contains("--lecture-transcription-probe") || ProcessInfo.processInfo.arguments.contains("--lecture-local-probe") || ProcessInfo.processInfo.arguments.contains("--lecture-device-probe")) ? UUID().uuidString : nil
     private var probeStarted = false
     #endif
     private lazy var preferences: UserDefaults = {
@@ -321,6 +321,38 @@ private final class GameContainer: UIViewController {
 // No test document or preference is written into the user's library.
 private extension StudyPlatform {
     func beginProbeIfRequested() {
+        if ProcessInfo.processInfo.arguments.contains("--lecture-device-probe") && !probeStarted {
+            probeStarted = true
+            Task { @MainActor in
+                do {
+                    let documents = files.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    let report = try await LectureAudio.runDeviceProbe(input: documents.appendingPathComponent("lecture-korean-fixture.m4a"), save: { id, title, body in
+                        self.host.saveNote(id: id, title: title, body: body)
+                    })
+                    host.reload()
+                    guard host.notebook.markdown.contains("디지털"), host.notebook.notes.count == 2 else { throw self.message("Kotlin note save failed") }
+                    try self.json(report).write(to: documents.appendingPathComponent("lecture-device-report.json"), atomically: true, encoding: .utf8)
+                    NSLog("DEVICE TRANSCRIPTION COMPLETE %@", self.json(report))
+                } catch { NSLog("DEVICE TRANSCRIPTION FAILED %@", error.localizedDescription) }
+            }
+            return
+        }
+        if ProcessInfo.processInfo.arguments.contains("--lecture-local-probe") && !probeStarted {
+            probeStarted = true
+            Task { @MainActor in
+                do {
+                    let documents = files.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    let report = try await LectureAudio.runLocalProbe(input: documents.appendingPathComponent("lecture-korean-fixture.m4a"), save: { id, title, body in
+                        self.host.saveNote(id: id, title: title, body: body)
+                    })
+                    host.reload()
+                    guard host.notebook.markdown.contains("디지털"), host.notebook.notes.count == 2 else { throw self.message("Kotlin note save failed") }
+                    try self.json(report).write(to: documents.appendingPathComponent("lecture-local-report.json"), atomically: true, encoding: .utf8)
+                    NSLog("LOCAL TRANSCRIPTION COMPLETE %@", self.json(report))
+                } catch { NSLog("LOCAL TRANSCRIPTION FAILED %@", error.localizedDescription) }
+            }
+            return
+        }
         if ProcessInfo.processInfo.arguments.contains("--lecture-transcription-probe") && !probeStarted {
             probeStarted = true
             Task { @MainActor in

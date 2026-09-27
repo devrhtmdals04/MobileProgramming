@@ -39,3 +39,7 @@
 - [Android: microphone foreground service requirements](https://developer.android.com/about/versions/14/changes/fgs-types-required)
 
 실시간 받아쓰기 검증: `--lecture-transcription-probe`는 별도로 생성한 한국어 합성 음성을 PCM 스트림으로 변환하여 실제 SpeechAnalyzer에 공급한다. 2026-09-27 iPhone에서 인식·재시도 결과 중복 방지·재열기·편집·Kotlin 노트 저장 **8개 검사 통과**, 동일 녹음 재저장 시 노트 중복 없음도 확인했다. 마이크 캡처와 실제 강의 정확도·잠금 중 인식은 사용자가 직접 테스트한다. [실기기 보고서](artifacts/lecture-transcription-report.json).
+
+## 오프라인 텍스트 변환
+
+저장된 녹음에서 **이 기기에서 텍스트로 변환**을 선택하면 iPhone·Android 내부 Whisper로 처리한다. 최초 약 190MB 모델 설치 후에는 인터넷이 필요하지 않다. [사용법과 제한](DEVICE_WHISPER.md).

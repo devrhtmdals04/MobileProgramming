@@ -43,3 +43,11 @@ iPhone 17 Pro Max / iOS 26.6.2에서 SpeechTranscriber를 직접 조회했다.
 - [Android SpeechRecognizer](https://developer.android.com/reference/android/speech/SpeechRecognizer)
 
 실기기 합성 한국어 음성 검사에서 실제 전사와 Kotlin 노트 저장을 확인했다. 예문 “영과 일을”이 “영광이를”로 인식되는 오류도 확인하여 편집 단계를 유지한다. 이 결과는 실제 강의의 정확도를 보장하지 않는다. 인식 결과 전문은 [검사 보고서](artifacts/lecture-transcription-report.json)에 보관한다.
+
+## 오픈소스 후처리 추가
+
+기존 iPhone 실시간 받아쓰기와 별도로, 저장된 녹음을 Mac의 Whisper large-v3 Q5_0에서 다시 변환할 수 있다. 실기기 업로드·변환·원본 보존·Kotlin 노트 저장을 확인했다. [설정과 제한](LOCAL_WHISPER.md), [기기 검사 결과](artifacts/lecture-local-report.json).
+
+## 기본 경로: 모바일 기기 단독 처리
+
+현재 기본 경로는 [iPhone·Android 오프라인 Whisper](DEVICE_WHISPER.md)다. 녹음 후 각 휴대폰에서 small Q5_1을 실행하며, Mac 서버는 필수가 아니다.

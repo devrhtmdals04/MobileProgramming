@@ -46,6 +46,14 @@ class StudyHomeActivity : ComponentActivity() {
         override fun handleOnBackPressed() { action?.invoke() }
     }
 
+    private val recordingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getStringExtra("savedNoteId")?.let { id ->
+                lifecycleScope.launch { documentOperation("강의 받아쓰기 노트를 저장했어요.") { loadNotebook(id) } }
+            }
+        }
+    }
+
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         launching = false
         if (result.resultCode == Activity.RESULT_OK) {
@@ -136,7 +144,7 @@ class StudyHomeActivity : ComponentActivity() {
                 onSelectNote = { id -> lifecycleScope.launch { documentOperation { loadNotebook(id) } } },
                 onRetry = ::loadInitialNotes,
                 onStartLearning = ::startLearning,
-                onOpenRecordings = { startActivity(Intent(this, LectureAudioActivity::class.java)) },
+                onOpenRecordings = { recordingsLauncher.launch(Intent(this, LectureAudioActivity::class.java)) },
             )
         }
     }

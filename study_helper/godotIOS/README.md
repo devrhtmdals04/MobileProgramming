@@ -5,7 +5,7 @@ Kotlin/Compose 서재와 Godot 게임을 하나의 iPhone 앱으로 실행한다
 - `shared/NotebookHost.kt`: 문서·문제 검증, 서재 상태, 비공개 정답, 학습 세션, 최근 결과.
 - `StudyHelper/StudyHelperApp.swift`: SwiftUI 진입점, UIKit 파일 선택기, 기기 저장소·클립보드, 게임 컨테이너, 원자적 JSON 전달.
 - `StudyHelper/StudyEngine.mm`: Godot 4.6.2 지연 초기화와 뷰·렌더링 수명. 엔진 소스는 수정하지 않는다.
-- `prepare_study_helper.py`: Godot 내보내기 프로젝트에 호스트와 **Shared 정적 XCFramework 하나**를 연결한다. 이전 `StudyBridge.mm` 플러그인은 통합 앱에서 비활성화한다.
+- `prepare_study_helper.py`: Godot 내보내기 프로젝트에 호스트와 **Shared와 StudyWhisper 정적 XCFramework**를 연결한다. 이전 `StudyBridge.mm` 플러그인은 통합 앱에서 비활성화한다.
 
 서재 복귀 후 렌더링·전송 타이머를 중단하되 엔진 메모리는 보관한다. 재진입 시 Godot 씬과 Kotlin 학습 세션을 새로 만든다. [역할·데이터 계약](../docs/STUDY_GAME_CONTRACT.md).
 
@@ -16,9 +16,11 @@ Kotlin/Compose 서재와 Godot 게임을 하나의 iPhone 앱으로 실행한다
 macOS, Xcode, JDK, Godot **4.6.2**가 필요하다. 저장소 루트에서 실행한다.
 
 1. [공식 4.6.2 내보내기 템플릿](https://godotengine.org/download/archive/4.6.2-stable/)의 `templates/ios.zip`을 `godotIOS/build/templates/ios.zip`에 둔다. Apple Silicon 시뮬레이터를 쓴다면 아래 아키텍처 보완 여부를 먼저 확인한다.
-2. Kotlin 프레임워크를 만들고 통합 Xcode 프로젝트를 생성한다.
+2. Whisper 엔진과 Kotlin 프레임워크를 만들고 통합 Xcode 프로젝트를 생성한다.
 
 ```sh
+bash native-whisper/setup.sh
+python3 native-whisper/build_ios.py
 env JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' \
   ./gradlew :shared:assembleSharedDebugXCFramework --max-workers=2
 # STUDY_TEAM_ID는 본인의 Apple 개발 팀 ID. 서명 없이 내보낼 때는 생략 가능.

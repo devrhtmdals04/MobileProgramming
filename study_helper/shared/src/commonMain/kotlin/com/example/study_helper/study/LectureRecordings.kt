@@ -28,6 +28,9 @@ data class LectureAudioState(
     val playbackSeconds: Int = 0, val message: String = "",
     val transcript: String = "", val provisional: String = "", val speechStatus: String = "",
     val editorId: String = "", val editorTitle: String = "", val editorText: String = "",
+    val localTranscriptionAvailable: Boolean = false, val localTranscribing: Boolean = false,
+    val deviceTranscriptionAvailable: Boolean = false, val deviceModelReady: Boolean = false,
+    val deviceTranscribing: Boolean = false, val modelDownloading: Boolean = false, val deviceProgress: Int = 0,
 )
 
 class LectureHost(private val platform: LecturePlatform) {
@@ -50,15 +53,17 @@ class LectureHost(private val platform: LecturePlatform) {
             }
             state = LectureAudioState(recordings, flag("recording"), flag("pending"), number("seconds"),
                 text("playing"), number("playbackSeconds"), text("message"),
-                text("transcript"), text("provisional"), text("speechStatus"), text("editorId"), text("editorTitle"), text("editorText"))
+                text("transcript"), text("provisional"), text("speechStatus"), text("editorId"), text("editorTitle"), text("editorText"),
+                flag("localTranscriptionAvailable"), flag("localTranscribing"), flag("deviceTranscriptionAvailable"),
+                flag("deviceModelReady"), flag("deviceTranscribing"), flag("modelDownloading"), number("deviceProgress").coerceAtMost(100))
         } catch (_: Exception) {
             state = state.copy(message = "녹음 상태를 읽지 못했어요. 녹음 화면을 다시 열어 주세요.")
         }
     }
 
     fun command(action: String, id: String = "", title: String = "") {
-        if (state.pending && action != "close") return
-        if (state.recording && action in listOf("start", "play", "delete", "rename", "openTranscript", "saveTranscript")) return
+        if (state.pending && action !in listOf("close", "cancelLocalTranscription", "cancelDeviceTranscription")) return
+        if (state.recording && action in listOf("start", "play", "delete", "rename", "openTranscript", "saveTranscript", "transcribeLocal", "transcribeDevice", "downloadDeviceModel")) return
         platform.audioCommand(action, id, if (action == "saveTranscript") title.trim() else title.trim().take(120))
     }
 }
@@ -78,13 +83,25 @@ fun LectureRecordings(host: LectureHost) {
         Surface(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    TextButton(onClick = { host.command("close") }) { Text("서재로") }
+                    TextButton(onClick = { host.command("close") }, enabled = !state.pending) { Text("서재로") }
                     TextButton(onClick = { host.command("refresh") }, enabled = !state.pending) { Text("새로고침") }
                 }
                 Text("강의 녹음", style = MaterialTheme.typography.headlineMedium)
                 Text("음성은 이 기기에 저장됩니다.", style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(12.dp))
                 if (state.pending) LinearProgressIndicator(Modifier.fillMaxWidth())
+                if (state.deviceTranscriptionAvailable) {
+                    Text(if (state.deviceModelReady) "오프라인 Whisper · 음성은 기기 안에서 처리됩니다." else "오프라인 변환 모델 · 최초 다운로드 약 190MB", style = MaterialTheme.typography.bodySmall)
+                    if (!state.deviceModelReady && !state.modelDownloading) {
+                        OutlinedButton(onClick = { host.command("downloadDeviceModel") }, enabled = !state.recording && !state.pending) { Text("오프라인 모델 다운로드") }
+                    }
+                    if (state.deviceTranscribing) Text("변환 진행 ${state.deviceProgress}% · 처음에는 모델 준비에 시간이 걸립니다.")
+                    if (state.deviceTranscribing || state.modelDownloading) {
+                        TextButton(onClick = { host.command("cancelDeviceTranscription") }) { Text("취소") }
+                    }
+                }
+                if (state.localTranscribing) TextButton(onClick = { host.command("cancelLocalTranscription") }) { Text("변환 취소") }
+                if (state.localTranscriptionAvailable) Text("Mac 변환: 같은 Wi-Fi의 Mac에서 처리하며 외부 AI 서비스로 전송하지 않습니다.", style = MaterialTheme.typography.bodySmall)
                 if (state.message.isNotBlank()) Text(state.message, modifier = Modifier.padding(vertical = 8.dp))
                 if (state.recording) {
                     Text("● 녹음 중  ${audioTime(state.seconds)}", color = colors.error,
@@ -126,6 +143,16 @@ fun LectureRecordings(host: LectureHost) {
                                     Row {
                                         TextButton(onClick = { host.command("backward") }) { Text("15초 이전") }
                                         TextButton(onClick = { host.command("forward") }) { Text("15초 이후") }
+                                    }
+                                }
+                                if (state.deviceTranscriptionAvailable) {
+                                    TextButton(onClick = { host.command("transcribeDevice", recording.id) }, enabled = state.deviceModelReady && !state.recording && !state.pending) {
+                                        Text("이 기기에서 텍스트로 변환")
+                                    }
+                                }
+                                if (state.localTranscriptionAvailable) {
+                                    TextButton(onClick = { host.command("transcribeLocal", recording.id) }, enabled = !state.recording && !state.pending) {
+                                        Text("Mac에서 다시 변환 · Whisper")
                                     }
                                 }
                                 if (recording.hasTranscript) {

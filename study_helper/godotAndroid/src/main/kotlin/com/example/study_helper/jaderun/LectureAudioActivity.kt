@@ -18,6 +18,7 @@ class LectureAudioActivity : ComponentActivity(), LecturePlatform {
     private val host = LectureHost(this)
     private var player: MediaPlayer? = null
     private var requestedTitle = ""
+    private var savedNoteId: String? = null
     private val handler = Handler(Looper.getMainLooper())
     private val audioManager by lazy { getSystemService(AudioManager::class.java) }
     private var focusRequest: AudioFocusRequest? = null
@@ -38,21 +39,49 @@ class LectureAudioActivity : ComponentActivity(), LecturePlatform {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); enableEdgeToEdge()
         requestedTitle = savedInstanceState?.getString("title").orEmpty()
+        savedNoteId = savedInstanceState?.getString("savedNoteId")
+        savedNoteId?.let { setResult(RESULT_OK, Intent().putExtra("savedNoteId", it)) }
         setContent { LectureRecordings(host) }
     }
     override fun onStart() {
         super.onStart()
-        LectureAudioState.listener = host::updateState
+        LectureAudioState.listener = { json ->
+            host.updateState(json)
+            if (host.state.deviceTranscribing || host.state.modelDownloading) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
         LectureAudioState.refresh(this)
     }
-    override fun onStop() { stopPlayback(); LectureAudioState.listener = null; super.onStop() }
-    override fun onSaveInstanceState(outState: Bundle) { outState.putString("title", requestedTitle); super.onSaveInstanceState(outState) }
+    override fun onStop() {
+        if (!isChangingConfigurations && (LectureAudioState.deviceTranscribing || LectureAudioState.modelDownloading)) DeviceWhisper.cancelWork()
+        stopPlayback(); LectureAudioState.listener = null; super.onStop() }
+    override fun onSaveInstanceState(outState: Bundle) { outState.putString("title", requestedTitle); outState.putString("savedNoteId", savedNoteId); super.onSaveInstanceState(outState) }
     override fun audioCommand(action: String, id: String, title: String) {
+        if (action == "cancelDeviceTranscription") { DeviceWhisper.cancelWork(); return }
         if (LectureAudioState.pending) return
-        if (LectureAudioState.recording && action in listOf("start", "play", "delete", "rename")) return
+        if (LectureAudioState.recording && action in listOf("start", "play", "delete", "rename", "transcribeDevice", "downloadDeviceModel", "openTranscript", "saveTranscript")) return
         try {
             when (action) {
                 "refresh" -> LectureAudioState.refresh(this)
+                "downloadDeviceModel" -> { stopPlayback(); DeviceWhisper.start(this, null) }
+                "transcribeDevice" -> { stopPlayback(); DeviceWhisper.start(this, id) }
+                "openTranscript" -> {
+                    val row = LectureAudioState.entry(id) ?: return
+                    LectureAudioState.editorId = id; LectureAudioState.editorTitle = row.getString("title")
+                    LectureAudioState.editorText = row.optString("whisperTranscript", row.optString("transcript"))
+                }
+                "closeTranscript" -> { LectureAudioState.editorId = ""; LectureAudioState.editorText = "" }
+                "saveTranscript" -> {
+                    val row = LectureAudioState.entry(id)?.let { org.json.JSONObject(it.toString()) } ?: return
+                    require(title.isNotBlank())
+                    MarkdownNoteStore(this).save(id, row.getString("title").replace("\n", " ").replace("\r", " ").take(60), "## 강의 받아쓰기\n\n" + title)
+                    row.put("transcript", title); row.remove("whisperTranscript")
+                    LectureAudioState.write(this, row)
+                    savedNoteId = id; setResult(RESULT_OK, Intent().putExtra("savedNoteId", id))
+                    LectureAudioState.editorId = ""; LectureAudioState.editorText = ""
+                    LectureAudioState.message = "받아쓰기를 노트 서재에 저장했어요. 다시 저장하면 같은 노트를 갱신합니다."
+                    LectureAudioState.refresh(this)
+                }
                 "start" -> {
                     stopPlayback(); requestedTitle = title
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRecording()

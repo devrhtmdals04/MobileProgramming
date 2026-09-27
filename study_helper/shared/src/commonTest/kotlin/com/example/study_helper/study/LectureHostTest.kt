@@ -10,11 +10,42 @@ class LectureHostTest {
     @Test fun recordingBlocksDestructiveAndConflictingActionsButAllowsStopAndNavigation() {
         val platform = Platform(); val host = LectureHost(platform)
         host.updateState("""{"recording":true,"seconds":123}""")
-        listOf("start", "play", "rename", "delete").forEach { host.command(it, "id") }
+        listOf("start", "play", "rename", "delete", "transcribeLocal", "transcribeDevice", "downloadDeviceModel").forEach { host.command(it, "id") }
         assertTrue(platform.commands.isEmpty())
         host.command("stop"); host.command("close")
         assertEquals(listOf("stop", "close"), platform.commands.map { it.first })
         assertEquals(123, host.state.seconds)
+    }
+    @Test fun localConversionBlocksMutationsButAllowsCancellation() {
+        val platform = Platform(); val host = LectureHost(platform)
+        host.updateState("""{"pending":true,"localTranscriptionAvailable":true,"localTranscribing":true}""")
+        assertTrue(host.state.localTranscriptionAvailable)
+        assertTrue(host.state.localTranscribing)
+        listOf("start", "delete", "saveTranscript", "transcribeLocal").forEach { host.command(it, "id") }
+        assertTrue(platform.commands.isEmpty())
+        host.command("cancelLocalTranscription")
+        assertEquals("cancelLocalTranscription", platform.commands.single().first)
+        host.updateState("""{}""")
+        assertFalse(host.state.localTranscriptionAvailable)
+        assertFalse(host.state.localTranscribing)
+    }
+    @Test fun offlineModelAndProgressAreOptionalAndClamped() {
+        val host = LectureHost(Platform())
+        host.updateState("""{"deviceTranscriptionAvailable":true,"deviceModelReady":true,"deviceTranscribing":true,"deviceProgress":120}""")
+        assertTrue(host.state.deviceModelReady)
+        assertTrue(host.state.deviceTranscribing)
+        assertEquals(100, host.state.deviceProgress)
+        host.updateState("""{}""")
+        assertFalse(host.state.deviceTranscriptionAvailable)
+        assertEquals(0, host.state.deviceProgress)
+    }
+    @Test fun deviceConversionAllowsOnlyCancellationWhilePending() {
+        val platform = Platform(); val host = LectureHost(platform)
+        host.updateState("""{"pending":true,"deviceTranscribing":true}""")
+        listOf("start", "saveTranscript", "transcribeDevice", "downloadDeviceModel").forEach { host.command(it) }
+        assertTrue(platform.commands.isEmpty())
+        host.command("cancelDeviceTranscription")
+        assertEquals("cancelDeviceTranscription", platform.commands.single().first)
     }
     @Test fun permissionPendingPreventsDuplicateStart() {
         val platform = Platform(); val host = LectureHost(platform)

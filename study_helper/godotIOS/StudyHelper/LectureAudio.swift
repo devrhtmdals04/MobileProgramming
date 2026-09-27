@@ -10,6 +10,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         let date: String
         var seconds: Int
         var transcript: String? = nil
+        var whisperTranscript: String? = nil
     }
     lazy var host = LectureHost(platform: self)
     private let folder: URL
@@ -20,6 +21,12 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
     private var editorTitle = ""
     private var editorText = ""
     private var startupCancelled = false
+    private let localSTT = LectureLocalTranscription()
+    private var localTask: Task<Void, Never>?
+    private var localAvailable = false
+    private var deviceTask: Task<Void, Never>?
+    private var deviceEngine: LectureDeviceTranscription?
+    private var modelDownloading = false
     var saveNote: ((String, String, String) -> String?)?
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
@@ -48,6 +55,10 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         })
         observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: .main) { [weak self] _ in
             self?.interrupt("오디오 시스템이 재시작되어 녹음을 중단했어요. 저장된 파일을 확인해 주세요.")
+        })
+        localAvailable = (try? localSTT.pairing()) != nil
+        observers.append(NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.deviceTask?.cancel(); self?.deviceEngine?.cancel()
         })
         reload()
     }
@@ -83,11 +94,15 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         publish()
     }
     private func publish() {
-        let rows = entries.map { ["id": $0.id, "title": $0.title, "date": $0.date, "seconds": $0.seconds, "hasTranscript": $0.transcript != nil] as [String: Any] }
+        let rows = entries.map { ["id": $0.id, "title": $0.title, "date": $0.date, "seconds": $0.seconds, "hasTranscript": $0.transcript != nil || $0.whisperTranscript != nil] as [String: Any] }
         let data: [String: Any] = ["recordings": rows, "recording": recorder != nil || capture != nil, "pending": pending,
             "seconds": Int(capture?.seconds ?? recorder?.currentTime ?? 0), "playing": playing,
             "playbackSeconds": Int(player?.currentTime ?? 0), "message": message,
             "transcript": String((current?.transcript ?? "").suffix(4000)), "provisional": provisional,
+            "deviceTranscriptionAvailable": true, "deviceModelReady": LectureDeviceTranscription.ready,
+            "deviceTranscribing": deviceTask != nil && !modelDownloading, "modelDownloading": modelDownloading,
+            "deviceProgress": deviceEngine?.progress ?? 0,
+            "localTranscriptionAvailable": localAvailable && ProcessInfo.processInfo.arguments.contains("--enable-mac-transcription"), "localTranscribing": localTask != nil,
             "speechStatus": speechStatus, "editorId": editorId, "editorTitle": editorTitle, "editorText": editorText]
         if let json = try? JSONSerialization.data(withJSONObject: data), let text = String(data: json, encoding: .utf8) {
             host.updateState(json: text)
@@ -98,11 +113,17 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.publish() }
     }
     func audioCommand(action: String, id: String, title: String) {
+        if action == "cancelDeviceTranscription" { deviceTask?.cancel(); deviceEngine?.cancel(); return }
+        if action == "cancelLocalTranscription" { localTask?.cancel(); return }
         guard !pending else { return }
-        if (recorder != nil || capture != nil) && ["start", "play", "delete", "rename", "openTranscript", "saveTranscript"].contains(action) { return }
+        if (recorder != nil || capture != nil) && ["start", "play", "delete", "rename", "openTranscript", "saveTranscript", "transcribeLocal", "transcribeDevice", "downloadDeviceModel"].contains(action) { return }
         do {
             switch action {
-            case "refresh": reload()
+            case "refresh":
+                localAvailable = try localSTT.pairing() != nil; reload()
+            case "transcribeLocal": try transcribeLocal(id)
+            case "transcribeDevice": try transcribeDevice(id)
+            case "downloadDeviceModel": installDeviceModel()
             case "start": requestRecording(title)
             case "stop": finish()
             case "play":
@@ -127,13 +148,13 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
                 try FileManager.default.removeItem(at: url(id, "m4a"))
                 try FileManager.default.removeItem(at: url(id, "json")); reload()
             case "openTranscript":
-                guard let entry = entries.first(where: { $0.id == id }), let text = entry.transcript else { return }
+                guard let entry = entries.first(where: { $0.id == id }), let text = entry.whisperTranscript ?? entry.transcript else { return }
                 editorId = id; editorTitle = entry.title; editorText = text
             case "closeTranscript": editorId = ""; editorText = ""
             case "saveTranscript":
                 guard var entry = entries.first(where: { $0.id == id }), !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       let saveNote else { throw failure("노트로 저장할 받아쓰기 내용이 없어요.") }
-                entry.transcript = title; try write(entry)
+                entry.transcript = title; entry.whisperTranscript = nil; try write(entry)
                 if let error = saveNote(id, String(entry.title.replacingOccurrences(of: "\n", with: " ").replacingOccurrences(of: "\r", with: " ").prefix(60)), "## 강의 받아쓰기\n\n" + title) { throw failure(error) }
                 editorId = ""; editorText = ""; message = "받아쓰기를 노트 서재에 저장했어요. 다시 저장하면 같은 노트를 갱신합니다."
                 reload()
@@ -143,6 +164,77 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         } catch { message = error.localizedDescription; if recorder == nil && capture == nil { deactivate() } }
         publish()
     }
+    private func installDeviceModel() {
+        stopPlayback(); pending = true; modelDownloading = true; speechStatus = ""
+        message = "오프라인 한국어 모델을 다운로드하고 있어요. 약 190MB이며 처음 한 번만 필요합니다."
+        deviceTask = Task { @MainActor in
+            defer { pending = false; modelDownloading = false; deviceTask = nil; publish() }
+            do {
+                try await LectureDeviceTranscription.installModel()
+                message = "모델 준비 완료. 이제 인터넷 없이 기기에서 변환할 수 있어요."
+            } catch {
+                message = Task.isCancelled ? "모델 다운로드를 취소했어요." : "모델 다운로드 실패: \(error.localizedDescription)"
+            }
+        }
+    }
+    private func transcribeDevice(_ id: String) throws {
+        guard var entry = entries.first(where: { $0.id == id }) else { throw failure("녹음을 찾지 못했어요.") }
+        guard LectureDeviceTranscription.ready else { throw failure("먼저 오프라인 모델을 다운로드해 주세요.") }
+        guard entry.seconds <= 7200 else { throw failure("기기 내 변환은 2시간 이내 녹음을 지원합니다.") }
+        let file = try url(id, "m4a")
+        stopPlayback(); pending = true; speechStatus = ""
+        let engine = LectureDeviceTranscription(); deviceEngine = engine
+        message = "이 기기에서 변환하고 있어요. 앱 화면을 유지해 주세요. 음성을 외부로 전송하지 않습니다."
+        let previousIdle = UIApplication.shared.isIdleTimerDisabled
+        UIApplication.shared.isIdleTimerDisabled = true; startTimer()
+        deviceTask = Task { @MainActor in
+            defer {
+                UIApplication.shared.isIdleTimerDisabled = previousIdle
+                timer?.invalidate(); timer = nil
+                pending = false; deviceTask = nil; deviceEngine = nil; reload()
+            }
+            do {
+                let text = try await engine.transcribe(file: file)
+                try Task.checkCancellation()
+                entry.whisperTranscript = text; try write(entry)
+                editorId = id; editorTitle = entry.title; editorText = text
+                message = "기기 내 변환 완료. 내용을 확인하고 노트로 저장하세요."
+            } catch {
+                message = Task.isCancelled ? "변환을 취소했어요. 기존 녹음과 받아쓰기는 유지됩니다." : error.localizedDescription
+            }
+        }
+    }
+
+    private func transcribeLocal(_ id: String) throws {
+        guard var entry = entries.first(where: { $0.id == id }) else { throw failure("녹음을 찾지 못했어요.") }
+        guard entry.seconds <= 7200 else { throw failure("Mac 변환은 2시간 이내 녹음을 지원합니다.") }
+        let file = try url(id, "m4a")
+        stopPlayback(); pending = true; speechStatus = ""
+        message = "Mac에서 한국어 강의를 변환하고 있어요. 같은 Wi-Fi에 연결하고 이 화면을 유지해 주세요."
+        let previousIdle = UIApplication.shared.isIdleTimerDisabled
+        UIApplication.shared.isIdleTimerDisabled = true
+        localTask = Task { @MainActor in
+            defer {
+                UIApplication.shared.isIdleTimerDisabled = previousIdle
+                pending = false; localTask = nil; reload()
+            }
+            do {
+                let text = try await localSTT.transcribe(file: file)
+                try Task.checkCancellation()
+                entry.whisperTranscript = text
+                try write(entry)
+                editorId = id; editorTitle = entry.title; editorText = text
+                message = "Whisper 변환을 마쳤어요. 내용을 확인한 뒤 노트로 저장하세요."
+            } catch {
+                if Task.isCancelled {
+                    message = "변환 요청을 취소했어요. 기존 녹음과 받아쓰기는 유지됩니다."
+                } else {
+                    message = "Mac 변환에 실패했어요. 서버 실행·같은 Wi-Fi·설정의 로컬 네트워크 권한을 확인하세요. \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+
     private func requestRecording(_ title: String) {
         stopPlayback(); pending = true; message = ""; publish()
         AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -185,7 +277,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         publish()
     }
     @available(iOS 26.0, *)
-    private func beginLive(_ title: String) async {
+    @MainActor private func beginLive(_ title: String) async {
         var preparing: LectureLiveCapture?
         do {
             let session = AVAudioSession.sharedInstance()
@@ -282,6 +374,62 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         stopPlayback(); message = "이 녹음을 재생하지 못했어요."; publish()
     }
     #if DEBUG
+    @MainActor static func runDeviceProbe(input: URL, save: @escaping (String, String, String) -> String?) async throws -> [String: Any] {
+        let model = input.deletingLastPathComponent().appendingPathComponent(LectureDeviceTranscription.modelName)
+        if !LectureDeviceTranscription.ready {
+            do { try LectureDeviceTranscription.importModel(model) }
+            catch { throw NSError(domain: "DeviceProbe", code: 1, userInfo: [NSLocalizedDescriptionKey: "Model import: \(error)"]) }
+        }
+        try? FileManager.default.removeItem(at: model)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let audio = LectureAudio(folder: folder)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        audio.saveNote = save
+        let id = UUID().uuidString.lowercased()
+        try FileManager.default.copyItem(at: input, to: audio.url(id, "m4a"))
+        try audio.write(Entry(id: id, title: "디지털시스템입문 · 오프라인 검사", date: "2026-09-27", seconds: 12, transcript: "기존 받아쓰기"))
+        audio.reload()
+        let started = Date()
+        audio.audioCommand(action: "transcribeDevice", id: id, title: "")
+        guard let task = audio.deviceTask else { throw audio.failure("Device task did not start") }
+        await task.value
+        guard !audio.pending, audio.editorId == id, audio.editorText.contains("디지털") else { throw audio.failure(audio.message) }
+        let saved = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: audio.url(id, "json")))
+        guard saved.transcript == "기존 받아쓰기", saved.whisperTranscript == audio.editorText else { throw audio.failure("Original transcript was lost") }
+        let text = audio.editorText
+        audio.audioCommand(action: "saveTranscript", id: id, title: text)
+        guard audio.editorId.isEmpty else { throw audio.failure("Note save failed") }
+        let elapsed = Date().timeIntervalSince(started)
+        audio.audioCommand(action: "transcribeDevice", id: id, title: "")
+        guard let cancelledTask = audio.deviceTask else { throw audio.failure("Cancellation task missing") }
+        audio.audioCommand(action: "cancelDeviceTranscription", id: "", title: "")
+        await cancelledTask.value
+        let unchanged = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: audio.url(id, "json")))
+        guard !audio.pending, unchanged.transcript == text, unchanged.whisperTranscript == nil else { throw audio.failure("Cancellation changed stored transcript") }
+        return ["checks": 7, "failures": [], "text": text, "microphoneUsed": false, "networkUsedForInference": false,
+                "elapsedSeconds": elapsed, "model": "whisper-small-q5_1"]
+    }
+    @MainActor static func runLocalProbe(input: URL, save: @escaping (String, String, String) -> String?) async throws -> [String: Any] {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let audio = LectureAudio(folder: folder)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        audio.saveNote = save
+        let id = UUID().uuidString.lowercased()
+        try FileManager.default.copyItem(at: input, to: audio.url(id, "m4a"))
+        try audio.write(Entry(id: id, title: "디지털시스템입문 · Whisper 검사", date: "2026-09-27", seconds: 12, transcript: "기존 받아쓰기"))
+        audio.reload()
+        guard audio.localAvailable else { throw audio.failure("Mac pairing missing") }
+        audio.audioCommand(action: "transcribeLocal", id: id, title: "")
+        guard let task = audio.localTask else { throw audio.failure("Local task did not start") }
+        await task.value
+        guard !audio.pending, audio.editorId == id, audio.editorText.contains("디지털") else { throw audio.failure(audio.message) }
+        let saved = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: audio.url(id, "json")))
+        guard saved.transcript == "기존 받아쓰기", saved.whisperTranscript == audio.editorText else { throw audio.failure("Original transcript was lost") }
+        let text = audio.editorText
+        audio.audioCommand(action: "saveTranscript", id: id, title: text)
+        guard audio.editorId.isEmpty else { throw audio.failure("Note save failed") }
+        return ["checks": 5, "failures": [], "text": text, "microphoneUsed": false, "model": "whisper-large-v3-q5_0"]
+    }
     @available(iOS 26.0, *)
     @MainActor
     static func runTranscriptionProbe(input: URL, save: @escaping (String, String, String) -> String?) async throws -> [String: Any] {

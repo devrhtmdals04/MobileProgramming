@@ -21,6 +21,13 @@ internal object LectureAudioState {
     var playing = ""
     var playbackSeconds = 0
     var activeId = ""
+    var editorId = ""
+    var editorTitle = ""
+    var editorText = ""
+    var deviceModelReady = false
+    var deviceTranscribing = false
+    var modelDownloading = false
+    var deviceProgress = 0
     var rows = JSONArray()
     var listener: ((String) -> Unit)? = null
     fun directory(context: Context) = File(context.filesDir, "recordings").also {
@@ -37,6 +44,7 @@ internal object LectureAudioState {
         catch (error: Exception) { file.failWrite(stream); throw error }
     }
     fun refresh(context: Context) {
+        deviceModelReady = DeviceWhisper.ready(context)
         try {
             val entries = directory(context).listFiles().orEmpty().filter { it.extension == "json" }.mapNotNull { metadata ->
                 runCatching {
@@ -52,7 +60,7 @@ internal object LectureAudioState {
                             row.put("seconds", (ms + 999) / 1000); write(context, row)
                         } finally { retriever.release() }
                     }
-                    row
+                    row.put("hasTranscript", row.has("transcript") || row.has("whisperTranscript"))
                 }.getOrNull()
             }.sortedByDescending { it.getString("date") }
             rows = JSONArray(entries)
@@ -62,6 +70,9 @@ internal object LectureAudioState {
     fun entry(id: String): JSONObject? = (0 until rows.length()).map { rows.getJSONObject(it) }.firstOrNull { it.getString("id") == id }
     fun publish() {
         listener?.invoke(JSONObject().put("recordings", rows).put("recording", recording).put("pending", pending)
+            .put("editorId", editorId).put("editorTitle", editorTitle).put("editorText", editorText)
+            .put("deviceTranscriptionAvailable", true).put("deviceModelReady", deviceModelReady)
+            .put("deviceTranscribing", deviceTranscribing).put("modelDownloading", modelDownloading).put("deviceProgress", deviceProgress)
             .put("seconds", seconds).put("playing", playing).put("playbackSeconds", playbackSeconds).put("message", message).toString())
     }
 }
