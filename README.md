@@ -1,3 +1,14 @@
+# MobileProgramming
+
+이 저장소의 `study-helper` 브랜치에는 학습 앱 **Study Helper**가 `study_helper/`에 있습니다. 기존 말랑이 프로젝트는 루트에 보존했습니다.
+
+- [Study Helper 소개 및 실행 방법](study_helper/README.md)
+- [iPhone 빌드 방법](study_helper/godotIOS/README.md)
+- Android Studio에서는 저장소 루트 대신 **`study_helper/` 폴더를 프로젝트로 열어 주세요**.
+- 터미널의 Study Helper 빌드·검증 명령도 `cd study_helper` 후 실행합니다.
+
+---
+
 # mallang ii · 말랑이
 
 `mallang-ii` 브랜치의 Kotlin Android 디지털 장난감 프로토타입입니다. 앱을 열면 바로 만질 수 있습니다.

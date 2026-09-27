@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "Kotlin generated a session",
+    "checkpoint 0 shows question",
+    "Kotlin graded answer 0",
+    "continues after feedback 0",
+    "checkpoint 1 shows question",
+    "Kotlin graded answer 1",
+    "continues after feedback 1",
+    "checkpoint 2 shows question",
+    "Kotlin graded answer 2",
+    "continues after feedback 2",
+    "Kotlin returns final learning summary",
+    "restart gets a fresh Kotlin session"
+  ],
+  "failures": [],
+  "platform": "iOS"
+}

@@ -1,0 +1,10 @@
+[config]
+name="StudyBridge"
+binary="StudyBridge.xcframework"
+initialization="initialize_study_bridge"
+deinitialization="deinitialize_study_bridge"
+
+[dependencies]
+linked=["StudyCore.xcframework"]
+system=["Foundation.framework"]
+linker_flags=["-ObjC", "-lsqlite3", "-lc++"]

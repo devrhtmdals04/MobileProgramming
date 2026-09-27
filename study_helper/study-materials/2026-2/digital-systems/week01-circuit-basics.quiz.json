@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "title": "디지털시스템입문 1주차 · 기초 복습 12문제",
+  "sourceNoteId": "",
+  "sourceNoteTitle": "디지털시스템입문 1주차 · 회로 기초",
+  "questions": [
+    {
+      "id": "week01-circuit-basics-01",
+      "prompt": "2 A의 일정한 전류가 3초 동안 흐릅니다. 이 구간에 이동한 전하량은?",
+      "choices": [
+        "6 C",
+        "6 W",
+        "1.5 C"
+      ],
+      "correctIndex": 0,
+      "explanation": "Q = I × t = 2 × 3 = 6 C입니다. 전하량의 단위는 C이며 W는 전력의 단위입니다.",
+      "sourceQuote": "Q = I × t"
+    },
+    {
+      "id": "week01-circuit-basics-02",
+      "prompt": "5 V, 2 A가 3초 동안 일정하게 유지됩니다. 전달된 에너지는?",
+      "choices": [
+        "10 J",
+        "30 J",
+        "30 W"
+      ],
+      "correctIndex": 1,
+      "explanation": "전력은 P = 5 × 2 = 10 W이고 에너지는 E = 10 × 3 = 30 J입니다. 전력과 에너지의 단위를 구분합니다.",
+      "sourceQuote": "E = P × t = V × Q"
+    },
+    {
+      "id": "week01-circuit-basics-03",
+      "prompt": "6 Ω 저항의 양단에 12 V가 걸립니다. 흐르는 전류는?",
+      "choices": [
+        "72 A",
+        "0.5 A",
+        "2 A"
+      ],
+      "correctIndex": 2,
+      "explanation": "옴의 법칙 I = V/R을 적용하면 12/6 = 2 A입니다. V와 R을 곱하거나 나눗셈 순서를 바꾸지 않습니다.",
+      "sourceQuote": "I = V/R"
+    },
+    {
+      "id": "week01-circuit-basics-04",
+      "prompt": "이상 전압원이 저항 양단 전압을 일정하게 유지합니다. 저항을 2배로 바꾸면 소비 전력은?",
+      "choices": [
+        "1/2이 된다",
+        "2배가 된다",
+        "변하지 않는다"
+      ],
+      "correctIndex": 0,
+      "explanation": "전압이 일정하면 P = V²/R이므로 저항이 2배가 될 때 전력은 1/2입니다. I²R 식에 전류도 일정하다고 대입하면 안 됩니다.",
+      "sourceQuote": "| 전압 V 일정 | 전류는 1/2, 전력은 1/2 | I = V/R, P = V²/R |"
+    },
+    {
+      "id": "week01-circuit-basics-05",
+      "prompt": "전류 기준 방향을 소자의 + 단자로 들어가도록 정했습니다. p = vi 계산 결과가 +6 W라면?",
+      "choices": [
+        "소자가 6 W를 공급한다",
+        "소자가 6 W를 흡수한다",
+        "소자에 전류가 흐르지 않는다"
+      ],
+      "correctIndex": 1,
+      "explanation": "수동 부호 규약에서는 양의 전력이 흡수, 음의 전력이 공급을 뜻합니다. 부호를 해석하기 전에 전류와 전압의 기준을 확인합니다.",
+      "sourceQuote": "전류의 기준 방향이 소자의 + 단자로 들어가면 p = vi로 계산합니다. 이 기준에서 p > 0이면 전력을 흡수하고, p < 0이면 전력을 공급합니다."
+    },
+    {
+      "id": "week01-circuit-basics-06",
+      "prompt": "한 노드에 5 A가 들어옵니다. 나가는 전류는 두 갈래이며 하나는 2 A입니다. 다른 갈래의 전류는?",
+      "choices": [
+        "7 A",
+        "2.5 A",
+        "3 A"
+      ],
+      "correctIndex": 2,
+      "explanation": "KCL에 따라 들어오는 5 A와 나가는 2 A + I가 같아야 하므로 I = 3 A입니다.",
+      "sourceQuote": "들어오는 전류 합 = 나가는 전류 합"
+    },
+    {
+      "id": "week01-circuit-basics-07",
+      "prompt": "12 V 전원과 두 저항만 있는 직렬 고리에서 전압 상승은 12 V입니다. 첫 저항의 전압 강하가 4 V라면 두 번째 저항의 전압 강하는?",
+      "choices": [
+        "8 V",
+        "16 V",
+        "3 V"
+      ],
+      "correctIndex": 0,
+      "explanation": "KVL을 적용하면 12 − 4 − V₂ = 0입니다. 따라서 V₂ = 8 V이며 전압 강하의 합이 전원의 전압 상승과 같습니다.",
+      "sourceQuote": "전압 상승 합 = 전압 강하 합"
+    },
+    {
+      "id": "week01-circuit-basics-08",
+      "prompt": "6 Ω와 3 Ω 저항을 병렬로 연결했습니다. 등가 저항은?",
+      "choices": [
+        "9 Ω",
+        "2 Ω",
+        "4.5 Ω"
+      ],
+      "correctIndex": 1,
+      "explanation": "두 병렬 저항의 등가 저항은 6 × 3/(6 + 3) = 2 Ω입니다. 가장 작은 개별 저항 3 Ω보다 작은지도 확인합니다.",
+      "sourceQuote": "R_eq = R₁ × R₂/(R₁ + R₂), 저항 2개일 때"
+    },
+    {
+      "id": "week01-circuit-basics-09",
+      "prompt": "2 Ω와 4 Ω 저항을 직렬 연결하고 전체에 12 V를 걸었습니다. 다른 부하는 없습니다. 4 Ω 저항 양단의 전압은?",
+      "choices": [
+        "4 V",
+        "6 V",
+        "8 V"
+      ],
+      "correctIndex": 2,
+      "explanation": "전압 분배에 따라 12 × 4/(2 + 4) = 8 V입니다. 직렬에서는 전류가 같고 저항이 큰 쪽의 전압 강하가 더 큽니다.",
+      "sourceQuote": "R₁ 양단 전압 V₁ = 전체 전압 V × R₁/(R₁ + R₂)"
+    },
+    {
+      "id": "week01-circuit-basics-10",
+      "prompt": "기준 노드를 정하고 나머지 노드 전압을 미지수로 두어 회로를 풉니다. 이 해석법과 주로 적용하는 법칙의 조합은?",
+      "choices": [
+        "노드 해석 — KCL",
+        "노드 해석 — KVL만 적용",
+        "메시 해석 — KCL"
+      ],
+      "correctIndex": 0,
+      "explanation": "노드 해석은 노드 전압을 미지수로 두고 각 노드에서 KCL을 세웁니다. 메시 해석은 메시 전류를 미지수로 두고 KVL을 적용합니다.",
+      "sourceQuote": "**노드 해석:** 접지를 정하고 노드 전압을 미지수로 두어 KCL을 적용합니다."
+    },
+    {
+      "id": "week01-circuit-basics-11",
+      "prompt": "두 단자 선형 회로의 테브난 등가 회로는 어떤 구성인가요?",
+      "choices": [
+        "이상 전류원과 병렬 저항",
+        "이상 전압원과 직렬 저항",
+        "이상 전압원과 병렬 저항"
+      ],
+      "correctIndex": 1,
+      "explanation": "테브난은 전압원과 직렬 저항, 노턴은 전류원과 병렬 저항으로 표현합니다. 전원 종류와 연결 방법을 함께 기억합니다.",
+      "sourceQuote": "| 테브난 | 이상 전압원 V_Th와 직렬 저항 R_Th |"
+    },
+    {
+      "id": "week01-circuit-basics-12",
+      "prompt": "독립 전원만 있는 저항 회로의 등가 저항을 구하려고 이상적인 독립 전압원을 0 V로 만듭니다. 이 전압원은 무엇으로 대체하나요?",
+      "choices": [
+        "개방 회로",
+        "무한대 저항",
+        "단락 회로"
+      ],
+      "correctIndex": 2,
+      "explanation": "이상적인 0 V 전압원은 양단 전위차를 0으로 유지하므로 단락입니다. 0 A 독립 전류원은 개방이며, 종속 전원은 임의로 끄지 않습니다.",
+      "sourceQuote": "독립 전원만 있는 저항 회로에서 등가 저항을 구할 때, 독립 전압원을 0으로 만들면 단락, 독립 전류원을 0으로 만들면 개방합니다."
+    }
+  ]
+}

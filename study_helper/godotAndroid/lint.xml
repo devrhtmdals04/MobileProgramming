@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- Only ignore notification code in Godot's unused, bundled OBB downloader.
+         Its service is removed from our manifest; all resources ship in the APK.
+         Notification permission checks for our own code remain enabled. -->
+    <issue id="NotificationPermission">
+        <ignore regexp=".*com\.google\.android\.vending\.expansion\.downloader\.SystemFacade.*" />
+    </issue>
+</lint>
