@@ -433,6 +433,7 @@ func show_question(question: Dictionary, index: int, _total: int) -> void:
 
 
 func show_study_feedback(verdict: Dictionary, retry: bool = false, reward: int = 0, streak: int = 0) -> void:
+	_open_study_panel()
 	study_scroll.scroll_vertical = 0
 	question_clock.hide()
 	var correct: bool = verdict["correct"]

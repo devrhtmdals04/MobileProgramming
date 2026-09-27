@@ -62,6 +62,10 @@ func run(game: JadeRunGame) -> void:
 				failures.append("Answer %d was not graded" % index)
 				break
 			if guided:
+				if not game.hud.study_feedback.is_visible_in_tree() or not game.hud.study_continue.is_visible_in_tree():
+					failures.append("Collision explanation or retry button is hidden")
+				await get_tree().create_timer(.2).timeout
+				await capture(game, "notebook-wrong-explanation")
 				if game.knowledge != 0:
 					failures.append("Incorrect first answer awarded energy")
 				game.continue_after_question()
