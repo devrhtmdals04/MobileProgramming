@@ -1,6 +1,6 @@
 # Study Helper
 
-이 프로젝트는 `MobileProgramming` 저장소의 `study_helper/`에 있습니다. Android Studio에서 이 폴더를 열고, 아래 명령은 모두 이 폴더에서 실행하세요. Android SDK 위치는 IDE에서 설정하거나 추적되지 않는 `local.properties`에 지정합니다. 빌드 결과·SDK·Godot 내보내기 템플릿·Apple 서명 정보는 저장소에 포함하지 않습니다.
+PC 앱과 Google Drive 동기화가 추가되었습니다. [PC 빌드·실행](desktopApp/README.md) · [Google OAuth 설정·폴더 연동](docs/GOOGLE_DRIVE_SYNC.md). Drive는 OAuth 프로젝트 설정 후 사용하며, 현재 노트·문제를 수동으로 양방향 동기화합니다.
 
 노트를 읽고 정리하며, 준비된 문제 파일로 복습하는 Android·iPhone 학습 앱입니다. Android 실행 모듈은 **`godotAndroid`**, iOS 통합 앱은 **`godotIOS/StudyHelper`**이며 앱 이름은 **Study Helper**입니다.
 

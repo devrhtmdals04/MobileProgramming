@@ -29,6 +29,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".LectureAudioActivity" android:exported="false" />
+        <activity android:name=".DriveActivity" android:exported="false" />
+        <provider android:name=".SharedFolderProvider" android:authorities="${applicationId}.sharedfiles" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/shared_folder_paths" />
+        </provider>
         <service android:name=".LectureAudioService" android:exported="false" android:foregroundServiceType="microphone" />
         <!-- Godot owns native process state. Closing a game must not close the study app. -->
         <activity

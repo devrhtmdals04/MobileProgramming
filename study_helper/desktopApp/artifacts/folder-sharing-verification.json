@@ -1,0 +1,50 @@
+{
+  "feature": "folder sharing with recordings",
+  "date": "2026-09-28",
+  "live_google_folder_transfer_verified": true,
+  "windows_runtime_verified": false,
+  "desktopApp_jvm": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0
+  },
+  "shared_jvm": {
+    "tests": 54,
+    "failures": 0,
+    "errors": 0
+  },
+  "iphone_regression": {
+    "checks": 19,
+    "failures": []
+  },
+  "swift_storage_probe": "passed",
+  "desktop_game_probe": "passed",
+  "installed": [
+    "macOS desktop",
+    "physical iPhone"
+  ],
+  "artifacts": [
+    "macOS app",
+    "DMG",
+    "Android APK",
+    "signed iOS app"
+  ],
+  "live_google_verification": {
+    "platform": "macOS",
+    "files": 139,
+    "changes_applied_after_fix": 130,
+    "issue": "HTTP 412 on media download with metadata If-Match",
+    "remote_recheck": "passed: latest state, no pending changes"
+  },
+  "latest_fix_installed": [
+    "macOS desktop",
+    "physical iPhone"
+  ],
+  "latest_ios_fix": "installed and launched; live Drive download completed 2026-09-28 14:07 KST",
+  "iphone_live_download": {
+    "files": 139,
+    "matching_desktop_hashes": 139,
+    "result": "139개 반영 완료 · 최신 상태입니다.",
+    "recording_upload_verified": false
+  }
+}

@@ -1,0 +1,2159 @@
+{
+  "root": "/Users/goseungmin/Desktop/2026-2",
+  "applied": true,
+  "files": [
+    {
+      "from": ".DS_Store",
+      "to": ".DS_Store",
+      "sha256_before": "c5601d13b7409eb7c3a9359a9c0c766628b3ca896a74a1581e77380d6869ade2",
+      "sha256_after": "c5601d13b7409eb7c3a9359a9c0c766628b3ca896a74a1581e77380d6869ade2"
+    },
+    {
+      "from": ".obsidian/app.json",
+      "to": ".obsidian/app.json",
+      "sha256_before": "4374eeac1712a41b47890b4ffff2a54ecce4223c02a1d83816087c03f1ba1ad8",
+      "sha256_after": "4374eeac1712a41b47890b4ffff2a54ecce4223c02a1d83816087c03f1ba1ad8"
+    },
+    {
+      "from": ".obsidian/appearance.json",
+      "to": ".obsidian/appearance.json",
+      "sha256_before": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sha256_after": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "from": ".obsidian/core-plugins.json",
+      "to": ".obsidian/core-plugins.json",
+      "sha256_before": "763cf20a921fd9955735b278006820b90b207b2fc04d9e79ca648279c7c14276",
+      "sha256_after": "763cf20a921fd9955735b278006820b90b207b2fc04d9e79ca648279c7c14276"
+    },
+    {
+      "from": ".obsidian/graph.json",
+      "to": ".obsidian/graph.json",
+      "sha256_before": "dbbcc5574c376b5d08f075cd82e5194e3a3f7781a40a28b90beb27e8e0c72289",
+      "sha256_after": "dbbcc5574c376b5d08f075cd82e5194e3a3f7781a40a28b90beb27e8e0c72289"
+    },
+    {
+      "from": ".obsidian/workspace.json",
+      "to": ".obsidian/workspace.json",
+      "sha256_before": "246f8a47a618f14c9591546f9e1fc8f041548393e3afd7a32a62c1be1774dd43",
+      "sha256_after": "fc7f659eb9731b32b9c07888105b23ef1d3214fab91d911d400c368141c75fb3"
+    },
+    {
+      "from": "AI와정보보안/.DS_Store",
+      "to": ".정리기록/Finder/AI와정보보안/.DS_Store",
+      "sha256_before": "29c647f5fad039f65c953812d49ff33061c37ba774be02e379a7363f560b485c",
+      "sha256_after": "29c647f5fad039f65c953812d49ff33061c37ba774be02e379a7363f560b485c"
+    },
+    {
+      "from": "AI와정보보안/1주차/.DS_Store",
+      "to": ".정리기록/Finder/AI와정보보안/1주차/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "AI와정보보안/1주차/1주차_정보보안_요약.md",
+      "to": "학습/AI와정보보안/01주차/노트/1주차_정보보안_요약.md",
+      "sha256_before": "f63665afcb9e9e2c9817d6b9ac1b6de7fb3e4b44a7f802e4c471141c3baf9ab5",
+      "sha256_after": "b65eac29862afd70b5a60044f3b7b8badaa369b8bc494717b39d100fb1b7d0f6"
+    },
+    {
+      "from": "AI와정보보안/2주차/2주차_시스템보안_요약.md",
+      "to": "학습/AI와정보보안/02주차/노트/2주차_시스템보안_요약.md",
+      "sha256_before": "c0d99d9ad68f1b70521b1b99a68e7f0dbd6d7da35a127a46feb689d3eba0a8e5",
+      "sha256_after": "5f76f3ac26b6488d90bd9447130a12a0e9c55579d0673a08192a32b75f918a80"
+    },
+    {
+      "from": "AI와정보보안/2주차/시스템 보안.pdf",
+      "to": "학습/AI와정보보안/02주차/PDF/시스템 보안.pdf",
+      "sha256_before": "6399e658fb84b630322ea4d5608728660f1a7ab69484133d8e0cdc1e91aee86b",
+      "sha256_after": "6399e658fb84b630322ea4d5608728660f1a7ab69484133d8e0cdc1e91aee86b"
+    },
+    {
+      "from": "AI와정보보안/3주차/3주차_네트워크보안_요약.md",
+      "to": "학습/AI와정보보안/03주차/노트/3주차_네트워크보안_요약.md",
+      "sha256_before": "86a0db5668b80675bd926ae2e1ef150e89956c24198daf8f78529565a54aab47",
+      "sha256_after": "8f822b396d4111b4869860f8deace8dfbf0869464e591b38bca1066e3b39075e"
+    },
+    {
+      "from": "AI와정보보안/3주차/네트워크보안.pdf",
+      "to": "학습/AI와정보보안/03주차/PDF/네트워크보안.pdf",
+      "sha256_before": "aa0b27f39c9e0330058c0a2092548d216fa71571a1d510565a087156a196fac0",
+      "sha256_after": "aa0b27f39c9e0330058c0a2092548d216fa71571a1d510565a087156a196fac0"
+    },
+    {
+      "from": "AI와정보보안/QUIZ/3주차_네트워크보안_퀴즈_풀이.md",
+      "to": "학습/AI와정보보안/03주차/문제/3주차_네트워크보안_퀴즈_풀이.md",
+      "sha256_before": "cb15f27e091fb117edb05d094ba1eac45187f1f57ef5b100f9010e116ee738a8",
+      "sha256_after": "ac0773fb596a4d3a4278e5c8eaefc0cf85404b9e96b6830453bafc981d4c835f"
+    },
+    {
+      "from": "AI와정보보안/QUIZ/📝 정보보안 및 AI 자산 퀴즈 결과 1주차.md",
+      "to": "학습/AI와정보보안/01주차/문제/📝 정보보안 및 AI 자산 퀴즈 결과 1주차.md",
+      "sha256_before": "3a240ca493c466bb55d12589fdec0f0b0414ac337d0a3b4be96cbae9bc50b7d2",
+      "sha256_after": "3a240ca493c466bb55d12589fdec0f0b0414ac337d0a3b4be96cbae9bc50b7d2"
+    },
+    {
+      "from": "AI와정보보안/QUIZ/📝 정보보안 인증 퀴즈 결과.md",
+      "to": "학습/AI와정보보안/공통/문제/📝 정보보안 인증 퀴즈 결과.md",
+      "sha256_before": "3da1554db81a491dee5162a77bf8329b2084e5b75afb020b76d0fbb54ed7c0a0",
+      "sha256_after": "3da1554db81a491dee5162a77bf8329b2084e5b75afb020b76d0fbb54ed7c0a0"
+    },
+    {
+      "from": "AI와정보보안/README.md",
+      "to": "학습/AI와정보보안/공통/노트/README.md",
+      "sha256_before": "976be0e38c88f04e2b2852605610a7b221067548e4dc3b7d4907c0ba0558a69d",
+      "sha256_after": "964c9e9aba9eca2197e38d25ccf22e07ea9536d49b996fdf416bc049f6c68519"
+    },
+    {
+      "from": "디지털시스템입문/.DS_Store",
+      "to": ".정리기록/Finder/디지털시스템입문/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "디지털시스템입문/1주차/19페이지_KCL_예제.md",
+      "to": "학습/디지털시스템입문/01주차/노트/19페이지_KCL_예제.md",
+      "sha256_before": "e899ebac29e35c1a8ee666e877a5c0283da93f9420691fa18b9dc5c9f6191865",
+      "sha256_after": "e899ebac29e35c1a8ee666e877a5c0283da93f9420691fa18b9dc5c9f6191865"
+    },
+    {
+      "from": "디지털시스템입문/1주차/1주차.md",
+      "to": "학습/디지털시스템입문/01주차/노트/1주차.md",
+      "sha256_before": "b0f8a20000e09a346b0a4cab58ebb9068099fed162b70732463008b01d8fbdeb",
+      "sha256_after": "b0f8a20000e09a346b0a4cab58ebb9068099fed162b70732463008b01d8fbdeb"
+    },
+    {
+      "from": "디지털시스템입문/1주차/26페이지_KCL_노드해석.md",
+      "to": "학습/디지털시스템입문/01주차/노트/26페이지_KCL_노드해석.md",
+      "sha256_before": "0f4582e8fe7ee78f2109c0185384e01ce8454d11e0e3a3117a2f00858644937b",
+      "sha256_after": "1875122fd1addd3bf02f123acbb5ee7b2112503cf31845570421f761e08cd5e9"
+    },
+    {
+      "from": "디지털시스템입문/1주차/Digital_systems_1_circuit_basics.pdf",
+      "to": "학습/디지털시스템입문/01주차/PDF/Digital_systems_1_circuit_basics.pdf",
+      "sha256_before": "89bd1b5b3c12415513fb9ae04fec45343c18e56464a886f3887bfbb07c2eb25c",
+      "sha256_after": "89bd1b5b3c12415513fb9ae04fec45343c18e56464a886f3887bfbb07c2eb25c"
+    },
+    {
+      "from": "디지털시스템입문/1주차/기호정리.md",
+      "to": "학습/디지털시스템입문/01주차/노트/기호정리.md",
+      "sha256_before": "5424d56254d0cd79b4d6739c9062ae431484ad891d23a738de1e7ca794ba4769",
+      "sha256_after": "5424d56254d0cd79b4d6739c9062ae431484ad891d23a738de1e7ca794ba4769"
+    },
+    {
+      "from": "디지털시스템입문/2주차/22페이지_RCL_암기표.md",
+      "to": "학습/디지털시스템입문/02주차/노트/22페이지_RCL_암기표.md",
+      "sha256_before": "309f4303be1807486b46bb60880e9cb7ae2c9d130281f5b59bb7c94fae0468f9",
+      "sha256_after": "882932fc7aa0dd6874e014dc02373f84bf1930c0494666cd85298144df808719"
+    },
+    {
+      "from": "디지털시스템입문/2주차/2주차.md",
+      "to": "학습/디지털시스템입문/02주차/노트/2주차.md",
+      "sha256_before": "f7e0a7b0528b45d2ec69ca3d8e0b3ef5fdc9293cdbe75386c6adeab500d899d4",
+      "sha256_after": "16a02d1acec84982a61900bc688fdb2890c3ccbfc04942ebd176c31965cd406d"
+    },
+    {
+      "from": "디지털시스템입문/2주차/2주차_강의정리.md",
+      "to": "학습/디지털시스템입문/02주차/노트/2주차_강의정리.md",
+      "sha256_before": "6ef37146cb75a00995af7425266825a336fc3036d6c19c85424d85e0094ebe96",
+      "sha256_after": "933d0f727accf6731146665627d7baa1a75e275683f6712990a06021207ea12d"
+    },
+    {
+      "from": "디지털시스템입문/2주차/9페이지_RC_방전회로.md",
+      "to": "학습/디지털시스템입문/02주차/노트/9페이지_RC_방전회로.md",
+      "sha256_before": "138574d54ae59b138bff7f8856a222ee771bbc02da420a82f6452695fec1a957",
+      "sha256_after": "f18ce56d58969b7cbdbb318a28a5efa2e5f85b137073cc966f9c3ef082930222"
+    },
+    {
+      "from": "디지털시스템입문/2주차/Digital_systems_2_circuit_elements.pdf",
+      "to": "학습/디지털시스템입문/02주차/PDF/Digital_systems_2_circuit_elements.pdf",
+      "sha256_before": "d700395325d63313f7a6e4942cc4dc41eeccc6090019a6f273f668a2b5198b44",
+      "sha256_after": "d700395325d63313f7a6e4942cc4dc41eeccc6090019a6f273f668a2b5198b44"
+    },
+    {
+      "from": "디지털시스템입문/2주차/RC_RL_발전문제.md",
+      "to": "학습/디지털시스템입문/02주차/문제/RC_RL_발전문제.md",
+      "sha256_before": "3cafc810b69302d72794ed0dbe9108df8d4c5ff18f1a757ad625184c01ea76dc",
+      "sha256_after": "6a3df1e056e14bf3e65425443c70b4629bc29488b36d92d172dbdbe5ca1da600"
+    },
+    {
+      "from": "디지털시스템입문/2주차/RC_RL_방전속도_비교.md",
+      "to": "학습/디지털시스템입문/02주차/노트/RC_RL_방전속도_비교.md",
+      "sha256_before": "fcfcd69bf23fd6d2c4206e03a38b9b16a640e040e87b12c7f9135517327babce",
+      "sha256_after": "8ff83da34269bb8a0b4ffb6db7131a124a32b438dd24fbc96ea95e62ad5df749"
+    },
+    {
+      "from": "디지털시스템입문/2주차/images/RC_RL_감소곡선.svg",
+      "to": "학습/디지털시스템입문/02주차/노트/첨부/RC_RL_감소곡선.svg",
+      "sha256_before": "e4586a3e43c27682ab364b553e2c89ab6be882329bc0e0904792b5463f8395d9",
+      "sha256_after": "e4586a3e43c27682ab364b553e2c89ab6be882329bc0e0904792b5463f8395d9"
+    },
+    {
+      "from": "디지털시스템입문/2주차/images/RC_RL_방전회로.svg",
+      "to": "학습/디지털시스템입문/02주차/노트/첨부/RC_RL_방전회로.svg",
+      "sha256_before": "9acd0c03f4b5cf03ade65f106b3cd3c784284232f92d07ab64dcc36e4f430bed",
+      "sha256_after": "9acd0c03f4b5cf03ade65f106b3cd3c784284232f92d07ab64dcc36e4f430bed"
+    },
+    {
+      "from": "디지털시스템입문/2주차/images/rc-source-free-page9.png",
+      "to": "학습/디지털시스템입문/02주차/노트/첨부/rc-source-free-page9.png",
+      "sha256_before": "f65a9558971843b3f5c0fce9904c6d285b487b054c5e186d90a98620f990e72c",
+      "sha256_after": "f65a9558971843b3f5c0fce9904c6d285b487b054c5e186d90a98620f990e72c"
+    },
+    {
+      "from": "디지털시스템입문/2주차/정전용량.md",
+      "to": "학습/디지털시스템입문/02주차/노트/정전용량.md",
+      "sha256_before": "f8163352f132ea9e81b81f285996b1203963682610b2d810ca0755b8fe46ca42",
+      "sha256_after": "70b3c4204d5e6925b795d8ed6d915757da7eadc9e19ec02df5e6ccbcc7b4f0c3"
+    },
+    {
+      "from": "디지털시스템입문/3주차/Digital_systems_3_diode.pdf",
+      "to": "학습/디지털시스템입문/03주차/PDF/Digital_systems_3_diode.pdf",
+      "sha256_before": "76e1a5502770446cf910e04ea1cb69705d326bf033c8f957d5e6097ffeb65070",
+      "sha256_after": "76e1a5502770446cf910e04ea1cb69705d326bf033c8f957d5e6097ffeb65070"
+    },
+    {
+      "from": "모바일프로그래밍/01_안드로이드 이해하기.pdf",
+      "to": "학습/모바일프로그래밍/공통/PDF/01_안드로이드 이해하기.pdf",
+      "sha256_before": "f1cdcee0423eba74dd62ab6f943e92d0c5086459f6cac9d0ecdea82eadf6eae2",
+      "sha256_after": "f1cdcee0423eba74dd62ab6f943e92d0c5086459f6cac9d0ecdea82eadf6eae2"
+    },
+    {
+      "from": "모바일프로그래밍/02_코틀린 문법 다루기.pdf",
+      "to": "학습/모바일프로그래밍/공통/PDF/02_코틀린 문법 다루기.pdf",
+      "sha256_before": "150dc240d088cb3474184718f14d8e1c37129c5ab2bd2cebbc286ab3ce9c5b7f",
+      "sha256_after": "150dc240d088cb3474184718f14d8e1c37129c5ab2bd2cebbc286ab3ce9c5b7f"
+    },
+    {
+      "from": "모바일프로그래밍/02_코틀린 문법 다루기_rev2.pdf",
+      "to": "학습/모바일프로그래밍/공통/PDF/02_코틀린 문법 다루기_rev2.pdf",
+      "sha256_before": "76d9356ca6f72870e7a652ea6a67d9c6759d054768925b15e74417c853420638",
+      "sha256_after": "76d9356ca6f72870e7a652ea6a67d9c6759d054768925b15e74417c853420638"
+    },
+    {
+      "from": "모바일프로그래밍/MP2602_00_사전학습진단.pdf",
+      "to": "학습/모바일프로그래밍/공통/PDF/MP2602_00_사전학습진단.pdf",
+      "sha256_before": "4a79879f9fa1e6b0c5d826e4acb8a24dfb2447fd26c790d8dbed48f9e268ba5c",
+      "sha256_after": "4a79879f9fa1e6b0c5d826e4acb8a24dfb2447fd26c790d8dbed48f9e268ba5c"
+    },
+    {
+      "from": "모바일프로그래밍/MP2602_모바일프로그래밍_RFP.pdf",
+      "to": "학습/모바일프로그래밍/공통/PDF/MP2602_모바일프로그래밍_RFP.pdf",
+      "sha256_before": "4b8a68dae82067190edd7c1086736ce061cd08f951e22d39ee789f3068f69e3c",
+      "sha256_after": "4b8a68dae82067190edd7c1086736ce061cd08f951e22d39ee789f3068f69e3c"
+    },
+    {
+      "from": "섬김의리더십/.DS_Store",
+      "to": ".정리기록/Finder/섬김의리더십/.DS_Store",
+      "sha256_before": "5371019c3e7c11141b039c81a3b89e10f3e629973563824381ad965bcce687c3",
+      "sha256_after": "5371019c3e7c11141b039c81a3b89e10f3e629973563824381ad965bcce687c3"
+    },
+    {
+      "from": "섬김의리더십/양식/.DS_Store",
+      "to": ".정리기록/Finder/섬김의리더십/양식/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "섬김의리더십/봉사후보.md",
+      "to": "학습/섬김의리더십/공통/노트/봉사후보.md",
+      "sha256_before": "a5811d749c73192fc0024e7731d01873db22dbdc1e5d35b039872773e33146b2",
+      "sha256_after": "a5811d749c73192fc0024e7731d01873db22dbdc1e5d35b039872773e33146b2"
+    },
+    {
+      "from": "섬김의리더십/섬김의리더십_2주차_26_2.pdf",
+      "to": "학습/섬김의리더십/02주차/PDF/섬김의리더십_2주차_26_2.pdf",
+      "sha256_before": "7172ad0add5651cde6966b364367049a820676743dca4d5600b9dbcb6e3d1cf3",
+      "sha256_after": "7172ad0add5651cde6966b364367049a820676743dca4d5600b9dbcb6e3d1cf3"
+    },
+    {
+      "from": "세계화와글로벌이슈/.DS_Store",
+      "to": ".정리기록/Finder/세계화와글로벌이슈/.DS_Store",
+      "sha256_before": "a6a7f2d30eb4fc26e79ca4b12aa31d89a3fc5fe5bb60f980b401d91298cb570f",
+      "sha256_after": "a6a7f2d30eb4fc26e79ca4b12aa31d89a3fc5fe5bb60f980b401d91298cb570f"
+    },
+    {
+      "from": "세계화와글로벌이슈/2주차/2주차_보충자료_배달치킨가격분석과_글로벌이슈.pdf",
+      "to": "학습/세계화와글로벌이슈/02주차/PDF/2주차_보충자료_배달치킨가격분석과_글로벌이슈.pdf",
+      "sha256_before": "d717ebad48c4e73ffea2fa635e0392ff32bc673635f1ea01725aefe7f7d4484e",
+      "sha256_after": "d717ebad48c4e73ffea2fa635e0392ff32bc673635f1ea01725aefe7f7d4484e"
+    },
+    {
+      "from": "세계화와글로벌이슈/2주차/2주차_보충자료_사례연구_로힝야난민위기.pdf",
+      "to": "학습/세계화와글로벌이슈/02주차/PDF/2주차_보충자료_사례연구_로힝야난민위기.pdf",
+      "sha256_before": "6e815da72e3ff2ede3b4bfe8fd8a6fc7e7fb6b7594424f66f497fe1ddf09f3d0",
+      "sha256_after": "6e815da72e3ff2ede3b4bfe8fd8a6fc7e7fb6b7594424f66f497fe1ddf09f3d0"
+    },
+    {
+      "from": "시스템프로그래밍/.DS_Store",
+      "to": ".정리기록/Finder/시스템프로그래밍/.DS_Store",
+      "sha256_before": "6092747223eb14824ad64ee1b9b07c1b21e77a088e8c6debace3e559eab37601",
+      "sha256_after": "6092747223eb14824ad64ee1b9b07c1b21e77a088e8c6debace3e559eab37601"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/02-c_posix.pdf",
+      "to": "학습/시스템프로그래밍/02주차/PDF/02-c_posix.pdf",
+      "sha256_before": "c587ae85c153640e4fbb3e6ca5aa290af5a5bdd2d7cfd796950b161f6ce9e82e",
+      "sha256_after": "c587ae85c153640e4fbb3e6ca5aa290af5a5bdd2d7cfd796950b161f6ce9e82e"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/01-c와-posix.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/01-c와-posix.md",
+      "sha256_before": "eec42b2d4c680c2656d7e761bde9f8b91f8d16ff38a3b2d60f064ba8bff8c20b",
+      "sha256_after": "17a40d60933b1ace4170907bc207d4f440cf0259c010b8113d2565426dc6a3d4"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/02-포인터-기초.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/02-포인터-기초.md",
+      "sha256_before": "33d40f399787815f90e76925e8b402470fdb1394cf2a1ed24134261d7b70c265",
+      "sha256_after": "791ed3d9bcf6f25263d759caa09120bc939bba05dc265e4e7810a3341ad99b13"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/03-포인터와-자료형.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/03-포인터와-자료형.md",
+      "sha256_before": "fc86b94c7df8d9293cfb10402537555838b53a3e76431e70af4f43ad24a2c6b6",
+      "sha256_after": "613afff62fd998e8ad900b8c232fd61e4549f314eb016e14c248686934694d05"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/04-값-복사와-포인터.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/04-값-복사와-포인터.md",
+      "sha256_before": "0d443a5412fc45c14cc617407c3103923c54dfc96ecad10d40230ba97b0dca39",
+      "sha256_after": "52ddda47dbe32750e3ab335c848cacedbb4800f08f87c97877cae91e3bf37a74"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/05-표준-입출력.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/05-표준-입출력.md",
+      "sha256_before": "7fcd832664f40d4300f6e765185c1611244d592ef7f5f889f4c43d6ef2d5419d",
+      "sha256_after": "7f780b38a492139d7325d7e39dc2902c006bfc5b15e113cd100be655ad5e087b"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/06-scanf와-주소-전달.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/06-scanf와-주소-전달.md",
+      "sha256_before": "290ae3fcdc4957f9c89f0eda48dbd62d84108d93c14eb828813789557687101d",
+      "sha256_after": "53ee7ac7e76f31a597fcc6c89cc95383b5fe36bd0882d0950c8d8c0044b862ba"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/07-c-빌드-과정.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/07-c-빌드-과정.md",
+      "sha256_before": "9856e0854d497f7d5820b9a183e98d7e8a35d7330d8b98ee894f7d9fb637f95d",
+      "sha256_after": "347fa7c9749d707080f7c80ab40fea147cc877c09281a27124fe885b8eeae47c"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/08-목적-파일과-심벌.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/08-목적-파일과-심벌.md",
+      "sha256_before": "77c717c01e8ebbbd92c37e97484fa5129a2e669d1dc418b5593b0d49a97d67d9",
+      "sha256_after": "b88d5542c09d3e73fc8c19d6ee00bd3f03dfceee8c127ae7776860421636f349"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/09-목적-파일-구조와-nm.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/09-목적-파일-구조와-nm.md",
+      "sha256_before": "7c233a4e0726c2b75bbfd6f40cf072e671119c6d18fc725dda840b4aee1aaf7d",
+      "sha256_after": "5a3df1e1d3a58c630cac0480b5547e49aad2659ef9a5e295eff97c52cebd6199"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/10-gcc-명령과-옵션.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/10-gcc-명령과-옵션.md",
+      "sha256_before": "65b7125aec294048b382af6e8776ca80d4f292ad1faebde130c505dea983f530",
+      "sha256_after": "35094df34997f6151590a0be8ead7203b8220d51ff544283223a97135c2ac959"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/11-hello-world와-최적화.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/C-POSIX/11-hello-world와-최적화.md",
+      "sha256_before": "9a4a2c44b3f72840a8be8fb903dbaf470af3ce680da496f49aee9d6d811487af",
+      "sha256_after": "94615a8b76a464dd52e4be07613e84ccf807e372c74f4cd57479f1f7973feec6"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/C-POSIX/12-핵심-정리와-확인-문제.md",
+      "to": "학습/시스템프로그래밍/02주차/문제/C-POSIX/12-핵심-정리와-확인-문제.md",
+      "sha256_before": "8be82d83fb3c5c9a624c212b5d8f7418c75c571b5904305fdb670c42a9f85d84",
+      "sha256_after": "f734cf3405d0eb58f8929d31560d795aa07fa98b5ba80746dd443f1b3a90b2a0"
+    },
+    {
+      "from": "시스템프로그래밍/2주차/README.md",
+      "to": "학습/시스템프로그래밍/02주차/노트/README.md",
+      "sha256_before": "1f97b71e39340f70a770804f341c64c2ae39bff2950d797dc31a5d95ed11ec72",
+      "sha256_after": "bc56baad1902a896c3e2dd234fa202eb574affbc20c59a321305ed059de843f7"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/03-mem-representation.pdf",
+      "to": "학습/시스템프로그래밍/03주차/PDF/03-mem-representation.pdf",
+      "sha256_before": "b19ec56dafb6a76bd1a77daef2fcc307802073589f579e82c210047d4a9f0cdb",
+      "sha256_after": "b19ec56dafb6a76bd1a77daef2fcc307802073589f579e82c210047d4a9f0cdb"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/01-메모리와-워드.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/01-메모리와-워드.md",
+      "sha256_before": "85652f34187912137933b76c64893777582fd1decf0bce23e37815f875a1294d",
+      "sha256_after": "c76ded7fb352bd523502ff669c5c386836f0995d7080f3b86d5bec773bc7b4d0"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/02-진수와-16진수.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/02-진수와-16진수.md",
+      "sha256_before": "d8da9c1b2de73b62a6988571a6e9ffb8d7aaa09a624cd3320dff3019de4e9c8a",
+      "sha256_after": "4175c463e011446678072c9eace45f323b80bb334c238f8139d5a29e6afcd53e"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/03-구조체와-정렬.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/03-구조체와-정렬.md",
+      "sha256_before": "604b016d10d8665b4d4ef1232d852a69e8d811ec393151358c4075538cc08c3a",
+      "sha256_after": "596c2ef055e8715d5862c6346c1d3b33d5842d7dcb8b2e7bf0531aaf7278aea1"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/04-포인터-연산과-형변환.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/04-포인터-연산과-형변환.md",
+      "sha256_before": "83678bcc7900d089c7879ad318351657bd4c3cd13e42fb39fd6ccedc0b0fc750",
+      "sha256_after": "7baf856aec104773cdcdd1eb77377fcac32dbe1388341c361ee272a7e33c71d3"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/05-동적-할당과-해제.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/05-동적-할당과-해제.md",
+      "sha256_before": "7b82c9a9207960da0da543a24b60f2e369f813a7b756e396dd7091080a864e51",
+      "sha256_after": "baf0f902920259457f27424648b239502045fcac4a7146d20cbf9751c5f90cff"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/06-메모리-덤프와-엔디언.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/06-메모리-덤프와-엔디언.md",
+      "sha256_before": "b7198c5247d54a74d5d465f14e1a3380fc993c1fc04685533d4ab6b7a28676ed",
+      "sha256_after": "8d4e639b51f6f8135a2e5ed70ef17bae0fef2b92eced06d7acef5453e25b0363"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/07-음수와-부호-확장.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/07-음수와-부호-확장.md",
+      "sha256_before": "817da46414d62e68d26dd6c8b9a5d710b55bc370ac72860cf6777e4f2e88b4e2",
+      "sha256_after": "63d4f02b331d4db73ba736ce6bd7f2415296a9ca008368577edfb9b27989599f"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/08-부동소수점.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/Memory-Representation/08-부동소수점.md",
+      "sha256_before": "2619d33f8d06d6cf3aaf12d7f91a3fac7ca4a04509d4b0d2405e1d55a5fe3495",
+      "sha256_after": "ef08ef1a8b44ac705a147e5165dbeeea79bc541c43ad9aa3e979e04a9a412235"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/Memory-Representation/09-핵심-정리와-확인-문제.md",
+      "to": "학습/시스템프로그래밍/03주차/문제/Memory-Representation/09-핵심-정리와-확인-문제.md",
+      "sha256_before": "ce53723f95e3a001db58144f8c60bfd8ff5fad4f6a3d8e3b6111e42ecb97cc30",
+      "sha256_after": "e1576203e7bfc5a239ac6c60fe4d16d0c610ee10a29c01a1e6e32d2c26bfc281"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/README.md",
+      "to": "학습/시스템프로그래밍/03주차/노트/README.md",
+      "sha256_before": "fe29054330632a7e7d7399e13def7018de37c5014500ed8ffa41f3102b6c4ad7",
+      "sha256_after": "aee7d995d3fe7237f06d138f5a5300a087e08ab47a48e839af903ab08d39c3ae"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/examples/memory_demo.c",
+      "to": "실습/시스템프로그래밍/03주차/examples/memory_demo.c",
+      "sha256_before": "86536144566057590781eded3b82d5bf3d9669dcf8b9db4fd26a5094d0616b17",
+      "sha256_after": "86536144566057590781eded3b82d5bf3d9669dcf8b9db4fd26a5094d0616b17"
+    },
+    {
+      "from": "시스템프로그래밍/3주차/examples/run",
+      "to": "실습/시스템프로그래밍/03주차/examples/run",
+      "sha256_before": "9261a134cdc0f21dd5f1a6ba0382b0816dcec359e80574c391ce3f62c8fc77b7",
+      "sha256_after": "9261a134cdc0f21dd5f1a6ba0382b0816dcec359e80574c391ce3f62c8fc77b7"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/04-M,D,Assignment-1.pdf",
+      "to": "학습/시스템프로그래밍/04주차/PDF/04-M,D,Assignment-1.pdf",
+      "sha256_before": "f10f6d6ebb77ed03592ffc09ffaa6b778d9d76593bd8af8310d7dc6dd5424ea3",
+      "sha256_after": "f10f6d6ebb77ed03592ffc09ffaa6b778d9d76593bd8af8310d7dc6dd5424ea3"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/04-process.pdf",
+      "to": "학습/시스템프로그래밍/04주차/PDF/04-process.pdf",
+      "sha256_before": "71271272175260099424cf2de4e07ee9065918d49f8a4d89fd0c467e289b6bac",
+      "sha256_after": "71271272175260099424cf2de4e07ee9065918d49f8a4d89fd0c467e289b6bac"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/10-핵심-정리와-확인-문제.md",
+      "to": "학습/시스템프로그래밍/04주차/문제/10-핵심-정리와-확인-문제.md",
+      "sha256_before": "e4771d59d5c7729dc0b2c5c3a636149d3f1e602ea514902d16bf243c9e83330d",
+      "sha256_after": "2969362c657f49a53b35e1bdda82aaa6656f44421d9ad0a73b811e21dc51dd6a"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Make-Allocator/07-Makefile.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Make-Allocator/07-Makefile.md",
+      "sha256_before": "84af3499d08d8407fc557d7c695ee2e88f277c8f8dd0f7c866c8bc49f13640f1",
+      "sha256_after": "cfd135850646a22541d65deab15f4188f33dbe364567d2bace2cc99e6d8681ba"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Make-Allocator/08-동적-메모리-할당.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Make-Allocator/08-동적-메모리-할당.md",
+      "sha256_before": "df24be65123d8beb3749194644bf0d28c6ff6812d209938898e541ad9f894015",
+      "sha256_after": "ba85a4554bdc0adec20ac20ea3542bc283c6aeeff71f463dd4f78a6532a6554c"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Make-Allocator/09-과제-1-안내.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Make-Allocator/09-과제-1-안내.md",
+      "sha256_before": "4cde62d141289f9206308839e784963078eb4a829eab4bc085b5a3417dd3cfbd",
+      "sha256_after": "28139787c1ea448920bac91144e2e0a75dfb58ced76bb2b8221ca3ac92950966"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/01-프로세스와-ELF.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/01-프로세스와-ELF.md",
+      "sha256_before": "fabf94a90d3345b7ec655846247018a2cc80bda584fd0548bbf14fcd5b3438aa",
+      "sha256_after": "8370c259b84993182875abd477f825c92b1405c712f491e27e9bafd1b6fa0064"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/02-메모리-배치.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/02-메모리-배치.md",
+      "sha256_before": "cf534b3ce686ff27295f1744d5ed646a120fc6c43d51bd6e3e52eb57938d9d8a",
+      "sha256_after": "e0bcb4d80975c66674c41a2f92f71276c5ee5df515070ec17f939562f638d7db"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/03-커널과-시스템-호출.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/03-커널과-시스템-호출.md",
+      "sha256_before": "a9d6feb3f91e95364d61968e62fa92ecc76b2fe64b7e8b8ae494b1a4fcdefc56",
+      "sha256_after": "aac3fa93221a3457d84f1c7b065d4bc95a711f20d1e9a12a57e265aa711b7d50"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/04-fork와-exec.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/04-fork와-exec.md",
+      "sha256_before": "bf367b26236441f4ad4df81560506763186db8f74b9bd4acc6d387a8f833b160",
+      "sha256_after": "903812aca744dbcb82f2fa5cffc34aa6115fb8531e6ca4f0bb8933f11447b053"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/05-종료와-wait.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/05-종료와-wait.md",
+      "sha256_before": "69625b64765395524bb43c7e8b5ae6b4f37fd64d790d5432a95796d1c71243e4",
+      "sha256_after": "a855901b88829c21058ecf33b0384192c908304cfbb66c01ae301aad8cb88dc4"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/Process/06-프로세스-환경.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/Process/06-프로세스-환경.md",
+      "sha256_before": "31386912a815bf6d96d784c0233bb2ce8a7c8d03def4e4e60e57e5c90c6d5a0a",
+      "sha256_after": "d04230e6f3512cb065c55d24817a82addbfb8316331f3b68ae586acbdaef000e"
+    },
+    {
+      "from": "시스템프로그래밍/4주차/README.md",
+      "to": "학습/시스템프로그래밍/04주차/노트/README.md",
+      "sha256_before": "1a9ba4ea02b8a780c1becf647fb6711486b090a8895324a66ff6f01b78e4306c",
+      "sha256_after": "f14afd8994c7bcb69a18a1097db70f83c56449999837ac3984de100bcb13a7b5"
+    },
+    {
+      "from": "시스템프로그래밍/OT/.DS_Store",
+      "to": ".정리기록/Finder/시스템프로그래밍/OT/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/.DS_Store",
+      "to": ".정리기록/Finder/시스템프로그래밍/assignment1/.DS_Store",
+      "sha256_before": "7600ac54851ec490a88c6b58266e47a2de824128ebe6a30f96ec52d6699f4e37",
+      "sha256_after": "7600ac54851ec490a88c6b58266e47a2de824128ebe6a30f96ec52d6699f4e37"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/20231755",
+      "to": "실습/시스템프로그래밍/과제01/20231755",
+      "sha256_before": "fcb544aff6082e7f900f0719fb26c23cb780d04a00146991345164e06683e7c8",
+      "sha256_after": "fcb544aff6082e7f900f0719fb26c23cb780d04a00146991345164e06683e7c8"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/20231755.c",
+      "to": "실습/시스템프로그래밍/과제01/20231755.c",
+      "sha256_before": "6ee29285421795ea553fad118346dab5604ac0141ca74c5401fab3f6c9ae2606",
+      "sha256_after": "6ee29285421795ea553fad118346dab5604ac0141ca74c5401fab3f6c9ae2606"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/Makefile",
+      "to": "실습/시스템프로그래밍/과제01/Makefile",
+      "sha256_before": "9d3073809c6e16a1af812968d2046b9ae0a01d7a5345a723eed4e0c04fadacc1",
+      "sha256_after": "9d3073809c6e16a1af812968d2046b9ae0a01d7a5345a723eed4e0c04fadacc1"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/buffer-visualizer.html",
+      "to": "실습/시스템프로그래밍/과제01/buffer-visualizer.html",
+      "sha256_before": "f8aaf6e121f4c9016b38b15adc9855d5b22b637ee1c8dfe56a265dc1eb83ba06",
+      "sha256_after": "f8aaf6e121f4c9016b38b15adc9855d5b22b637ee1c8dfe56a265dc1eb83ba06"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/generate_input",
+      "to": "실습/시스템프로그래밍/과제01/generate_input",
+      "sha256_before": "8c2bb635e057960fff7055fbdba35f5f225596253a2c0b45bb6c21dc57de9821",
+      "sha256_after": "8c2bb635e057960fff7055fbdba35f5f225596253a2c0b45bb6c21dc57de9821"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/generate_input.c",
+      "to": "실습/시스템프로그래밍/과제01/generate_input.c",
+      "sha256_before": "a330b81cc5e123df56294971b24021d595eb9b1f82720de73a37ee460e2a53c4",
+      "sha256_after": "a330b81cc5e123df56294971b24021d595eb9b1f82720de73a37ee460e2a53c4"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/input.txt",
+      "to": "실습/시스템프로그래밍/과제01/input.txt",
+      "sha256_before": "2dd265da3630585a89f8b7bad24caedd5d1a40113d87dd32db0e410d59418e5c",
+      "sha256_after": "2dd265da3630585a89f8b7bad24caedd5d1a40113d87dd32db0e410d59418e5c"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/linux-check/Dockerfile",
+      "to": "실습/시스템프로그래밍/과제01/linux-check/Dockerfile",
+      "sha256_before": "f33a522ffb455bded7406b90fe319a14e79097b87ce7e81fc60b2d24111110d3",
+      "sha256_after": "f33a522ffb455bded7406b90fe319a14e79097b87ce7e81fc60b2d24111110d3"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/linux-check/README.md",
+      "to": "실습/시스템프로그래밍/과제01/linux-check/README.md",
+      "sha256_before": "f0e6379d7991cfb2a6b828ca9a2263ff1e7ba4b335acc9e2cefdaf1aa875cc5c",
+      "sha256_after": "f0e6379d7991cfb2a6b828ca9a2263ff1e7ba4b335acc9e2cefdaf1aa875cc5c"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/linux-check/verify.py",
+      "to": "실습/시스템프로그래밍/과제01/linux-check/verify.py",
+      "sha256_before": "ac7f6c324367cc25402cb2a181d211b2b9e1681b9fd2ea6d697d2a56b7f21c97",
+      "sha256_after": "ac7f6c324367cc25402cb2a181d211b2b9e1681b9fd2ea6d697d2a56b7f21c97"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/submission/20231755.zip",
+      "to": "실습/시스템프로그래밍/과제01/submission/20231755.zip",
+      "sha256_before": "5ca15184c22fa178eac10d3ec4c480804cdcda48e4714290ce9e63c9fcbcd841",
+      "sha256_after": "5ca15184c22fa178eac10d3ec4c480804cdcda48e4714290ce9e63c9fcbcd841"
+    },
+    {
+      "from": "시스템프로그래밍/assignment1/구현-가이드.md",
+      "to": "실습/시스템프로그래밍/과제01/구현-가이드.md",
+      "sha256_before": "48cde9185460e4ff0978510f3d4889bcda5aea3fbf5bc832319e60ce15ac9b79",
+      "sha256_after": "9d5bccabc6dbdd815ef518b19a116c050e1fb7707ff301fb5d024a6a9ad91fa2"
+    },
+    {
+      "from": "시스템프로그래밍/code/.vscode/tasks.json",
+      "to": "실습/시스템프로그래밍/예제/.vscode/tasks.json",
+      "sha256_before": "a0a4407cfa2426564f6b44497da31609162cf303e236fe6ac56171e3cd039afd",
+      "sha256_after": "a0a4407cfa2426564f6b44497da31609162cf303e236fe6ac56171e3cd039afd"
+    },
+    {
+      "from": "시스템프로그래밍/code/test",
+      "to": "실습/시스템프로그래밍/예제/test",
+      "sha256_before": "51bc1ce162fca53057f61265dc238b3c81372464e7d227bf93deb6c893c2a318",
+      "sha256_after": "51bc1ce162fca53057f61265dc238b3c81372464e7d227bf93deb6c893c2a318"
+    },
+    {
+      "from": "시스템프로그래밍/code/test.c",
+      "to": "실습/시스템프로그래밍/예제/test.c",
+      "sha256_before": "0710b9d272a107ae64040b3410c3f3c67c9725bce869b8d3a11009c40ed03c56",
+      "sha256_after": "0710b9d272a107ae64040b3410c3f3c67c9725bce869b8d3a11009c40ed03c56"
+    },
+    {
+      "from": "시스템프로그래밍/code/test.dSYM/Contents/Info.plist",
+      "to": "실습/시스템프로그래밍/예제/test.dSYM/Contents/Info.plist",
+      "sha256_before": "ba820782da2c966e230b338c1aa38733a2d9ca556e581aef1df842fbe38ea313",
+      "sha256_after": "ba820782da2c966e230b338c1aa38733a2d9ca556e581aef1df842fbe38ea313"
+    },
+    {
+      "from": "시스템프로그래밍/code/test.dSYM/Contents/Resources/DWARF/test",
+      "to": "실습/시스템프로그래밍/예제/test.dSYM/Contents/Resources/DWARF/test",
+      "sha256_before": "fdc3878f27559ee47238a2b13e8a674ebc7f0ef7d485562f7ebdf6540f947f89",
+      "sha256_after": "fdc3878f27559ee47238a2b13e8a674ebc7f0ef7d485562f7ebdf6540f947f89"
+    },
+    {
+      "from": "시스템프로그래밍/code/test.dSYM/Contents/Resources/Relocations/aarch64/test.yml",
+      "to": "실습/시스템프로그래밍/예제/test.dSYM/Contents/Resources/Relocations/aarch64/test.yml",
+      "sha256_before": "f225bd22ff204dc3e0524b90ff1b53834ddc664c282c1870bfa2be1b8a7ae212",
+      "sha256_after": "f225bd22ff204dc3e0524b90ff1b53834ddc664c282c1870bfa2be1b8a7ae212"
+    },
+    {
+      "from": "웹프로그래밍/.DS_Store",
+      "to": ".정리기록/Finder/웹프로그래밍/.DS_Store",
+      "sha256_before": "589d69eb944ae8fa1f4e9d1ce40528ceca6ffb86b43768601f4c31e01701470d",
+      "sha256_after": "589d69eb944ae8fa1f4e9d1ce40528ceca6ffb86b43768601f4c31e01701470d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/.DS_Store",
+      "to": ".정리기록/Finder/웹프로그래밍/1주차/.DS_Store",
+      "sha256_before": "03350e562b2cfd7efd8f5cea75572ff9b4a6adfd70ac1f0c640149203aeb7677",
+      "sha256_after": "03350e562b2cfd7efd8f5cea75572ff9b4a6adfd70ac1f0c640149203aeb7677"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/.DS_Store",
+      "to": ".정리기록/Finder/웹프로그래밍/1주차/HTML/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_10_tables.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_10_tables.html",
+      "sha256_before": "1e4d93c83de5158a228d3e910fbe2889182a2e44833b81ace80aaa7a055ac9d6",
+      "sha256_after": "1e4d93c83de5158a228d3e910fbe2889182a2e44833b81ace80aaa7a055ac9d6"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_11_lists.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_11_lists.html",
+      "sha256_before": "6d0187bed3d7dccf7db2578ff0ff7e79bd38c85c22a24ddd65ab50dc779c6775",
+      "sha256_after": "6d0187bed3d7dccf7db2578ff0ff7e79bd38c85c22a24ddd65ab50dc779c6775"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_12_form.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_12_form.html",
+      "sha256_before": "f0cdbcd9670d270c76c022edb0a21f6c758346a7df081b9f2f7af54051159c9c",
+      "sha256_after": "f0cdbcd9670d270c76c022edb0a21f6c758346a7df081b9f2f7af54051159c9c"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_13_form_input.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_13_form_input.html",
+      "sha256_before": "c42c574f057739c410fc1fca4adff28247fc753b4d751fba0d6460a3b4fa579a",
+      "sha256_after": "c42c574f057739c410fc1fca4adff28247fc753b4d751fba0d6460a3b4fa579a"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_14_input_restrict.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_14_input_restrict.html",
+      "sha256_before": "92bea2dfc516aebacecdbcc79f12be76537d6cbe843a4699f81efc3de0043d0d",
+      "sha256_after": "92bea2dfc516aebacecdbcc79f12be76537d6cbe843a4699f81efc3de0043d0d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_15_blockinline.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_15_blockinline.html",
+      "sha256_before": "b35edb709517680c956d390a7276af06efbf81b4cc239b75d151e72184ce7f09",
+      "sha256_after": "b35edb709517680c956d390a7276af06efbf81b4cc239b75d151e72184ce7f09"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_16_htmllayout.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_16_htmllayout.html",
+      "sha256_before": "87e0c8c545296f12a51221183657e8459082ce971e820d411d18fcd36e03f30d",
+      "sha256_after": "87e0c8c545296f12a51221183657e8459082ce971e820d411d18fcd36e03f30d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_17_htmlresponsive.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_17_htmlresponsive.html",
+      "sha256_before": "13011668761e2a381fd0a06db95cb63484712a39498368b868202586332f560d",
+      "sha256_after": "13011668761e2a381fd0a06db95cb63484712a39498368b868202586332f560d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_18_htmlentities.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_18_htmlentities.html",
+      "sha256_before": "982f9fb1b09f3ad5d35dfd929266aab67f468cc652836931b0211994a4c04195",
+      "sha256_after": "982f9fb1b09f3ad5d35dfd929266aab67f468cc652836931b0211994a4c04195"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_2_structure.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_2_structure.html",
+      "sha256_before": "d7244ce64564730578ea4e7b230b1a787a2d5c552c214af92542d8dd2e39fba6",
+      "sha256_after": "d7244ce64564730578ea4e7b230b1a787a2d5c552c214af92542d8dd2e39fba6"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_3_attributes.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_3_attributes.html",
+      "sha256_before": "0175c8e206429fc9455aac36cb0d46cb623d50258993ff17af49a97d6fa363b9",
+      "sha256_after": "0175c8e206429fc9455aac36cb0d46cb623d50258993ff17af49a97d6fa363b9"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_4_heading_para.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_4_heading_para.html",
+      "sha256_before": "570afc28f95f26ec080a5f851dbefc1eeb137e429210e18309800250b0558b93",
+      "sha256_after": "570afc28f95f26ec080a5f851dbefc1eeb137e429210e18309800250b0558b93"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_5_styles.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_5_styles.html",
+      "sha256_before": "c368b9c15398ba71414ab6f97bd8dd77280ca63515e571e9a0cadbfa49e20707",
+      "sha256_after": "c368b9c15398ba71414ab6f97bd8dd77280ca63515e571e9a0cadbfa49e20707"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_6_textformatting.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_6_textformatting.html",
+      "sha256_before": "e501fc2ffccc2413493a9d1f52917f37530411f53fd6adbd962974f897916b71",
+      "sha256_after": "e501fc2ffccc2413493a9d1f52917f37530411f53fd6adbd962974f897916b71"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_7_color.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_7_color.html",
+      "sha256_before": "41e2012e25b1607f42674c8dcd3fe2b680cd97a292b0e49ccc23b3af127df272",
+      "sha256_after": "41e2012e25b1607f42674c8dcd3fe2b680cd97a292b0e49ccc23b3af127df272"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_8_link.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_8_link.html",
+      "sha256_before": "743be824e979ee06de7612c3d62377af57dc3a79cb3ac268f4bad560c49f0df2",
+      "sha256_after": "743be824e979ee06de7612c3d62377af57dc3a79cb3ac268f4bad560c49f0df2"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/1_9_images.html",
+      "to": "실습/웹프로그래밍/01주차/HTML/1_9_images.html",
+      "sha256_before": "2ce029b7fc5974ea27a49f830f977115ae0a9710dbd916dfee893f24f3a9bcab",
+      "sha256_after": "2ce029b7fc5974ea27a49f830f977115ae0a9710dbd916dfee893f24f3a9bcab"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/images/img_5terre.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML/images/img_5terre.jpg",
+      "sha256_before": "6245a85b4f2178e8b4e26d72ab9cb828fe4705064027f55a60cea7c65fb812e4",
+      "sha256_after": "6245a85b4f2178e8b4e26d72ab9cb828fe4705064027f55a60cea7c65fb812e4"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/images/img_chania.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML/images/img_chania.jpg",
+      "sha256_before": "8d62394ae80f67a4e4f29cc5e89e1e96039496e92b59d5a9906b4d4eb63e18b2",
+      "sha256_after": "8d62394ae80f67a4e4f29cc5e89e1e96039496e92b59d5a9906b4d4eb63e18b2"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/images/img_girl.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML/images/img_girl.jpg",
+      "sha256_before": "b9d93e077467eb30b47ac0fe948e70b7795bbddb31287840de3913bc4089fbb0",
+      "sha256_after": "b9d93e077467eb30b47ac0fe948e70b7795bbddb31287840de3913bc4089fbb0"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/images/smiley.gif",
+      "to": "실습/웹프로그래밍/01주차/HTML/images/smiley.gif",
+      "sha256_before": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc",
+      "sha256_after": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML/images/w3schools.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML/images/w3schools.jpg",
+      "sha256_before": "edc2faef320d53afd1a4d0e296db058aaf07c03e44b843abde04861f12e1bb8a",
+      "sha256_after": "edc2faef320d53afd1a4d0e296db058aaf07c03e44b843abde04861f12e1bb8a"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_10_tables.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_10_tables.html",
+      "sha256_before": "1e4d93c83de5158a228d3e910fbe2889182a2e44833b81ace80aaa7a055ac9d6",
+      "sha256_after": "1e4d93c83de5158a228d3e910fbe2889182a2e44833b81ace80aaa7a055ac9d6"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_11_lists.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_11_lists.html",
+      "sha256_before": "6d0187bed3d7dccf7db2578ff0ff7e79bd38c85c22a24ddd65ab50dc779c6775",
+      "sha256_after": "6d0187bed3d7dccf7db2578ff0ff7e79bd38c85c22a24ddd65ab50dc779c6775"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_12_form.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_12_form.html",
+      "sha256_before": "f0cdbcd9670d270c76c022edb0a21f6c758346a7df081b9f2f7af54051159c9c",
+      "sha256_after": "f0cdbcd9670d270c76c022edb0a21f6c758346a7df081b9f2f7af54051159c9c"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_13_form_input.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_13_form_input.html",
+      "sha256_before": "c42c574f057739c410fc1fca4adff28247fc753b4d751fba0d6460a3b4fa579a",
+      "sha256_after": "c42c574f057739c410fc1fca4adff28247fc753b4d751fba0d6460a3b4fa579a"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_14_input_restrict.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_14_input_restrict.html",
+      "sha256_before": "92bea2dfc516aebacecdbcc79f12be76537d6cbe843a4699f81efc3de0043d0d",
+      "sha256_after": "92bea2dfc516aebacecdbcc79f12be76537d6cbe843a4699f81efc3de0043d0d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_15_blockinline.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_15_blockinline.html",
+      "sha256_before": "b35edb709517680c956d390a7276af06efbf81b4cc239b75d151e72184ce7f09",
+      "sha256_after": "b35edb709517680c956d390a7276af06efbf81b4cc239b75d151e72184ce7f09"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_16_htmllayout.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_16_htmllayout.html",
+      "sha256_before": "87e0c8c545296f12a51221183657e8459082ce971e820d411d18fcd36e03f30d",
+      "sha256_after": "87e0c8c545296f12a51221183657e8459082ce971e820d411d18fcd36e03f30d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_17_htmlresponsive.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_17_htmlresponsive.html",
+      "sha256_before": "13011668761e2a381fd0a06db95cb63484712a39498368b868202586332f560d",
+      "sha256_after": "13011668761e2a381fd0a06db95cb63484712a39498368b868202586332f560d"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_18_htmlentities.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_18_htmlentities.html",
+      "sha256_before": "982f9fb1b09f3ad5d35dfd929266aab67f468cc652836931b0211994a4c04195",
+      "sha256_after": "982f9fb1b09f3ad5d35dfd929266aab67f468cc652836931b0211994a4c04195"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_1_basic.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_1_basic.html",
+      "sha256_before": "b23d643c3f1b67a268e4d6bf86b41f4eb519cf03e1567b3cded542bfa0e67cb3",
+      "sha256_after": "b23d643c3f1b67a268e4d6bf86b41f4eb519cf03e1567b3cded542bfa0e67cb3"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_2_structure.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_2_structure.html",
+      "sha256_before": "d7244ce64564730578ea4e7b230b1a787a2d5c552c214af92542d8dd2e39fba6",
+      "sha256_after": "d7244ce64564730578ea4e7b230b1a787a2d5c552c214af92542d8dd2e39fba6"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_3_attributes.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_3_attributes.html",
+      "sha256_before": "0175c8e206429fc9455aac36cb0d46cb623d50258993ff17af49a97d6fa363b9",
+      "sha256_after": "0175c8e206429fc9455aac36cb0d46cb623d50258993ff17af49a97d6fa363b9"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_4_heading_para.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_4_heading_para.html",
+      "sha256_before": "570afc28f95f26ec080a5f851dbefc1eeb137e429210e18309800250b0558b93",
+      "sha256_after": "570afc28f95f26ec080a5f851dbefc1eeb137e429210e18309800250b0558b93"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_5_styles.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_5_styles.html",
+      "sha256_before": "c368b9c15398ba71414ab6f97bd8dd77280ca63515e571e9a0cadbfa49e20707",
+      "sha256_after": "c368b9c15398ba71414ab6f97bd8dd77280ca63515e571e9a0cadbfa49e20707"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_6_textformatting.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_6_textformatting.html",
+      "sha256_before": "e501fc2ffccc2413493a9d1f52917f37530411f53fd6adbd962974f897916b71",
+      "sha256_after": "e501fc2ffccc2413493a9d1f52917f37530411f53fd6adbd962974f897916b71"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_7_color.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_7_color.html",
+      "sha256_before": "41e2012e25b1607f42674c8dcd3fe2b680cd97a292b0e49ccc23b3af127df272",
+      "sha256_after": "41e2012e25b1607f42674c8dcd3fe2b680cd97a292b0e49ccc23b3af127df272"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_8_link.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_8_link.html",
+      "sha256_before": "743be824e979ee06de7612c3d62377af57dc3a79cb3ac268f4bad560c49f0df2",
+      "sha256_after": "743be824e979ee06de7612c3d62377af57dc3a79cb3ac268f4bad560c49f0df2"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/1_9_images.html",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/1_9_images.html",
+      "sha256_before": "2ce029b7fc5974ea27a49f830f977115ae0a9710dbd916dfee893f24f3a9bcab",
+      "sha256_after": "2ce029b7fc5974ea27a49f830f977115ae0a9710dbd916dfee893f24f3a9bcab"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/images/img_5terre.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/images/img_5terre.jpg",
+      "sha256_before": "6245a85b4f2178e8b4e26d72ab9cb828fe4705064027f55a60cea7c65fb812e4",
+      "sha256_after": "6245a85b4f2178e8b4e26d72ab9cb828fe4705064027f55a60cea7c65fb812e4"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/images/img_chania.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/images/img_chania.jpg",
+      "sha256_before": "8d62394ae80f67a4e4f29cc5e89e1e96039496e92b59d5a9906b4d4eb63e18b2",
+      "sha256_after": "8d62394ae80f67a4e4f29cc5e89e1e96039496e92b59d5a9906b4d4eb63e18b2"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/images/img_girl.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/images/img_girl.jpg",
+      "sha256_before": "b9d93e077467eb30b47ac0fe948e70b7795bbddb31287840de3913bc4089fbb0",
+      "sha256_after": "b9d93e077467eb30b47ac0fe948e70b7795bbddb31287840de3913bc4089fbb0"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/images/smiley.gif",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/images/smiley.gif",
+      "sha256_before": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc",
+      "sha256_after": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc"
+    },
+    {
+      "from": "웹프로그래밍/1주차/HTML 1/images/w3schools.jpg",
+      "to": "실습/웹프로그래밍/01주차/HTML 1/images/w3schools.jpg",
+      "sha256_before": "edc2faef320d53afd1a4d0e296db058aaf07c03e44b843abde04861f12e1bb8a",
+      "sha256_after": "edc2faef320d53afd1a4d0e296db058aaf07c03e44b843abde04861f12e1bb8a"
+    },
+    {
+      "from": "웹프로그래밍/1주차/웹프로그래밍_팀프로젝트수행 가이드/.DS_Store",
+      "to": ".정리기록/Finder/웹프로그래밍/1주차/웹프로그래밍_팀프로젝트수행 가이드/.DS_Store",
+      "sha256_before": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+      "sha256_after": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    },
+    {
+      "from": "웹프로그래밍/1주차/웹프로그래밍_팀프로젝트수행 가이드/3. 팀프로젝트 지도 활동보고서.hwp",
+      "to": "실습/웹프로그래밍/01주차/웹프로그래밍_팀프로젝트수행 가이드/3. 팀프로젝트 지도 활동보고서.hwp",
+      "sha256_before": "d6b05836a66156b8bd831c22b75ad1b694a8843c3914c4d76dfbe76b28a9edaa",
+      "sha256_after": "d6b05836a66156b8bd831c22b75ad1b694a8843c3914c4d76dfbe76b28a9edaa"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_01_hello.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_01_hello.html",
+      "sha256_before": "82a18ecf57c9a79ec8ad7798849cf787e084693425d67b956d8a3fccc4c435bf",
+      "sha256_after": "82a18ecf57c9a79ec8ad7798849cf787e084693425d67b956d8a3fccc4c435bf"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_02_hello_external_jsfile.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_02_hello_external_jsfile.html",
+      "sha256_before": "e38802ac6d6fce70788e250d4dbf045528cf6c299cb46118f117c0911e52338c",
+      "sha256_after": "e38802ac6d6fce70788e250d4dbf045528cf6c299cb46118f117c0911e52338c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_03_comment.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_03_comment.html",
+      "sha256_before": "d9fadea1825e075c21609cc82f5adf99c2d3636d7153a69b51e1fa9039e290eb",
+      "sha256_after": "d9fadea1825e075c21609cc82f5adf99c2d3636d7153a69b51e1fa9039e290eb"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_04_var.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_04_var.html",
+      "sha256_before": "2c94d963cf34895cf14481cdc1b4bd00cd43f6c5d4e314a5f5eadbc93286a2ed",
+      "sha256_after": "2c94d963cf34895cf14481cdc1b4bd00cd43f6c5d4e314a5f5eadbc93286a2ed"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_05_let.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_05_let.html",
+      "sha256_before": "5041fb4cb6c49693e9202a2f3f5e6d8d32a1c3378e5e474f043766228f131628",
+      "sha256_after": "5041fb4cb6c49693e9202a2f3f5e6d8d32a1c3378e5e474f043766228f131628"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_06_const.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_06_const.html",
+      "sha256_before": "1628a076c1d72d768e046b01b8c29870eb525d61c785f4b98865ad91c65becb6",
+      "sha256_after": "1628a076c1d72d768e046b01b8c29870eb525d61c785f4b98865ad91c65becb6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_07_escape.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_07_escape.html",
+      "sha256_before": "cc0372f53b3b54af7760e463a06ded55deb4b091dadcc411444e3140b16f2f5c",
+      "sha256_after": "cc0372f53b3b54af7760e463a06ded55deb4b091dadcc411444e3140b16f2f5c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_08_template.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_08_template.html",
+      "sha256_before": "12dbadc1a31a14e3e6af7c6b2ab01caf69194e9b9713662e040f326db5e50035",
+      "sha256_after": "12dbadc1a31a14e3e6af7c6b2ab01caf69194e9b9713662e040f326db5e50035"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_09_array.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_09_array.html",
+      "sha256_before": "b5e2cebc6b62c1b6ffb2bfbc3f69969ab16becd4723c50d87288a92a3be7d434",
+      "sha256_after": "b5e2cebc6b62c1b6ffb2bfbc3f69969ab16becd4723c50d87288a92a3be7d434"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_10_object.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_10_object.html",
+      "sha256_before": "26de68385b57e0defd75f6a42496916c71d4617e1419fa8fc99f67c9688999ae",
+      "sha256_after": "26de68385b57e0defd75f6a42496916c71d4617e1419fa8fc99f67c9688999ae"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_11_function_literal.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_11_function_literal.html",
+      "sha256_before": "7eb555f656018ee061a417073821b194fea98e701af71be99694bc9ef8a5b842",
+      "sha256_after": "7eb555f656018ee061a417073821b194fea98e701af71be99694bc9ef8a5b842"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_12_undefined_null.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_12_undefined_null.html",
+      "sha256_before": "4f367bf9796a938eae27050077a102a22788992ff9a5c94bbb6422be62a87ffc",
+      "sha256_after": "4f367bf9796a938eae27050077a102a22788992ff9a5c94bbb6422be62a87ffc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_13_arithmetic_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_13_arithmetic_operator.html",
+      "sha256_before": "fdb628f5b18b748e9ed37d4f0c5938437c19384d45d878652f77e79ee6f698f8",
+      "sha256_after": "fdb628f5b18b748e9ed37d4f0c5938437c19384d45d878652f77e79ee6f698f8"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_14_assignment_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_14_assignment_operator.html",
+      "sha256_before": "00da3bf06571faf36c7d03dd4899a2e95ad001c823eecdf2e6a6cb39cbdd4de5",
+      "sha256_after": "00da3bf06571faf36c7d03dd4899a2e95ad001c823eecdf2e6a6cb39cbdd4de5"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_15_destructure_assignment.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_15_destructure_assignment.html",
+      "sha256_before": "e9f4e94997dae9f2e6f1d24f303cb54cbfcd89265242ef7989bb8c14a0800e8c",
+      "sha256_after": "e9f4e94997dae9f2e6f1d24f303cb54cbfcd89265242ef7989bb8c14a0800e8c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_16_comparison_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_16_comparison_operator.html",
+      "sha256_before": "bc652c12835ec735d4b8679df03a66437efb83883f05471d3588c92c9436fa7d",
+      "sha256_after": "bc652c12835ec735d4b8679df03a66437efb83883f05471d3588c92c9436fa7d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_17_logic_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_17_logic_operator.html",
+      "sha256_before": "c346fc907ba95d38fd7cd34fb76140e94d942010f20f8de8c115aad1a4461c4e",
+      "sha256_after": "c346fc907ba95d38fd7cd34fb76140e94d942010f20f8de8c115aad1a4461c4e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_18_delete_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_18_delete_operator.html",
+      "sha256_before": "01b79f19376ee4d2286c6cd0e9fbc67102fb5c8bacc3d47c0b8bc13d8cced2dd",
+      "sha256_after": "01b79f19376ee4d2286c6cd0e9fbc67102fb5c8bacc3d47c0b8bc13d8cced2dd"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_19_typeof_operator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_19_typeof_operator.html",
+      "sha256_before": "726f9252f00763a27b85c028709797c7e85b3ca552669ea8636ddb6065e585ac",
+      "sha256_after": "726f9252f00763a27b85c028709797c7e85b3ca552669ea8636ddb6065e585ac"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_20_if_else.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_20_if_else.html",
+      "sha256_before": "3e841f8894f6dbee27c5a8f253d51c612553e7bc45799564a76c5ecdbe42a4d0",
+      "sha256_after": "3e841f8894f6dbee27c5a8f253d51c612553e7bc45799564a76c5ecdbe42a4d0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_21_switch.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_21_switch.html",
+      "sha256_before": "22bffd99189f1433b56288a67623ab496db866bbe61fd8ba2374860be6ff252a",
+      "sha256_after": "22bffd99189f1433b56288a67623ab496db866bbe61fd8ba2374860be6ff252a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_22_while.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_22_while.html",
+      "sha256_before": "1d20461fd75b05aa7c90aa45846e476e8e308ef463072b787443b61b84794713",
+      "sha256_after": "1d20461fd75b05aa7c90aa45846e476e8e308ef463072b787443b61b84794713"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_23_do.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_23_do.html",
+      "sha256_before": "015d14c37de014dd1fa14932b40c9bc4de2930a3ef71a24b30713a311a979b0d",
+      "sha256_after": "015d14c37de014dd1fa14932b40c9bc4de2930a3ef71a24b30713a311a979b0d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_24_for.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_24_for.html",
+      "sha256_before": "1a74e2f51e94789cc8594dd33626f435f0b4dd8b1bcd30b38b0fadb69c947b6e",
+      "sha256_after": "1a74e2f51e94789cc8594dd33626f435f0b4dd8b1bcd30b38b0fadb69c947b6e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_25_forin.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_25_forin.html",
+      "sha256_before": "7d7e45686eeaeb5ab1afe475b093022f2ba0320ea827ef17a91cc557c059614d",
+      "sha256_after": "7d7e45686eeaeb5ab1afe475b093022f2ba0320ea827ef17a91cc557c059614d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_26_forof.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_26_forof.html",
+      "sha256_before": "1f33dead514d3dc24e40557f09a84729e7808631b8a690031dad33929693bf81",
+      "sha256_after": "1f33dead514d3dc24e40557f09a84729e7808631b8a690031dad33929693bf81"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_27_break_continue.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_27_break_continue.html",
+      "sha256_before": "77e2b9e2e9ce957ae86bb1bd7422a1941cd9ce79bcec44839dcc0f24a38542e0",
+      "sha256_after": "77e2b9e2e9ce957ae86bb1bd7422a1941cd9ce79bcec44839dcc0f24a38542e0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_28_try_throw.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_28_try_throw.html",
+      "sha256_before": "4dfb47264de3e6956fe93fe5b3c3856266df9a137196292046060cf33291cad6",
+      "sha256_after": "4dfb47264de3e6956fe93fe5b3c3856266df9a137196292046060cf33291cad6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_29_strict_mode.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/2_29_strict_mode.html",
+      "sha256_before": "95d2176e3ceab91b265a7cc3c73d8266bcffe8f3226669d0d9c68a20b5301481",
+      "sha256_after": "95d2176e3ceab91b265a7cc3c73d8266bcffe8f3226669d0d9c68a20b5301481"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/debug.log",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/debug.log",
+      "sha256_before": "8eeee8d498d2260dc188b8920185d4bbcff213c1555e128406df23bf23140e69",
+      "sha256_after": "8eeee8d498d2260dc188b8920185d4bbcff213c1555e128406df23bf23140e69"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/arithmetic_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/arithmetic_operator.js",
+      "sha256_before": "ce96ee7c25c1022bad33b1ac53fa168c2d7dd1236026a9bc37e5ae59727d00c6",
+      "sha256_after": "ce96ee7c25c1022bad33b1ac53fa168c2d7dd1236026a9bc37e5ae59727d00c6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/array.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/array.js",
+      "sha256_before": "911764cfef19e5bed18427860a26d13ac2933d2550adffb700feea7f82cf33fd",
+      "sha256_after": "911764cfef19e5bed18427860a26d13ac2933d2550adffb700feea7f82cf33fd"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/assignment_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/assignment_operator.js",
+      "sha256_before": "dcbdf6756e86d84c841d56e70b2f3c04405a5210957724c0f530b686d472d076",
+      "sha256_after": "dcbdf6756e86d84c841d56e70b2f3c04405a5210957724c0f530b686d472d076"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/break.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/break.js",
+      "sha256_before": "d1d9023c53505b783660a439e8d58a2ea2c619d7ca8962881b34844ddc431e06",
+      "sha256_after": "d1d9023c53505b783660a439e8d58a2ea2c619d7ca8962881b34844ddc431e06"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/comparison_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/comparison_operator.js",
+      "sha256_before": "6170bdb956b89b8b1c49eeecc6ff0c7ab6152eaa154b206eb53b84ccbaec9c9c",
+      "sha256_after": "6170bdb956b89b8b1c49eeecc6ff0c7ab6152eaa154b206eb53b84ccbaec9c9c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/const.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/const.js",
+      "sha256_before": "c6134edbc44c1c14b9ab6daeb2757706a11ab8dca9d26164de2c90d51934284a",
+      "sha256_after": "c6134edbc44c1c14b9ab6daeb2757706a11ab8dca9d26164de2c90d51934284a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/delete_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/delete_operator.js",
+      "sha256_before": "4db03b82e82a7140a51592fd03891bb31722f821a3fefeb68ca727f3797ce549",
+      "sha256_after": "4db03b82e82a7140a51592fd03891bb31722f821a3fefeb68ca727f3797ce549"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/destructure_assignment.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/destructure_assignment.js",
+      "sha256_before": "6b750b207533282e6d7cf9a0b53f1c05a4741eb553030f22fd08212ae0a610e7",
+      "sha256_after": "6b750b207533282e6d7cf9a0b53f1c05a4741eb553030f22fd08212ae0a610e7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/do.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/do.js",
+      "sha256_before": "9923a24bbb4f2259565d95d3399e19047c815707a7328d45b925611870632d32",
+      "sha256_after": "9923a24bbb4f2259565d95d3399e19047c815707a7328d45b925611870632d32"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/escape.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/escape.js",
+      "sha256_before": "ec11ae07efcd302b56d3a973ccdd6de8cba5690d25dc77dfa82f79344c5ddc3f",
+      "sha256_after": "ec11ae07efcd302b56d3a973ccdd6de8cba5690d25dc77dfa82f79344c5ddc3f"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/for.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/for.js",
+      "sha256_before": "d21012dd43a2d02121740207bf368ae3e4dae8d8c17bab61a5622167c3ce29e1",
+      "sha256_after": "d21012dd43a2d02121740207bf368ae3e4dae8d8c17bab61a5622167c3ce29e1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/forin.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/forin.js",
+      "sha256_before": "42e83c51402a2d76d005c8148ceaded9c944f2a4aa2d173571b7d4bf6738b3a6",
+      "sha256_after": "42e83c51402a2d76d005c8148ceaded9c944f2a4aa2d173571b7d4bf6738b3a6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/forof.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/forof.js",
+      "sha256_before": "b3c63c1f0ace5b914b7bd0fb264670784028c7a22480f9279298fb0f42352a84",
+      "sha256_after": "b3c63c1f0ace5b914b7bd0fb264670784028c7a22480f9279298fb0f42352a84"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/function_literal.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/function_literal.js",
+      "sha256_before": "d4262c73462547781bed3f3dd4f79a7be3a191c79baac59a39dd1ddae6a14aab",
+      "sha256_after": "d4262c73462547781bed3f3dd4f79a7be3a191c79baac59a39dd1ddae6a14aab"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/hello.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/hello.js",
+      "sha256_before": "4765b7354a878c972cbe767a9eb85e559a8f5075966ef41a51378960c0068007",
+      "sha256_after": "4765b7354a878c972cbe767a9eb85e559a8f5075966ef41a51378960c0068007"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/hello_external_jsfile.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/hello_external_jsfile.js",
+      "sha256_before": "6ba6e896d8ab6c30eabd80064a910be7cc7a9310bf0acb41c15acd8081a2799e",
+      "sha256_after": "6ba6e896d8ab6c30eabd80064a910be7cc7a9310bf0acb41c15acd8081a2799e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/if_else.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/if_else.js",
+      "sha256_before": "63d6f930c38d1c8020a16643054397c4bdb9d0e68817a182bfd0915e2e738769",
+      "sha256_after": "63d6f930c38d1c8020a16643054397c4bdb9d0e68817a182bfd0915e2e738769"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/let.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/let.js",
+      "sha256_before": "e3397b0f384cb9039c7e2279848ea0a3eb72db3b846de54e6d52bb33a1fcdfb0",
+      "sha256_after": "e3397b0f384cb9039c7e2279848ea0a3eb72db3b846de54e6d52bb33a1fcdfb0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/logic_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/logic_operator.js",
+      "sha256_before": "1e10025ebb64832a90386410ddc332e2751c37114ff25389df84b8903a169656",
+      "sha256_after": "1e10025ebb64832a90386410ddc332e2751c37114ff25389df84b8903a169656"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/object.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/object.js",
+      "sha256_before": "2f43623c90d74dcda271dba47ff95afcc98daaba8ad4a6300fa933a3e1e87b4c",
+      "sha256_after": "2f43623c90d74dcda271dba47ff95afcc98daaba8ad4a6300fa933a3e1e87b4c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/strict_mode.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/strict_mode.js",
+      "sha256_before": "5f22d23a51a52d78fb40ec196ec8fe984a5fa769f07772cc15bbe5c5f5485d59",
+      "sha256_after": "5f22d23a51a52d78fb40ec196ec8fe984a5fa769f07772cc15bbe5c5f5485d59"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/switch.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/switch.js",
+      "sha256_before": "368bcb737fae8dcf99e006f9a651bdd61207d83f9b0fb595bc32e2d00f4e78eb",
+      "sha256_after": "368bcb737fae8dcf99e006f9a651bdd61207d83f9b0fb595bc32e2d00f4e78eb"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/template.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/template.js",
+      "sha256_before": "9a6897bf680fd1a477f25841227273d97a6cbe858677513943a9f4b4947b9190",
+      "sha256_after": "9a6897bf680fd1a477f25841227273d97a6cbe858677513943a9f4b4947b9190"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/try.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/try.js",
+      "sha256_before": "43757d5f85b446073404ecf993a8e0b1cc6d4fcc65f66897b4667cfdcf03d562",
+      "sha256_after": "43757d5f85b446073404ecf993a8e0b1cc6d4fcc65f66897b4667cfdcf03d562"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/typeof_operator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/typeof_operator.js",
+      "sha256_before": "c7fa8c6b318345747d57fc7181c6ccff5491a5b067c243a6684125a7cc90c66d",
+      "sha256_after": "c7fa8c6b318345747d57fc7181c6ccff5491a5b067c243a6684125a7cc90c66d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/undefined_null.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/undefined_null.js",
+      "sha256_before": "bef8019cf1321b911e0c690cf21cec7b62c0662692b2f2aa8432b6a4677a40f8",
+      "sha256_after": "bef8019cf1321b911e0c690cf21cec7b62c0662692b2f2aa8432b6a4677a40f8"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/var.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/var.js",
+      "sha256_before": "df41734afe0b6f5c1417d7301c17e2faceca8c282636a07812b42fd82cf4d246",
+      "sha256_after": "df41734afe0b6f5c1417d7301c17e2faceca8c282636a07812b42fd82cf4d246"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/while.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/scripts/while.js",
+      "sha256_before": "6f538f70414c4c8e1e844f2b70b69c76aa9c23e9b97f0cd25d58e0e36d640086",
+      "sha256_after": "6f538f70414c4c8e1e844f2b70b69c76aa9c23e9b97f0cd25d58e0e36d640086"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/styles/hello.css",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch02_datatypes/styles/hello.css",
+      "sha256_before": "5fe5a78ff4371152eb31cf4e0612133ae5a91a5f8bad4784f75e59496d06e916",
+      "sha256_after": "5fe5a78ff4371152eb31cf4e0612133ae5a91a5f8bad4784f75e59496d06e916"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_01_built_in_object.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_01_built_in_object.html",
+      "sha256_before": "b3c467f8dcb32a75a8f5a49012d71743625e6d708f758aaf5bb19b7bb39b1d5c",
+      "sha256_after": "b3c467f8dcb32a75a8f5a49012d71743625e6d708f758aaf5bb19b7bb39b1d5c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_02_string.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_02_string.html",
+      "sha256_before": "6fb3636b8f9f38b2c3a083c88fd06b9481271c7f288352404ea15c85a0d29d1e",
+      "sha256_after": "6fb3636b8f9f38b2c3a083c88fd06b9481271c7f288352404ea15c85a0d29d1e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_03_number.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_03_number.html",
+      "sha256_before": "ad78189727a10705ce315f89ce47c125fe2eaaf403c90b7f4ac050c018f01174",
+      "sha256_after": "ad78189727a10705ce315f89ce47c125fe2eaaf403c90b7f4ac050c018f01174"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_04_symbol.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_04_symbol.html",
+      "sha256_before": "e6d440e4cb0554792974eaec0e52f977b6d9f1a43046cde671cdb6d5b13e489d",
+      "sha256_after": "e6d440e4cb0554792974eaec0e52f977b6d9f1a43046cde671cdb6d5b13e489d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_05_math.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_05_math.html",
+      "sha256_before": "134913d817e89e625a53b05008b5a2e330eaff86257e803a5df31c569aaad08d",
+      "sha256_after": "134913d817e89e625a53b05008b5a2e330eaff86257e803a5df31c569aaad08d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_06_array.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_06_array.html",
+      "sha256_before": "b5e2cebc6b62c1b6ffb2bfbc3f69969ab16becd4723c50d87288a92a3be7d434",
+      "sha256_after": "b5e2cebc6b62c1b6ffb2bfbc3f69969ab16becd4723c50d87288a92a3be7d434"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_07_array_stack_queue.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_07_array_stack_queue.html",
+      "sha256_before": "ae92dd0d68ad09e2ceb2d4aa293392b1a138fdd6ce877feea536e768ae5c5811",
+      "sha256_after": "ae92dd0d68ad09e2ceb2d4aa293392b1a138fdd6ce877feea536e768ae5c5811"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_08_array_splice.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_08_array_splice.html",
+      "sha256_before": "3d6b103da917c9320b235a23c79dc4910b9959315ad2cabae1557500e7d4d3d4",
+      "sha256_after": "3d6b103da917c9320b235a23c79dc4910b9959315ad2cabae1557500e7d4d3d4"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_09_callback.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_09_callback.html",
+      "sha256_before": "e9a0529e62aef513927f90af965acfb3b6258cd8d4f456c87d3c0a7012dd2e7f",
+      "sha256_after": "e9a0529e62aef513927f90af965acfb3b6258cd8d4f456c87d3c0a7012dd2e7f"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_10_map.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_10_map.html",
+      "sha256_before": "bd898e5036986d8d552493e3c2a61dd53ae8f7d4be20f7dff00966471387e6a5",
+      "sha256_after": "bd898e5036986d8d552493e3c2a61dd53ae8f7d4be20f7dff00966471387e6a5"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_11_map_key.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_11_map_key.html",
+      "sha256_before": "6e961cd4e365aa1c8e7a340ebe9654bea4b2a3eb52dbda82d1252ea7f5a137c8",
+      "sha256_after": "6e961cd4e365aa1c8e7a340ebe9654bea4b2a3eb52dbda82d1252ea7f5a137c8"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_12_set.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_12_set.html",
+      "sha256_before": "73d45ed48b745d46160a436bd7c6c633553e809c565441473e78bddfef42b4c9",
+      "sha256_after": "73d45ed48b745d46160a436bd7c6c633553e809c565441473e78bddfef42b4c9"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_13_date.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_13_date.html",
+      "sha256_before": "7c50a70e6d269db908601111a0f93ff55e9b537831b28dff1af7ae1202462ff8",
+      "sha256_after": "7c50a70e6d269db908601111a0f93ff55e9b537831b28dff1af7ae1202462ff8"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_14_object.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_14_object.html",
+      "sha256_before": "26de68385b57e0defd75f6a42496916c71d4617e1419fa8fc99f67c9688999ae",
+      "sha256_after": "26de68385b57e0defd75f6a42496916c71d4617e1419fa8fc99f67c9688999ae"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_15_object_restrict_property.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_15_object_restrict_property.html",
+      "sha256_before": "ebcb1e5274b2b47002251ce6834d59e889973a1c33119fc9c9e7b339c3b15c37",
+      "sha256_after": "ebcb1e5274b2b47002251ce6834d59e889973a1c33119fc9c9e7b339c3b15c37"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_16_global_object.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/3_16_global_object.html",
+      "sha256_before": "48f51b7ac110ee9a398d2dcf760d2cc50f69d2da3b0ae02d6be8fcc88a8d5016",
+      "sha256_after": "48f51b7ac110ee9a398d2dcf760d2cc50f69d2da3b0ae02d6be8fcc88a8d5016"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array.js",
+      "sha256_before": "3a6a42d0bc2e6a49e152ff863563bb1747dc76886d7a9788476c5dc7c22c5e28",
+      "sha256_after": "3a6a42d0bc2e6a49e152ff863563bb1747dc76886d7a9788476c5dc7c22c5e28"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array_splice.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array_splice.js",
+      "sha256_before": "377a71439ccc9f348fff1cd7f4739bce285c5956c554024b5823742641f4ada9",
+      "sha256_after": "377a71439ccc9f348fff1cd7f4739bce285c5956c554024b5823742641f4ada9"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array_stack_queue.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/array_stack_queue.js",
+      "sha256_before": "1c578abf8fbfa67adbc73048c712a24235da74b06d3351211a3fe771e418b3dc",
+      "sha256_after": "1c578abf8fbfa67adbc73048c712a24235da74b06d3351211a3fe771e418b3dc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/built_in_object.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/built_in_object.js",
+      "sha256_before": "82e22fcd87ebd802c93959244b6e8fc5aaeb2fc4ef8250d4671d44ee43bdde16",
+      "sha256_after": "82e22fcd87ebd802c93959244b6e8fc5aaeb2fc4ef8250d4671d44ee43bdde16"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/callback.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/callback.js",
+      "sha256_before": "c9eace9c619131a89dd0a85057ef2bcb8786a391092f824b3a2d608dbe8a3fc5",
+      "sha256_after": "c9eace9c619131a89dd0a85057ef2bcb8786a391092f824b3a2d608dbe8a3fc5"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/date.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/date.js",
+      "sha256_before": "c9be611620f9c0751f298384a5d198d89382b4510ae3080804f6754e1035e1c1",
+      "sha256_after": "c9be611620f9c0751f298384a5d198d89382b4510ae3080804f6754e1035e1c1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/global_object.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/global_object.js",
+      "sha256_before": "197c88e8939391042e38d50f092af798c1e098ee5744a43cce28def5c81346b1",
+      "sha256_after": "197c88e8939391042e38d50f092af798c1e098ee5744a43cce28def5c81346b1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/map.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/map.js",
+      "sha256_before": "07875e16f2960fd0e5031feecae0f5f4dca040888d7a2faa2c6466b65ad7ad4c",
+      "sha256_after": "07875e16f2960fd0e5031feecae0f5f4dca040888d7a2faa2c6466b65ad7ad4c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/map_key.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/map_key.js",
+      "sha256_before": "00a0619c6122935e046a69257ac6a936f693499f80ab1b672e863694aacfe3f3",
+      "sha256_after": "00a0619c6122935e046a69257ac6a936f693499f80ab1b672e863694aacfe3f3"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/math.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/math.js",
+      "sha256_before": "653b2e2847989f359b0ccd9a4130e99f526bdaecd1f6934b8c733deba7456c45",
+      "sha256_after": "653b2e2847989f359b0ccd9a4130e99f526bdaecd1f6934b8c733deba7456c45"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/number.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/number.js",
+      "sha256_before": "48e2f834ade003a0ff1f2a496f19adc3f12a06be71d401747e8692078feab9fc",
+      "sha256_after": "48e2f834ade003a0ff1f2a496f19adc3f12a06be71d401747e8692078feab9fc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/object.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/object.js",
+      "sha256_before": "0d7926b7fe08b761f970aa4d51c7fe25fe346c2746548d700ec5feff59dc0efc",
+      "sha256_after": "0d7926b7fe08b761f970aa4d51c7fe25fe346c2746548d700ec5feff59dc0efc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/object_restrict_property.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/object_restrict_property.js",
+      "sha256_before": "5db9811e19f14754f1894197880608cade5c85d05bd4fe1ea83f1c403f89fca1",
+      "sha256_after": "5db9811e19f14754f1894197880608cade5c85d05bd4fe1ea83f1c403f89fca1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/set.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/set.js",
+      "sha256_before": "00d2c4759c48a0cbd5f8c3ee281b50d601e93478866f6a98d7c1d0f9fb76d0a7",
+      "sha256_after": "00d2c4759c48a0cbd5f8c3ee281b50d601e93478866f6a98d7c1d0f9fb76d0a7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/string.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/string.js",
+      "sha256_before": "586514da197300defe291db9ec1241d76508aa5f570a254869e97ff79eaa979d",
+      "sha256_after": "586514da197300defe291db9ec1241d76508aa5f570a254869e97ff79eaa979d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/symbol.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch03_embeddedobj/scripts/symbol.js",
+      "sha256_before": "a0d6175c102af9167486914a2dab7b749ffd45dc7e454aa69f21e6e378e0e2cc",
+      "sha256_after": "a0d6175c102af9167486914a2dab7b749ffd45dc7e454aa69f21e6e378e0e2cc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_01_function.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_01_function.html",
+      "sha256_before": "2ae5d8b5b1ffdde2b04db64c06ddcea572cd67ee921c8b535e497920d16496b4",
+      "sha256_after": "2ae5d8b5b1ffdde2b04db64c06ddcea572cd67ee921c8b535e497920d16496b4"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_02_function_datatype.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_02_function_datatype.html",
+      "sha256_before": "da6443943b66798889e67d0368c9e4e436e76cb401200816c17e064143b9b48b",
+      "sha256_after": "da6443943b66798889e67d0368c9e4e436e76cb401200816c17e064143b9b48b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_03_variable_scope.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_03_variable_scope.html",
+      "sha256_before": "6cfd6a9c2cf626d01ab6baddb5af39e599ba2e06026e40fec367f8639c65821d",
+      "sha256_after": "6cfd6a9c2cf626d01ab6baddb5af39e599ba2e06026e40fec367f8639c65821d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_04_argument_scope.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_04_argument_scope.html",
+      "sha256_before": "889737cec7331d4a69a0890e85778b93a0a1b2daa4961308a46e72a555ab223b",
+      "sha256_after": "889737cec7331d4a69a0890e85778b93a0a1b2daa4961308a46e72a555ab223b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_05_es5_blocklevel_scope.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_05_es5_blocklevel_scope.html",
+      "sha256_before": "88e214158bdd0435f76a9fb53578ac4898c9c833abc019f9bc066c7be3a1d8e8",
+      "sha256_after": "88e214158bdd0435f76a9fb53578ac4898c9c833abc019f9bc066c7be3a1d8e8"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_06_es6_blocklevel_scope.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_06_es6_blocklevel_scope.html",
+      "sha256_before": "ef1eb6b664ea71e1d4a9c55f7eff83cff682f737a0bf6766651c09f7b11285c0",
+      "sha256_after": "ef1eb6b664ea71e1d4a9c55f7eff83cff682f737a0bf6766651c09f7b11285c0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_07_function_args.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_07_function_args.html",
+      "sha256_before": "ced086905b313f283ea9a2fbae903efc75737c5b56626e87dbca11e1bf4c4386",
+      "sha256_after": "ced086905b313f283ea9a2fbae903efc75737c5b56626e87dbca11e1bf4c4386"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_08_function_default_args.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_08_function_default_args.html",
+      "sha256_before": "59f3904e866a2826e9691b788fb37f0b71fdd68ab2b3c5bf80fad134bf8f3f0f",
+      "sha256_after": "59f3904e866a2826e9691b788fb37f0b71fdd68ab2b3c5bf80fad134bf8f3f0f"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_09_rest_parameter.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_09_rest_parameter.html",
+      "sha256_before": "a977e96fe5cd74ed07f816ee75ee0d682ec416bd4dd777e3dc599d3cfa3b8e51",
+      "sha256_after": "a977e96fe5cd74ed07f816ee75ee0d682ec416bd4dd777e3dc599d3cfa3b8e51"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_10_named_args.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_10_named_args.html",
+      "sha256_before": "8bb9a68c8de6f75e4755f2eaf5f59f436d405e3d0aae95450ae3f9269bd0285d",
+      "sha256_after": "8bb9a68c8de6f75e4755f2eaf5f59f436d405e3d0aae95450ae3f9269bd0285d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_11_function_call.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_11_function_call.html",
+      "sha256_before": "7b0ca974fc43c6cc34c75faf0476912a1483fd58284bdcf91af4758ecbdf788f",
+      "sha256_after": "7b0ca974fc43c6cc34c75faf0476912a1483fd58284bdcf91af4758ecbdf788f"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_12_scope_chain.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_12_scope_chain.html",
+      "sha256_before": "38fa5f37d7c3b0b83c2ecd80acc7df4b0a71fc88424d82933299dd51964e6dca",
+      "sha256_after": "38fa5f37d7c3b0b83c2ecd80acc7df4b0a71fc88424d82933299dd51964e6dca"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/4_13_closure.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/4_13_closure.html",
+      "sha256_before": "e3fd46614ad60248b204d63015687ea3deb6f65b7f9815a6d8330af54296c723",
+      "sha256_after": "e3fd46614ad60248b204d63015687ea3deb6f65b7f9815a6d8330af54296c723"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/argument_scope.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/argument_scope.js",
+      "sha256_before": "118b6b262c29765550366678fb6917f844a83e19242ffc614d80289d3bcae833",
+      "sha256_after": "118b6b262c29765550366678fb6917f844a83e19242ffc614d80289d3bcae833"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/closure.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/closure.js",
+      "sha256_before": "3b7bc50f1a05e0f809fc6ed102b1b3c69be5af21778c0a7b148b5743b3e6b69a",
+      "sha256_after": "3b7bc50f1a05e0f809fc6ed102b1b3c69be5af21778c0a7b148b5743b3e6b69a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/es5_blocklevel_scope.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/es5_blocklevel_scope.js",
+      "sha256_before": "877cfc44054c5acaf8cec52b59af89417bb9305cdf25dbf95cfe6534f8cad2ab",
+      "sha256_after": "877cfc44054c5acaf8cec52b59af89417bb9305cdf25dbf95cfe6534f8cad2ab"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/es6_blocklevel_scope.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/es6_blocklevel_scope.js",
+      "sha256_before": "28ea44110fdea91efc4017a7f50f7358b08c0ee3f6b06c359f8b54cf3f71805c",
+      "sha256_after": "28ea44110fdea91efc4017a7f50f7358b08c0ee3f6b06c359f8b54cf3f71805c"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function.js",
+      "sha256_before": "5e2b750fe96c8c0cb5f5478c7979a45b9f65a94da53dba6147a42a0a37f895af",
+      "sha256_after": "5e2b750fe96c8c0cb5f5478c7979a45b9f65a94da53dba6147a42a0a37f895af"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_args.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_args.js",
+      "sha256_before": "0223858d31e3d6101e6bf3f9f56183f5bf9cfbe6ef9d154a7220768d2ad191b2",
+      "sha256_after": "0223858d31e3d6101e6bf3f9f56183f5bf9cfbe6ef9d154a7220768d2ad191b2"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_call.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_call.js",
+      "sha256_before": "5a1d2a0db0912651e6f187ffb6e380e15064a83ab26a528b931c6cc2ed4a6001",
+      "sha256_after": "5a1d2a0db0912651e6f187ffb6e380e15064a83ab26a528b931c6cc2ed4a6001"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_datatype.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_datatype.js",
+      "sha256_before": "c788cb987eb2b873ffc6816a91dc0f9a527042e7ae8e83c57721bb4119790c30",
+      "sha256_after": "c788cb987eb2b873ffc6816a91dc0f9a527042e7ae8e83c57721bb4119790c30"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_default_args.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/function_default_args.js",
+      "sha256_before": "813d7b3589a55d8a3607296694b12a07af499cf6e2f0499c36d12063a4d1fb6a",
+      "sha256_after": "813d7b3589a55d8a3607296694b12a07af499cf6e2f0499c36d12063a4d1fb6a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/named_args.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/named_args.js",
+      "sha256_before": "fb5d801b48d19122e87475a4442859a289ef2f71c3f36c013c25ec9d0dc9d6c0",
+      "sha256_after": "fb5d801b48d19122e87475a4442859a289ef2f71c3f36c013c25ec9d0dc9d6c0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/rest_parameter.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/rest_parameter.js",
+      "sha256_before": "ebe9aa19d631675bd22b0f6b04d4b1bec108d418c2558ff4fdd11abec9b7b3fc",
+      "sha256_after": "ebe9aa19d631675bd22b0f6b04d4b1bec108d418c2558ff4fdd11abec9b7b3fc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/scope_chain.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/scope_chain.js",
+      "sha256_before": "a20c77f4952ebc5ceda0f5b9eaa2eb26ff5371083b2e4272bb506b3ae0bdd94a",
+      "sha256_after": "a20c77f4952ebc5ceda0f5b9eaa2eb26ff5371083b2e4272bb506b3ae0bdd94a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/variable_scope.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch04_function/scripts/variable_scope.js",
+      "sha256_before": "f1eb04e5cd09c1553e5fd7041d5e307bfe9cfc0212833a212f81bf760fe30eba",
+      "sha256_after": "f1eb04e5cd09c1553e5fd7041d5e307bfe9cfc0212833a212f81bf760fe30eba"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_01_class_basic.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_01_class_basic.html",
+      "sha256_before": "4e84c94b1c867f27825cbbe18912a23ca351a67a7226346c5568d5ed16e332ef",
+      "sha256_after": "4e84c94b1c867f27825cbbe18912a23ca351a67a7226346c5568d5ed16e332ef"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_02_method_dynamic_add.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_02_method_dynamic_add.html",
+      "sha256_before": "ac531b080d4b155b0643ca5eddd6c2b1b00c275693253293b776af9e4bf952d9",
+      "sha256_after": "ac531b080d4b155b0643ca5eddd6c2b1b00c275693253293b776af9e4bf952d9"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_03_call_method.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_03_call_method.html",
+      "sha256_before": "e392ab7be1b84eae0c73eda18134eef775a9c08684a1a98d4c256e7f7f2b79f2",
+      "sha256_after": "e392ab7be1b84eae0c73eda18134eef775a9c08684a1a98d4c256e7f7f2b79f2"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_04_apply_method.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_04_apply_method.html",
+      "sha256_before": "93c97bdc8c87ebcf61e0b60b187dadd96dc89105111dd7656f25751a62547c54",
+      "sha256_after": "93c97bdc8c87ebcf61e0b60b187dadd96dc89105111dd7656f25751a62547c54"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_05_constructor_call.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_05_constructor_call.html",
+      "sha256_before": "e908a4b8dfd111ea9611b2106ef86a2d665dbffb282857e45b0a5ee339d1ff19",
+      "sha256_after": "e908a4b8dfd111ea9611b2106ef86a2d665dbffb282857e45b0a5ee339d1ff19"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_06_prototype_object.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_06_prototype_object.html",
+      "sha256_before": "adda8cea2976bfd80c88753d723232a3d4e657df1747f014212121acae155ea6",
+      "sha256_after": "adda8cea2976bfd80c88753d723232a3d4e657df1747f014212121acae155ea6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_07_prototype_useliteral.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_07_prototype_useliteral.html",
+      "sha256_before": "b820a243c2947f14cd93ffa897a3faf11a2c3dcf5692c0b1bcb606cb33e1cec2",
+      "sha256_after": "b820a243c2947f14cd93ffa897a3faf11a2c3dcf5692c0b1bcb606cb33e1cec2"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_08_static_method.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_08_static_method.html",
+      "sha256_before": "f976f0dca6fbf5262366a549a208f594d7c9d0f6b7e6d8c01f3b50868455fe76",
+      "sha256_after": "f976f0dca6fbf5262366a549a208f594d7c9d0f6b7e6d8c01f3b50868455fe76"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_09_prototype_chain.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_09_prototype_chain.html",
+      "sha256_before": "fd7f8957775aac6620c00b559911b1f43b844047aefcab71aafeaf049e62a5bf",
+      "sha256_after": "fd7f8957775aac6620c00b559911b1f43b844047aefcab71aafeaf049e62a5bf"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_10_prototype_chain_dynamic.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_10_prototype_chain_dynamic.html",
+      "sha256_before": "0c4f2fdf40561e6551a03fba8d69eb20cc50a61a70c2d85593957da0afd6663a",
+      "sha256_after": "0c4f2fdf40561e6551a03fba8d69eb20cc50a61a70c2d85593957da0afd6663a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_11_object_type_check.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_11_object_type_check.html",
+      "sha256_before": "8b780f55c17a203741d38552d8399aab57d7e2a7aa2658aca9d0e51f04903e40",
+      "sha256_after": "8b780f55c17a203741d38552d8399aab57d7e2a7aa2658aca9d0e51f04903e40"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_12_private_member.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_12_private_member.html",
+      "sha256_before": "18088a874970379effe5982452ed02ba3be369eba005e932b1ce144d46b5decf",
+      "sha256_after": "18088a874970379effe5982452ed02ba3be369eba005e932b1ce144d46b5decf"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_13_property_accessor_method.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_13_property_accessor_method.html",
+      "sha256_before": "223d891eb748c374f3254d30c48248976841dde686dbf70949cd0b02bee5a627",
+      "sha256_after": "223d891eb748c374f3254d30c48248976841dde686dbf70949cd0b02bee5a627"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_14_namespase.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_14_namespase.html",
+      "sha256_before": "02498771818b1862883dbc94cc4676ca7b5878108c8d7f1352f6bf8cd3cda108",
+      "sha256_after": "02498771818b1862883dbc94cc4676ca7b5878108c8d7f1352f6bf8cd3cda108"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_15_es6_class.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_15_es6_class.html",
+      "sha256_before": "f4acece15d3fc5a00bb0d47ab202eb1ec11e6633af8e4acfca8dfe1dd48cdc53",
+      "sha256_after": "f4acece15d3fc5a00bb0d47ab202eb1ec11e6633af8e4acfca8dfe1dd48cdc53"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_16_es6_literal_method.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_16_es6_literal_method.html",
+      "sha256_before": "ede06cbcf412ab669dd020ce948294cd63b2b4e9232ce08c6756eb3bc424401e",
+      "sha256_after": "ede06cbcf412ab669dd020ce948294cd63b2b4e9232ce08c6756eb3bc424401e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_17_module.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_17_module.html",
+      "sha256_before": "0e393f1f00c9ac4e5b9b2749ebd6c8ec75b61e97b5a8ad003ccc48e5f76e8406",
+      "sha256_after": "0e393f1f00c9ac4e5b9b2749ebd6c8ec75b61e97b5a8ad003ccc48e5f76e8406"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_18_iterator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_18_iterator.html",
+      "sha256_before": "af69792d23c69751d91aa607d1eb5452a6c7a66052eaf1e8427a276b2d77c6f4",
+      "sha256_after": "af69792d23c69751d91aa607d1eb5452a6c7a66052eaf1e8427a276b2d77c6f4"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_19_generator.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_19_generator.html",
+      "sha256_before": "14c10aee9d8de3cccafd694dbd03d0254b1fbc3f693fe45f4b085457e8ec85a5",
+      "sha256_after": "14c10aee9d8de3cccafd694dbd03d0254b1fbc3f693fe45f4b085457e8ec85a5"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/5_20_proxy.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/5_20_proxy.html",
+      "sha256_before": "9b5f028e9fd6690c6ba11c2574525fa6e3ba955db6e082a4af56eb50f990f311",
+      "sha256_after": "9b5f028e9fd6690c6ba11c2574525fa6e3ba955db6e082a4af56eb50f990f311"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/apply_method.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/apply_method.js",
+      "sha256_before": "8746ab23ce2805847510b1452ce0e7ef2cf979d1871bf4dbed4feb45777fbdf0",
+      "sha256_after": "8746ab23ce2805847510b1452ce0e7ef2cf979d1871bf4dbed4feb45777fbdf0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/call_method.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/call_method.js",
+      "sha256_before": "8202ab8b2c2cd04c49aa6e76f83b68143d24209326154a9c67d3ca3071f307df",
+      "sha256_after": "8202ab8b2c2cd04c49aa6e76f83b68143d24209326154a9c67d3ca3071f307df"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/class_basic.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/class_basic.js",
+      "sha256_before": "c0dc7c57031b61aefc8bc4e6cb443e6e0dce9d6967f15fe8e9b326bf93be20d0",
+      "sha256_after": "c0dc7c57031b61aefc8bc4e6cb443e6e0dce9d6967f15fe8e9b326bf93be20d0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/constructor_call.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/constructor_call.js",
+      "sha256_before": "743cd402e238aa2bb3ac40b5d99ec74445fe650e0d2988c26870afd19fde2ef7",
+      "sha256_after": "743cd402e238aa2bb3ac40b5d99ec74445fe650e0d2988c26870afd19fde2ef7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/es6_class.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/es6_class.js",
+      "sha256_before": "5a43f36b5442bf24bfd7a73ae1bf775e71e95295c5fabd3280b8d2affe1b0eb6",
+      "sha256_after": "5a43f36b5442bf24bfd7a73ae1bf775e71e95295c5fabd3280b8d2affe1b0eb6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/es6_literal_method.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/es6_literal_method.js",
+      "sha256_before": "24a98d00011ed6472b3db23fd5f566e5c1bc1f85363d2934c8afdba749be40d6",
+      "sha256_after": "24a98d00011ed6472b3db23fd5f566e5c1bc1f85363d2934c8afdba749be40d6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/generator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/generator.js",
+      "sha256_before": "d0cd49b7ee6a59f82c7561f76af6ea791378826e32c9a1e4b563bce2b79cb2f0",
+      "sha256_after": "d0cd49b7ee6a59f82c7561f76af6ea791378826e32c9a1e4b563bce2b79cb2f0"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/iterator.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/iterator.js",
+      "sha256_before": "9bc6ebfe221b158a5af915d6b786a0e9ecc9ae5c63087dda3ad1b20dbaf81c5e",
+      "sha256_after": "9bc6ebfe221b158a5af915d6b786a0e9ecc9ae5c63087dda3ad1b20dbaf81c5e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/Area.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/Area.js",
+      "sha256_before": "33799fd116fa4091c85ef0a18c676e7b298aff8985795369d234f24f2cb25a9e",
+      "sha256_after": "33799fd116fa4091c85ef0a18c676e7b298aff8985795369d234f24f2cb25a9e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/MyApp.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/MyApp.js",
+      "sha256_before": "cc3ad43d5542ac0d84156b4c9ac7b9ea24b41834a631eeff29b006e501f349c1",
+      "sha256_after": "cc3ad43d5542ac0d84156b4c9ac7b9ea24b41834a631eeff29b006e501f349c1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/Util.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/lib/Util.js",
+      "sha256_before": "abb09475626791e615742f2d1e1fe12ab325ad94450c83e77a7dcaee4d3ebee7",
+      "sha256_after": "abb09475626791e615742f2d1e1fe12ab325ad94450c83e77a7dcaee4d3ebee7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/method_dynamic_add.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/method_dynamic_add.js",
+      "sha256_before": "17f5546506f5d699beca302dab2ea98789c9f60b9d564d262629966bb67f392e",
+      "sha256_after": "17f5546506f5d699beca302dab2ea98789c9f60b9d564d262629966bb67f392e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/module.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/module.js",
+      "sha256_before": "d0e99da25e719693cec7ea48bbfbe79153138e9e86a8f295a1261c5cbb2a5679",
+      "sha256_after": "d0e99da25e719693cec7ea48bbfbe79153138e9e86a8f295a1261c5cbb2a5679"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/namespase.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/namespase.js",
+      "sha256_before": "e800f256799a6bac8e201716ae4d187170905f7ad5a20332768d6461965ff7a1",
+      "sha256_after": "e800f256799a6bac8e201716ae4d187170905f7ad5a20332768d6461965ff7a1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/obj_type.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/obj_type.js",
+      "sha256_before": "3811afa0fc8fba586fc9953d7df78010cb593a30f78d166696b9b0dced3a3a97",
+      "sha256_after": "3811afa0fc8fba586fc9953d7df78010cb593a30f78d166696b9b0dced3a3a97"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/private_member.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/private_member.js",
+      "sha256_before": "e901e645edd2d4d67b641785905e8320f790d855204af2476384f54cd07af02b",
+      "sha256_after": "e901e645edd2d4d67b641785905e8320f790d855204af2476384f54cd07af02b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/property_accessor_method.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/property_accessor_method.js",
+      "sha256_before": "b1f8c340d7ca11424dd5d95c0c8ec6d7c9558793a1eb20c9a9cefce0f344cac7",
+      "sha256_after": "b1f8c340d7ca11424dd5d95c0c8ec6d7c9558793a1eb20c9a9cefce0f344cac7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_chain.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_chain.js",
+      "sha256_before": "c76e587856608423d6777e228eaeb81d81ab43eb37fea1e40abfa37a237c17cf",
+      "sha256_after": "c76e587856608423d6777e228eaeb81d81ab43eb37fea1e40abfa37a237c17cf"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_chain_dynamic.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_chain_dynamic.js",
+      "sha256_before": "6f5c8ee7789f280fca4dbf9dac3c7430a78f6a6ab9d35c53c49f6075cd6295ac",
+      "sha256_after": "6f5c8ee7789f280fca4dbf9dac3c7430a78f6a6ab9d35c53c49f6075cd6295ac"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_object.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_object.js",
+      "sha256_before": "50b98fd5c6d86cb0d1ecf3b520ba650e47efb82a4d17f1b41bb2afbb64a9cac1",
+      "sha256_after": "50b98fd5c6d86cb0d1ecf3b520ba650e47efb82a4d17f1b41bb2afbb64a9cac1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_useliteral.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/prototype_useliteral.js",
+      "sha256_before": "dfa923ab0159a39e03e9787a4ed724b2d6a3f430ce65e64dec83c191d9eafa5d",
+      "sha256_after": "dfa923ab0159a39e03e9787a4ed724b2d6a3f430ce65e64dec83c191d9eafa5d"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/proxy.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/proxy.js",
+      "sha256_before": "bba6e1b09c9d9513cf5df28209e7a0a3ec5a9d3ffd9014c2ccc75fe659d7f868",
+      "sha256_after": "bba6e1b09c9d9513cf5df28209e7a0a3ec5a9d3ffd9014c2ccc75fe659d7f868"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/static_method.js",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch05_class/scripts/static_method.js",
+      "sha256_before": "0a6def0be424e72b236c6c97a623382216d804d89cd0c4f0e71bf93f49d60728",
+      "sha256_after": "0a6def0be424e72b236c6c97a623382216d804d89cd0c4f0e71bf93f49d60728"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_01_dom_basic.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_01_dom_basic.html",
+      "sha256_before": "42ee7870fe24299a9adb36c316cba8bb5a5947919ba5d7a9589114b8e95431a7",
+      "sha256_after": "42ee7870fe24299a9adb36c316cba8bb5a5947919ba5d7a9589114b8e95431a7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_02_dom_basic2.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_02_dom_basic2.html",
+      "sha256_before": "6d8dac02d3269db10fce73ad9c75035a1784de0abc762be8ecd8f9b773a480d7",
+      "sha256_after": "6d8dac02d3269db10fce73ad9c75035a1784de0abc762be8ecd8f9b773a480d7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_03_dom_find_id.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_03_dom_find_id.html",
+      "sha256_before": "b934f296119a0c6aa102a0321fded8be8f9a0a8c849470a6332b4475110bcd23",
+      "sha256_after": "b934f296119a0c6aa102a0321fded8be8f9a0a8c849470a6332b4475110bcd23"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_04_dom_find_tagname.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_04_dom_find_tagname.html",
+      "sha256_before": "6e7008491609b1e51385618e0be1eacb74a7a76db700ce115da57d4cc504fe3e",
+      "sha256_after": "6e7008491609b1e51385618e0be1eacb74a7a76db700ce115da57d4cc504fe3e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_05_dom_find_classname.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_05_dom_find_classname.html",
+      "sha256_before": "cf78dfa3b7ecbdf3386876d38855652bfa6bc48b39c61f8d6f1ae99bd2bbbc04",
+      "sha256_after": "cf78dfa3b7ecbdf3386876d38855652bfa6bc48b39c61f8d6f1ae99bd2bbbc04"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_06_dom_find_css_selector.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_06_dom_find_css_selector.html",
+      "sha256_before": "66994ed4d3b4adc3102d525bad65582ff3720d22669a876635868ecdf4157937",
+      "sha256_after": "66994ed4d3b4adc3102d525bad65582ff3720d22669a876635868ecdf4157937"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_07_dom_find_document_forms.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_07_dom_find_document_forms.html",
+      "sha256_before": "115eae4de7b6533de1dfc89cbcabf799c90171cff412d73a60a17316e65479b6",
+      "sha256_after": "115eae4de7b6533de1dfc89cbcabf799c90171cff412d73a60a17316e65479b6"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_08_dom_find_document_links.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_08_dom_find_document_links.html",
+      "sha256_before": "d547d622c953f0289d824305156498025f888e9ace0df3c819bb063ef25de791",
+      "sha256_after": "d547d622c953f0289d824305156498025f888e9ace0df3c819bb063ef25de791"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_09_get_attributes.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_09_get_attributes.html",
+      "sha256_before": "ceffdf5d3dd6e41921da364d95b8e83020ceb0c90861d98b61dfea496a48b01a",
+      "sha256_after": "ceffdf5d3dd6e41921da364d95b8e83020ceb0c90861d98b61dfea496a48b01a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_10_change_css_attributes.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_10_change_css_attributes.html",
+      "sha256_before": "6b71d6d0392ddb8f5244f862ec336d5cddaf1f39dcddf9de8d2c08013735d808",
+      "sha256_after": "6b71d6d0392ddb8f5244f862ec336d5cddaf1f39dcddf9de8d2c08013735d808"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_11_change_css_styles.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_11_change_css_styles.html",
+      "sha256_before": "feb2ccc9e1e3cc6eef6d9b8bfefb594db510c3b69b40362a4c04e433ed25d08e",
+      "sha256_after": "feb2ccc9e1e3cc6eef6d9b8bfefb594db510c3b69b40362a4c04e433ed25d08e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_12_form_button.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_12_form_button.html",
+      "sha256_before": "86e73708e5415e75216a84fddd946d8438a5dd6ef10063bcac369cf1bfee486e",
+      "sha256_after": "86e73708e5415e75216a84fddd946d8438a5dd6ef10063bcac369cf1bfee486e"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_13_form_checkbox.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_13_form_checkbox.html",
+      "sha256_before": "cf556a1035d432332bf692463f10670a91ed2af0bdd6a4393ae5fddeae705d1b",
+      "sha256_after": "cf556a1035d432332bf692463f10670a91ed2af0bdd6a4393ae5fddeae705d1b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_14_form_radiobutton.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_14_form_radiobutton.html",
+      "sha256_before": "5a4fb3aaddd3bb741cac3ae51efac1416f72e9493d0bec13485d10481538a36a",
+      "sha256_after": "5a4fb3aaddd3bb741cac3ae51efac1416f72e9493d0bec13485d10481538a36a"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_15_form_submit.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_15_form_submit.html",
+      "sha256_before": "5fa60b4e95025075b61f299a9187af11c76e6819634a7e87d54e54f74d8e8468",
+      "sha256_after": "5fa60b4e95025075b61f299a9187af11c76e6819634a7e87d54e54f74d8e8468"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_16_form_input_text.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_16_form_input_text.html",
+      "sha256_before": "0c720ccb781945b21061e680cb0fd1e9456c4cf8b9e264b6ab330a9702003c2b",
+      "sha256_after": "0c720ccb781945b21061e680cb0fd1e9456c4cf8b9e264b6ab330a9702003c2b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_17_select.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_17_select.html",
+      "sha256_before": "d9e30cb64d56ef39abf1f22ef2a7fcca6ba266501b5c534b54bc119cfc9574a2",
+      "sha256_after": "d9e30cb64d56ef39abf1f22ef2a7fcca6ba266501b5c534b54bc119cfc9574a2"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_18_style_property.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_18_style_property.html",
+      "sha256_before": "bb88518b3bd90b11626b53ff52ffae919d0f0b0a86d797295da903133d67b3a1",
+      "sha256_after": "bb88518b3bd90b11626b53ff52ffae919d0f0b0a86d797295da903133d67b3a1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_19_event_basic.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_19_event_basic.html",
+      "sha256_before": "dc1194523b5c9ee72d56e40dce94c2e18db0929606a4192d35c5c2e2b78ed874",
+      "sha256_after": "dc1194523b5c9ee72d56e40dce94c2e18db0929606a4192d35c5c2e2b78ed874"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_20_event_listener.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_20_event_listener.html",
+      "sha256_before": "ead9ccc7561b39a44cd8c6b73a6fb2485a41ab0456b62629b505e01a49a3d5e1",
+      "sha256_after": "ead9ccc7561b39a44cd8c6b73a6fb2485a41ab0456b62629b505e01a49a3d5e1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_21_event_bubble_capture.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_21_event_bubble_capture.html",
+      "sha256_before": "c168f00642a4fe7d47959f61fe25101588c07f19544aaf216f412a4c3c67b1fc",
+      "sha256_after": "c168f00642a4fe7d47959f61fe25101588c07f19544aaf216f412a4c3c67b1fc"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_22_remove_eventlister.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_22_remove_eventlister.html",
+      "sha256_before": "6b111b8f4e4c0e7cc4ef915eb7b345181f84cfc8bf93bf628482e7c64fbe1598",
+      "sha256_after": "6b111b8f4e4c0e7cc4ef915eb7b345181f84cfc8bf93bf628482e7c64fbe1598"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_23_bom_navigation.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_23_bom_navigation.html",
+      "sha256_before": "6f412697f6cbd865d857b109eb62aad1e0630c1ce9b7c2367fac4569cd004f13",
+      "sha256_after": "6f412697f6cbd865d857b109eb62aad1e0630c1ce9b7c2367fac4569cd004f13"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_24_bom_node_change.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_24_bom_node_change.html",
+      "sha256_before": "6beac37a2df6614de8fb44990d8d774b7c8d1a1a89ae729219779b29a57b781b",
+      "sha256_after": "6beac37a2df6614de8fb44990d8d774b7c8d1a1a89ae729219779b29a57b781b"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_25_bom_window.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_25_bom_window.html",
+      "sha256_before": "1ce91fa47b0d9bd552733ca222cfb847801d2503de2614fb9a1c13072cd93c80",
+      "sha256_after": "1ce91fa47b0d9bd552733ca222cfb847801d2503de2614fb9a1c13072cd93c80"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_26_bom_screen.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_26_bom_screen.html",
+      "sha256_before": "8e0e29000ec535525bf04ac1c3654825b29aa56532b1d351292b615649040396",
+      "sha256_after": "8e0e29000ec535525bf04ac1c3654825b29aa56532b1d351292b615649040396"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_27_bom_location.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_27_bom_location.html",
+      "sha256_before": "fa25b0620061b3533fb9c3dab30720037af239c893851a21e3d5196438d3f3d5",
+      "sha256_after": "fa25b0620061b3533fb9c3dab30720037af239c893851a21e3d5196438d3f3d5"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_28_timing_events.html",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/6_28_timing_events.html",
+      "sha256_before": "23a6b9fa7c349625e093fbc9634ca10582f7c4f46e60960977041eff268d5aa7",
+      "sha256_after": "23a6b9fa7c349625e093fbc9634ca10582f7c4f46e60960977041eff268d5aa7"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/img_flwr.gif",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/img_flwr.gif",
+      "sha256_before": "856121ad969a6597b01f426cec54d312ab56ffb15d0188dcbb05c75762b3ad27",
+      "sha256_after": "856121ad969a6597b01f426cec54d312ab56ffb15d0188dcbb05c75762b3ad27"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/img_tree.gif",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/img_tree.gif",
+      "sha256_before": "90379ce54c24ad0a3b4ee8fedc20a23a71bbb37b88f3632559ca7a3178024e73",
+      "sha256_after": "90379ce54c24ad0a3b4ee8fedc20a23a71bbb37b88f3632559ca7a3178024e73"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/landscape.jpg",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/landscape.jpg",
+      "sha256_before": "389985256d3030ea4d8296e5ebd42896f85dc676741cb416027e33c26469a9b1",
+      "sha256_after": "389985256d3030ea4d8296e5ebd42896f85dc676741cb416027e33c26469a9b1"
+    },
+    {
+      "from": "웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/smiley.gif",
+      "to": "실습/웹프로그래밍/javascript_실습코드_전체/ch06_webbrowser/images/smiley.gif",
+      "sha256_before": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc",
+      "sha256_after": "d5c93d94c0b37fb79e531852530a476f6727ac1a7c2537b2598b413aba7456fc"
+    },
+    {
+      "from": "생성형AI를활용한마케팅/w01-OT-AI시대의창직과1인기업.pdf",
+      "to": "학습/생성형AI를활용한마케팅/01주차/PDF/w01-OT-AI시대의창직과1인기업.pdf",
+      "sha256_before": "1d428d33fd2d1b2dd317304d92a5c506d7441e28e2d39123ed51c927d660120b",
+      "sha256_after": "1d428d33fd2d1b2dd317304d92a5c506d7441e28e2d39123ed51c927d660120b"
+    },
+    {
+      "from": "생성형AI를활용한마케팅/w01-OT-AI시대의창직과1인기업_요약.md",
+      "to": "학습/생성형AI를활용한마케팅/01주차/노트/w01-OT-AI시대의창직과1인기업_요약.md",
+      "sha256_before": "9641f6a357115aabd755f932f466a52cc4a3c96c42106ac607f7219e3f46daba",
+      "sha256_after": "7f1e99c93a55f8c0024ef687f207285e26a1d3b7f9c32ac2165c1ee0a00804c7"
+    },
+    {
+      "from": "생성형AI를활용한마케팅/구글폼 링크.md",
+      "to": "학습/생성형AI를활용한마케팅/공통/노트/구글폼 링크.md",
+      "sha256_before": "38f44766a0fd24f633afdcf4f0587b4302215ea465a39808b555a9722ef006e5",
+      "sha256_after": "38f44766a0fd24f633afdcf4f0587b4302215ea465a39808b555a9722ef006e5"
+    },
+    {
+      "from": "생성형AI를활용한마케팅/아이디어.md",
+      "to": "학습/생성형AI를활용한마케팅/공통/노트/아이디어.md",
+      "sha256_before": "17f80fc83340957cbfe04ffe47b3c2fbe7889a6dc71705bb01ccc3eac34abca0",
+      "sha256_after": "17f80fc83340957cbfe04ffe47b3c2fbe7889a6dc71705bb01ccc3eac34abca0"
+    }
+  ],
+  "edited_markdown": 49,
+  "existing_local_links": 140,
+  "repaired_existing_bad_paths": 29,
+  "preexisting_missing_links": [
+    {
+      "source": "AI와정보보안/1주차/1주차_정보보안_요약.md",
+      "target": "AI와정보보안/1주차/정보보안-1.pdf",
+      "new_source": "학습/AI와정보보안/01주차/노트/1주차_정보보안_요약.md",
+      "new_target": "학습/AI와정보보안/01주차/PDF/정보보안-1.pdf",
+      "repaired_existing_bad_path": false
+    },
+    {
+      "source": "AI와정보보안/README.md",
+      "target": "AI와정보보안/1주차/정보보안-1.pdf",
+      "new_source": "학습/AI와정보보안/공통/노트/README.md",
+      "new_target": "학습/AI와정보보안/01주차/PDF/정보보안-1.pdf",
+      "repaired_existing_bad_path": false
+    },
+    {
+      "source": "디지털시스템입문/1주차/26페이지_KCL_노드해석.md",
+      "target": "디지털시스템입문/1주차/26페이지_KCL_회로도.svg",
+      "new_source": "학습/디지털시스템입문/01주차/노트/26페이지_KCL_노드해석.md",
+      "new_target": "학습/디지털시스템입문/01주차/노트/첨부/26페이지_KCL_회로도.svg",
+      "repaired_existing_bad_path": false
+    }
+  ],
+  "backup": "/Users/goseungmin/Desktop/2026-2-backup-20260928-124528",
+  "verified_files": 354,
+  "verified_existing_links": 140
+}

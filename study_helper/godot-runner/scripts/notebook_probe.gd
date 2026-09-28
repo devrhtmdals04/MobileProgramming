@@ -1,9 +1,10 @@
 extends Node
 ## Opt-in integration probe, using the native host's isolated test library and real Kotlin grader.
+var output_directory: String = "user://"
 
 func capture(game: JadeRunGame, name: String) -> void:
 	await RenderingServer.frame_post_draw
-	game.get_viewport().get_texture().get_image().save_png("user://" + name + ".png")
+	game.get_viewport().get_texture().get_image().save_png(output_directory + name + ".png")
 
 func animate(game: JadeRunGame, seconds: float) -> void:
 	for frame in int(ceil(seconds * 60)):
@@ -14,7 +15,9 @@ func run(game: JadeRunGame) -> void:
 	game.testing = true
 	game.ignore_focus_pause = true
 	game.set_physics_process(false)
-	var stage: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://study-bridge/probe-stage.json"))
+	if OS.get_name() not in ["iOS", "Android"]:
+		output_directory = game.study.directory + "/"
+	var stage: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(game.study.directory + "/probe-stage.json"))
 	var round_id := int(stage.get("round", 0))
 	if round_id == 3:
 		return # UIKit exercises its native close button.
@@ -100,7 +103,7 @@ func run(game: JadeRunGame) -> void:
 		await get_tree().create_timer(.9).timeout
 		await capture(game, "notebook-continuous-%d" % round_id)
 	var report := {"round": round_id, "session": session, "failures": failures, "knowledge": game.knowledge, "firstCorrect": game.correct_count, "reviewed": game.reviewed_count}
-	var file := FileAccess.open("user://notebook-engine-%d.json" % round_id, FileAccess.WRITE)
+	var file := FileAccess.open(output_directory + "notebook-engine-%d.json" % round_id, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report))
 	file.close()
 	await game.go_home()

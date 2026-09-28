@@ -64,10 +64,12 @@ android {
 tasks.named("preBuild") { dependsOn(unpackGodotGame) }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation(project(":studyCore"))
     implementation(project(":shared"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.runtime)
     implementation("org.godotengine:godot:4.6.2.stable")
     implementation("androidx.fragment:fragment:1.8.6")
+    implementation("com.google.android.gms:play-services-auth:22.0.0")
 }

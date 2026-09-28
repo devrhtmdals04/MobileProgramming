@@ -5,6 +5,7 @@ import com.example.study_helper.core.MarkdownNotes
 import com.example.study_helper.core.QuizFiles
 import com.example.study_helper.core.StudyService
 import kotlinx.serialization.json.*
+import com.example.study_helper.sync.*
 
 /** Platform code supplies storage and system UI; learning data and grading stay in Kotlin. */
 interface NotebookPlatform {
@@ -24,6 +25,9 @@ interface NotebookPlatform {
 
 /** Single main-thread owner, including calls from the native engine transport. */
 class NotebookHost(private val platform: NotebookPlatform) {
+    private val driveSync = (platform as? DrivePlatform)?.let { DriveSync(platform, it) }
+    var sharing by mutableStateOf(false)
+    val syncBusy: Boolean get() = driveSync?.state?.busy == true
     var notebook by mutableStateOf(StudyNotebook())
         private set
     var quizzes by mutableStateOf<List<StudyQuiz>>(emptyList())
@@ -206,6 +210,10 @@ class NotebookHost(private val platform: NotebookPlatform) {
 
     @Composable
     fun Content() {
+        if (sharing && driveSync != null) {
+            DriveSyncScreen(driveSync, onClose = { sharing = false }, onChanged = ::reload)
+            return
+        }
         StudyHome(notebook, quizzes, importedQuizId, recap, launching,
             validateDocument = { title, body -> runCatching { MarkdownNotes.validate(title, body) }.exceptionOrNull()?.message },
             onSaveNotes = { id, title, body -> saveNote(id, title, body) },
@@ -218,6 +226,7 @@ class NotebookHost(private val platform: NotebookPlatform) {
                 notebook = notebook.copy(notice = "노트 내용과 문제 생성 프롬프트를 복사했어요.")
             },
             onRetry = ::reload, onStartLearning = ::startLearning, onOpenLink = platform::openLink, onBackAction = {}, onOpenRecordings = platform::openRecordings,
+            onOpenSync = driveSync?.let { { sharing = true } },
         )
     }
 }

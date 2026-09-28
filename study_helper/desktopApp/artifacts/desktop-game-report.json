@@ -1,0 +1,1 @@
+{"failures":[],"firstCorrect":7,"knowledge":70,"reviewed":0,"round":2,"session":{"continuous":true,"questions":[{"choices":["무결성","기밀성","가용성"],"id":"q1","prompt":"기밀성 검증 1"},{"choices":["기밀성","무결성","가용성"],"id":"q2","prompt":"기밀성 검증 2"},{"choices":["가용성","무결성","기밀성"],"id":"q3","prompt":"기밀성 검증 3"}],"sessionId":"4dbbb75e6a90febd","title":"PC 통합 검증"}}

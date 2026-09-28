@@ -4,7 +4,7 @@ signal restart_requested
 ## Transport only. Question generation and grading are exclusively in studyCore.
 ## Android: engine plugin. iOS/desktop: native host's atomic JSON mailbox.
 
-const DIRECTORY: String = "user://study-bridge"
+var directory: String = "user://study-bridge"
 var _sequence: int = 0
 var _busy: bool = false
 var _instance_id: String = str(Time.get_ticks_usec())
@@ -13,7 +13,10 @@ var _ios_home: bool = false
 
 
 func _ready() -> void:
-	_ios_home = OS.get_name() == "iOS" and FileAccess.file_exists(DIRECTORY + "/host.json")
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--study-bridge-dir="):
+			directory = argument.trim_prefix("--study-bridge-dir=")
+	_ios_home = FileAccess.file_exists(directory + "/host.json")
 	if _ios_home:
 		var timer := Timer.new()
 		timer.wait_time = 0.1
@@ -23,19 +26,19 @@ func _ready() -> void:
 
 
 func _check_restart() -> void:
-	if FileAccess.file_exists(DIRECTORY + "/restart.json"):
-		DirAccess.remove_absolute(DIRECTORY + "/restart.json")
+	if FileAccess.file_exists(directory + "/restart.json"):
+		DirAccess.remove_absolute(directory + "/restart.json")
 		restart_requested.emit()
 
 
 func _signal_host(name: String) -> void:
-	var file := FileAccess.open(DIRECTORY + "/" + name + ".tmp", FileAccess.WRITE)
+	var file := FileAccess.open(directory + "/" + name + ".tmp", FileAccess.WRITE)
 	if file == null:
 		push_error("Could not notify the study host: " + name)
 		return
 	file.store_string("{\"version\":1}")
 	file.close()
-	DirAccess.rename_absolute(DIRECTORY + "/" + name + ".tmp", DIRECTORY + "/" + name + ".json")
+	DirAccess.rename_absolute(directory + "/" + name + ".tmp", directory + "/" + name + ".json")
 
 
 func has_study_home() -> bool:
@@ -58,7 +61,7 @@ func game_ready() -> void:
 
 
 func is_available() -> bool:
-	return Engine.has_singleton("StudyBridge") or FileAccess.file_exists(DIRECTORY + "/ready.json") or OS.get_name() in ["iOS", "Android"]
+	return Engine.has_singleton("StudyBridge") or FileAccess.file_exists(directory + "/ready.json") or OS.get_name() in ["iOS", "Android"]
 
 
 func exchange(type: String, body: Dictionary = {}) -> Dictionary:
@@ -72,21 +75,21 @@ func exchange(type: String, body: Dictionary = {}) -> Dictionary:
 	if Engine.has_singleton("StudyBridge"):
 		response_text = Engine.get_singleton("StudyBridge").exchange(request)
 	else:
-		DirAccess.make_dir_recursive_absolute(DIRECTORY)
-		var file := FileAccess.open(DIRECTORY + "/request.tmp", FileAccess.WRITE)
+		DirAccess.make_dir_recursive_absolute(directory)
+		var file := FileAccess.open(directory + "/request.tmp", FileAccess.WRITE)
 		if file == null:
 			_busy = false
 			return _error("학습 데이터를 전달하지 못했습니다.")
 		file.store_string(request)
 		file.close()
-		var renamed := DirAccess.rename_absolute(DIRECTORY + "/request.tmp", DIRECTORY + "/request.json")
+		var renamed := DirAccess.rename_absolute(directory + "/request.tmp", directory + "/request.json")
 		if renamed != OK:
 			_busy = false
 			return _error("학습 요청을 전달하지 못했습니다.")
 		var deadline := Time.get_ticks_msec() + int(timeout_seconds * 1000)
 		while true:
-			if FileAccess.file_exists(DIRECTORY + "/response.json"):
-				var candidate := FileAccess.get_file_as_string(DIRECTORY + "/response.json")
+			if FileAccess.file_exists(directory + "/response.json"):
+				var candidate := FileAccess.get_file_as_string(directory + "/response.json")
 				var parsed: Variant = _parse(candidate)
 				if parsed is Dictionary and parsed.get("requestId") == request_id:
 					response_text = candidate

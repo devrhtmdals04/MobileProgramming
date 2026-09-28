@@ -38,11 +38,44 @@ private struct NotebookView: UIViewControllerRepresentable {
 }
 
 /// UIKit, files, and transport only. Kotlin owns all document validation and learning rules.
-final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, UIDocumentPickerDelegate {
+final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePlatform, FolderPlatform, UIDocumentPickerDelegate, UIDocumentInteractionControllerDelegate {
     lazy var host = NotebookHost(platform: self)
     weak var root: UIViewController?
     private let files = FileManager.default
     private let engine = StudyEngine()
+    private lazy var drive: GoogleDriveConnection = {
+        let connection = GoogleDriveConnection()
+        connection.window = { [weak self] in self?.root?.view.window }
+        return connection
+    }()
+    func authorizeDrive(completion: @escaping (String) -> Void) { drive.authorize(completion) }
+    func driveRequest(request: String, completion: @escaping (String) -> Void) { drive.request(request, completion) }
+    func disconnectDrive() { drive.disconnect() }
+    private lazy var sharedFolder = SharedFolderFiles(appRoot: files.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(storageName))
+    private var sharedDocument: UIDocumentInteractionController?
+    func documentInteractionControllerViewControllerForPreview(_ controller: UIDocumentInteractionController) -> UIViewController { root ?? UIViewController() }
+    func folderCommand(request: String, completion: @escaping (String) -> Void) {
+        guard let input = try? JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String:String] else { completion(json(["error":"잘못된 폴더 요청입니다."])); return }
+        if input["action"] == "open" {
+            do {
+                let url = try sharedFolder.resolve(input["path"] ?? "")
+                sharedDocument = UIDocumentInteractionController(url: url)
+                sharedDocument?.delegate = self
+                if sharedDocument?.presentPreview(animated: true) == true { completion(json([:])); return }
+                guard let view = root?.view, sharedDocument?.presentOptionsMenu(from: view.bounds, in: view, animated: true) == true else { throw message("이 파일을 열 앱을 찾지 못했어요.") }
+                completion(json([:]))
+            } catch { completion(json(["error":error.localizedDescription])) }
+            return
+        }
+        guard !lectureAudio.isRecording else { completion(json(["error":"녹음을 먼저 저장해 주세요."])); return }
+        let storage = sharedFolder
+        DispatchQueue.global(qos: .utility).async {
+            let response: [String:Any]
+            do { response = try storage.execute(input) }
+            catch { response = ["error":error.localizedDescription] }
+            DispatchQueue.main.async { completion(self.json(response)) }
+        }
+    }
     private lazy var lectureAudio: LectureAudio = {
         let audio = LectureAudio(folder: files.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(storageName).appendingPathComponent("recordings"))
@@ -431,7 +464,19 @@ private extension StudyPlatform {
             try await waitFor("native library") { self.root?.view.window != nil }
             try await Task.sleep(nanoseconds: 1_000_000_000)
             check(host.notebook.ready && !engine.initialized, "Cold launch opens library without initializing Godot")
+            if (Bundle.main.object(forInfoDictionaryKey: "StudyGoogleClientID") as? String ?? "").isEmpty {
+                let result: String = await withCheckedContinuation { continuation in
+                    authorizeDrive { continuation.resume(returning: $0) }
+                }
+                let response = try JSONSerialization.jsonObject(with: Data(result.utf8)) as? [String: Any]
+                check((response?["error"] as? String)?.contains("OAuth") == true && response?["accessToken"] == nil,
+                      "Unconfigured Google connection shows setup guidance without claiming authentication")
+            }
             capture("notebook-library")
+            host.sharing = true
+            try await Task.sleep(nanoseconds: 800_000_000)
+            capture("folder-share")
+            host.sharing = false
             check(host.importDocument(kind: "notes", filename: "강의.md", content: "## 보안 수업\n\n**기밀성**은 허가받지 않은 열람을 막습니다.\n\n|항목|의미|\n|---|---|\n|무결성|변조 방지|") == nil, "Ordinary Markdown imports without quiz headings")
             let saved = host.notebook.markdown
             host.reload()

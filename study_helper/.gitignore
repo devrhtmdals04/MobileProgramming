@@ -17,6 +17,8 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+client_secret_*.json
+google-oauth*.json
 godot-runner/ios/plugins/**/*.xcframework/
 
 # Generated caches and machine-local signing material

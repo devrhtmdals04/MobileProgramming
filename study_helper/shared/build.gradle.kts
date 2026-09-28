@@ -9,6 +9,7 @@ plugins {
 }
 
 kotlin {
+    jvm()
     val sharedFramework = XCFramework("Shared")
     listOf(
         iosArm64(),
@@ -44,6 +45,12 @@ kotlin {
     }
     
     sourceSets {
+        jvmMain { kotlin.srcDir("src/jvmAndAndroidMain/kotlin") }
+        androidMain { kotlin.srcDir("src/jvmAndAndroidMain/kotlin") }
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
+        }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
@@ -64,6 +71,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
         }
     }
 }

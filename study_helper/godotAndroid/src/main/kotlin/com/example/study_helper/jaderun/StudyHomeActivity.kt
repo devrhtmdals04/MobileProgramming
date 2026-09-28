@@ -54,6 +54,8 @@ class StudyHomeActivity : ComponentActivity() {
         }
     }
 
+    private val driveLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { loadInitialNotes() }
+
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         launching = false
         if (result.resultCode == Activity.RESULT_OK) {
@@ -145,6 +147,7 @@ class StudyHomeActivity : ComponentActivity() {
                 onRetry = ::loadInitialNotes,
                 onStartLearning = ::startLearning,
                 onOpenRecordings = { recordingsLauncher.launch(Intent(this, LectureAudioActivity::class.java)) },
+                onOpenSync = { driveLauncher.launch(Intent(this, DriveActivity::class.java)) },
             )
         }
     }

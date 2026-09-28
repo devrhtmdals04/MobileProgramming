@@ -1,0 +1,27 @@
+{
+  "shared_jvm": {
+    "tests": 54,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "desktop": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "shared_ios": {
+    "tests": 55,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "desktop_game": {
+    "correct": 7,
+    "failures": 0,
+    "report": "desktop-game-report.json"
+  },
+  "google_live_account": "Not run: user OAuth client configuration required",
+  "windows": "Build configuration provided; Windows packaging/runtime not tested on this Mac"
+}

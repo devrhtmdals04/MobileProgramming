@@ -1,5 +1,7 @@
 # Study Helper iOS
 
+Google Drive 연결·폴더 탐색·노트/문제 수동 동기화를 지원한다. 실제 로그인에는 iOS OAuth 클라이언트 설정이 필요하다. [설정 및 검증 범위](../docs/GOOGLE_DRIVE_SYNC.md).
+
 Kotlin/Compose 서재와 Godot 게임을 하나의 iPhone 앱으로 실행한다. 기본 화면은 **노트 서재**이며, 사용자가 문제 모음에서 게임을 시작할 때만 엔진을 초기화한다. 마크다운 읽기·편집, 로컬 저장, 파일 가져오기·내보내기, 프롬프트 복사, 문제 JSON 검증·미리보기, 게임 복습·결과 반환을 연결했다.
 
 - `shared/NotebookHost.kt`: 문서·문제 검증, 서재 상태, 비공개 정답, 학습 세션, 최근 결과.
@@ -106,3 +108,9 @@ xcrun simctl launch --console booted com.example.studyhelper.jaderun -- --notebo
 첫 게임 이후 엔진 메모리를 유지하므로 장시간 메모리·발열·배터리는 추가 측정 대상이다. 시뮬레이터의 OpenGL은 CPU 렌더링이어서 첫 셰이더 준비가 느리며, 해당 환경에서만 3D 비율 0.25·MSAA/그림자 끄기를 적용한다. UI 해상도와 실기기 그래픽은 유지한다.
 
 이전 엔진 단독 시제품은 `iOS` export preset, `build_plugin.py`, `StudyBridge.mm`, `--study-probe`로 남아 있다. 새 서재 앱 실행에는 **iOS Study Helper** preset과 위 절차를 사용한다.
+
+## 2026-09-28 실기기 업데이트 검증
+
+iPhone 17 Pro Max / iOS 26.6.2에 최신 Google Drive 지원 빌드를 기존 앱 위에 설치했다. 격리된 테스트 서재에서 20개 검사 통과: 노트 가져오기·저장, 파일 선택, 문제 검증, 두 차례 7문제 게임 채점·재진입·결과 저장, 중도 종료, OAuth 미설정 안내. 테스트 후 인자 없이 일반 서재로 재실행했다. 실제 Google 로그인·서버 동기화는 iOS OAuth 클라이언트 미설정으로 검사하지 않았다.
+
+[실기기 검증 보고서](../godot-runner/artifacts/iphone-drive-notebook-report.json) · [공유 저장소 버튼이 있는 실기기 서재](../godot-runner/artifacts/iphone-drive-library.png).

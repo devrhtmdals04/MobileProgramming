@@ -18,7 +18,7 @@ UTF-8 `.md` 파일을 선택한다. 첫 줄 `# 제목`이 있으면 제목으로
 
 표·문단·코드만 있는 문서도 읽고 저장할 수 있다. 문서의 마크다운 표기를 원문으로 보관한다. 가져온 파일은 별도 노트가 되며 원본을 덮어쓰지 않는다. 내보내기 위치는 사용자가 선택한다.
 
-Android는 앱 전용 `files/notes/<UUID>.md`에 AtomicFile로 저장한다. iOS는 `Library/Application Support/StudyHelper/notes/<UUID>.md`에 UTF-8 파일을 원자적으로 저장한다. 기존 SharedPreferences 노트는 최초 이전 시 사본으로 저장하고 원래 값도 유지한다. IO 작업은 화면 재생성을 포함해 프로세스 내에서 순차 처리한다. 앱 삭제 후 복원용 동기화/백업 기능은 아직 없다.
+Android는 앱 전용 `files/notes/<UUID>.md`에 AtomicFile로 저장한다. iOS는 `Library/Application Support/StudyHelper/notes/<UUID>.md`에 UTF-8 파일을 원자적으로 저장한다. 기존 SharedPreferences 노트는 최초 이전 시 사본으로 저장하고 원래 값도 유지한다. IO 작업은 화면 재생성을 포함해 프로세스 내에서 순차 처리한다. Google Drive를 별도로 설정하고 수동 동기화한 노트·문제는 다른 기기에서 내려받을 수 있다. 자동 백업은 아니며 마지막 동기화 이후의 로컬 변경은 별도 보관이 필요하다. [설정과 범위](GOOGLE_DRIVE_SYNC.md).
 
 ## 현재 지원 범위
 
@@ -26,4 +26,4 @@ GFM 기반 읽기와 원문 편집을 제공한다. 체크박스는 저장된 �
 
 LaTeX 수식 렌더링, 첨부 이미지/PDF 불러오기, Obsidian 위키 링크·임베드·그래프·플러그인·실시간 미리보기 편집은 아직 없다. 이미지 URL을 자동으로 다운로드하거나 HTML을 실행하지 않는다. 해당 표기는 원문 편집에서 확인할 수 있다.
 
-파서·UI는 공통 Kotlin이다. 파일 선택·저장·내보내기·클립보드는 Android와 iOS 호스트에 연결되어 있다. iOS는 시스템 파일 선택기와 보안 범위 접근·NSFileCoordinator로 파일을 읽고, 앱 내부 사본을 편집한다. 기존 `MarkdownNotes.questionNotes` 함수는 이전 프로토콜 호환·테스트용으로 유지하지만 현재 Android·iOS 서재에서는 자동 출제에 사용하지 않는다.
+파서·UI는 공통 Kotlin이다. 파일 선택·저장·내보내기·클립보드는 Android와 iOS 호스트에 연결되어 있다. iOS는 시스템 파일 선택기와 보안 범위 접근·NSFileCoordinator로 파일을 읽고, 앱 내부 사본을 편집한다. Google Drive 연결은 이 가져오기 기능과 별도로 동작하며, 선택한 원격 폴더와 앱 내부 문서의 변경을 명시적 동기화 시 교환한다. 기존 `MarkdownNotes.questionNotes` 함수는 이전 프로토콜 호환·테스트용으로 유지하지만 현재 Android·iOS 서재에서는 자동 출제에 사용하지 않는다.

@@ -23,7 +23,7 @@ if not args.skip_export:
     subprocess.run([os.environ.get("GODOT_BIN", "/Applications/Godot.app/Contents/MacOS/Godot"), "--headless", "--path", str(ROOT / "godot-runner"),
                     "--export-debug", "iOS Study Helper", str(EXPORT / "StudyHelper.xcodeproj")], check=True)
 
-for name in ["StudyEngine.h", "StudyEngine.mm", "StudyHelperApp.swift", "LectureAudio.swift", "LectureTranscription.swift", "LectureLocalTranscription.swift", "LectureDeviceTranscription.swift"]:
+for name in ["StudyEngine.h", "StudyEngine.mm", "StudyHelperApp.swift", "GoogleDrive.swift", "FolderFiles.swift", "LectureAudio.swift", "LectureTranscription.swift", "LectureLocalTranscription.swift", "LectureDeviceTranscription.swift"]:
     shutil.copy2(ROOT / "godotIOS/StudyHelper" / name, APP / name)
 shutil.copy2(ROOT / "native-whisper/notices/WHISPER_LICENSES.txt", APP / "WHISPER_LICENSES.txt")
 with (APP / "dummy.h").open("a") as header:
@@ -48,6 +48,10 @@ def build_file(identifier, reference_id):
 def append_unique(items, item):
     if item not in items: items.append(item)
 
+reference("AA0000000000000000000040", "GoogleDrive.swift", "sourcecode.swift")
+reference("AA0000000000000000000042", "FolderFiles.swift", "sourcecode.swift")
+build_file("AA0000000000000000000043", "AA0000000000000000000042")
+build_file("AA0000000000000000000041", "AA0000000000000000000040")
 reference("AA0000000000000000000001", "StudyHelperApp.swift", "sourcecode.swift")
 reference("AA0000000000000000000002", "StudyEngine.mm", "sourcecode.cpp.objcpp")
 reference("AA0000000000000000000003", "StudyEngine.h", "sourcecode.c.h")
@@ -69,9 +73,11 @@ build_file("AA0000000000000000000012", "AA0000000000000000000002")
 build_file("AA0000000000000000000014", "AA0000000000000000000004")
 for obj in list(objects.values()):
     if obj.get("isa") == "PBXGroup" and obj.get("path") == "StudyHelper":
-        for ref in ["AA0000000000000000000001", "AA0000000000000000000002", "AA0000000000000000000003", "AA0000000000000000000005", "AA0000000000000000000006", "AA0000000000000000000007", "AA0000000000000000000008", "AA0000000000000000000020"]: append_unique(obj["children"], ref)
+        append_unique(obj["children"], "AA0000000000000000000042")
+        for ref in ["AA0000000000000000000040", "AA0000000000000000000001", "AA0000000000000000000002", "AA0000000000000000000003", "AA0000000000000000000005", "AA0000000000000000000006", "AA0000000000000000000007", "AA0000000000000000000008", "AA0000000000000000000020"]: append_unique(obj["children"], ref)
     if obj.get("isa") == "PBXSourcesBuildPhase":
-        for ref in ["AA0000000000000000000011", "AA0000000000000000000012", "AA0000000000000000000015", "AA0000000000000000000016", "AA0000000000000000000017", "AA0000000000000000000018"]: append_unique(obj["files"], ref)
+        append_unique(obj["files"], "AA0000000000000000000043")
+        for ref in ["AA0000000000000000000041", "AA0000000000000000000011", "AA0000000000000000000012", "AA0000000000000000000015", "AA0000000000000000000016", "AA0000000000000000000017", "AA0000000000000000000018"]: append_unique(obj["files"], ref)
     if obj.get("isa") == "PBXResourcesBuildPhase": append_unique(obj["files"], "AA0000000000000000000030")
     if obj.get("isa") == "PBXFrameworksBuildPhase":
         append_unique(obj["files"], "AA0000000000000000000014")
@@ -95,6 +101,17 @@ path.write_bytes(plistlib.dumps(project, sort_keys=False))
 plist_path = APP / "StudyHelper-Info.plist"
 info = plistlib.loads(plist_path.read_bytes())
 info["CFBundleDisplayName"] = "Study Helper"
+# Public app identifier, kept in source so a clean export retains the login setup.
+# This is not an access token or client secret.
+google_client_file = ROOT / "godotIOS/google_client_id.txt"
+google_client_id = os.environ.get("STUDY_GOOGLE_IOS_CLIENT_ID",
+    google_client_file.read_text().strip() if google_client_file.is_file() else info.get("StudyGoogleClientID", ""))
+if google_client_id:
+    info["StudyGoogleClientID"] = google_client_id
+    scheme = ".".join(reversed(google_client_id.split(".")))
+    types = [entry for entry in info.get("CFBundleURLTypes", []) if entry.get("CFBundleURLName") != "GoogleDrive"]
+    types.append({"CFBundleURLName": "GoogleDrive", "CFBundleURLSchemes": [scheme]})
+    info["CFBundleURLTypes"] = types
 info["UIStatusBarHidden"] = False
 info["LSSupportsOpeningDocumentsInPlace"] = True
 info["NSMicrophoneUsageDescription"] = "강의 녹음을 기기에 저장하기 위해 마이크를 사용합니다."
