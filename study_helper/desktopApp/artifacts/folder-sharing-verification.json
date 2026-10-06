@@ -4,7 +4,7 @@
   "live_google_folder_transfer_verified": true,
   "windows_runtime_verified": false,
   "desktopApp_jvm": {
-    "tests": 13,
+    "tests": 14,
     "failures": 0,
     "errors": 0
   },
@@ -46,5 +46,21 @@
     "matching_desktop_hashes": 139,
     "result": "139개 반영 완료 · 최신 상태입니다.",
     "recording_upload_verified": false
+  },
+  "ios_library_repair": {
+    "cause": "Relative path sliced against unresolved /var base while enumeration returned /private/var",
+    "empty_imports_found": 116,
+    "swift_symlink_path_body_test": "passed",
+    "jvm_repair_and_user_edit_preservation_test": "passed",
+    "iphone_build": "installed and launched",
+    "live_body_repair": {
+      "restored_empty_notes": 116,
+      "bound_notes_with_bodies": 117,
+      "empty_bodies": 0,
+      "incorrect_prefixes": 0,
+      "folder_paths": 26,
+      "pc_original_text_matches": 116,
+      "pc_original_text_checked": 116
+    }
   }
 }

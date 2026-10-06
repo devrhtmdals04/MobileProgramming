@@ -3,6 +3,23 @@ package com.example.study_helper.study
 import kotlin.test.*
 
 class LectureHostTest {
+    @Test fun reviewKeepsDraftAndTimedSegmentsSeparateFromEditor() {
+        val host=LectureHost(Platform())
+        host.updateState("""{"reviewAvailable":true,"autoReview":true,"reviewContext":"전계, mA","editorDraft":"실시간 초안","editorText":"교정한 본문","editorSegments":[{"start":62.5,"end":65,"confidence":0.9,"text":"3.7mA"},{"start":66,"end":70,"confidence":0.3,"text":"용어"},{"start":71,"end":75,"confidence":0.9,"text":"보통 문장"}]}""")
+        assertEquals("실시간 초안",host.state.editorDraft)
+        assertEquals("교정한 본문",host.state.editorText)
+        assertEquals(62,host.state.editorSegments.first().start)
+        assertEquals(listOf(true,true,false),host.state.editorSegments.map {it.needsReview})
+        assertTrue(host.state.autoReview)
+    }
+    @Test fun referenceContextIsBoundedAndCannotChangeWhileRecording() {
+        val platform=Platform();val host=LectureHost(platform)
+        host.command("setReviewContext",title="가".repeat(3000))
+        assertEquals(2000,platform.commands.single().third.length)
+        host.updateState("""{"recording":true}""")
+        host.command("setReviewContext",title="변경");host.command("playSegment","id","60")
+        assertEquals(1,platform.commands.size)
+    }
     private class Platform : LecturePlatform {
         val commands = mutableListOf<Triple<String, String, String>>()
         override fun audioCommand(action: String, id: String, title: String) { commands += Triple(action, id, title) }

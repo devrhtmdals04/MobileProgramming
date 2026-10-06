@@ -1,0 +1,36 @@
+{
+  "feature": "unified library and folder quizzes",
+  "new_sets": 14,
+  "new_questions": 56,
+  "existing_bjt_questions": 10,
+  "source_quotes": "all matched local source text; leadership PDF pages 5–6 visually checked",
+  "quiz_parser_roundtrip": "14 files passed",
+  "pc_files": "installed",
+  "iphone_shared_files": "copied; sample readback matched",
+  "iphone_install": "completed",
+  "drive_sync": "finished successfully; 14 new quiz uploads recorded",
+  "builds": [
+    "desktop",
+    "android",
+    "ios"
+  ],
+  "tests": {
+    "studyCore": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0
+    },
+    "shared": {
+      "tests": 60,
+      "failures": 0,
+      "errors": 0
+    },
+    "desktopApp": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "app_quiz_readback": "all 14 sets / 56 questions equal generated originals",
+  "sync_result": "16개 반영 완료 · 최신 상태입니다."
+}

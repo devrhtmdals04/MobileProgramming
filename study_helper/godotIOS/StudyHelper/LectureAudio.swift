@@ -11,15 +11,23 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         var seconds: Int
         var transcript: String? = nil
         var whisperTranscript: String? = nil
+        var reviewedTranscript: String? = nil
+        var segments: [LectureDeviceTranscription.Segment]? = nil
+        var recognitionContext: String? = nil
     }
     lazy var host = LectureHost(platform: self)
     private let folder: URL
+    private let preferences: UserDefaults
     private var capture: LectureCaptureSession?
     private var provisional = ""
     private var speechStatus = ""
     private var editorId = ""
     private var editorTitle = ""
     private var editorText = ""
+    private var editorDraft = ""
+    private var editorSegments: [LectureDeviceTranscription.Segment] = []
+    private var reviewContext: String { get { preferences.string(forKey:"lecture_review_context") ?? "" } set { preferences.set(newValue,forKey:"lecture_review_context") } }
+    private var autoReview: Bool { get { preferences.object(forKey:"lecture_auto_review") as? Bool ?? true } set { preferences.set(newValue,forKey:"lecture_auto_review") } }
     private var startupCancelled = false
     private let localSTT = LectureLocalTranscription()
     private var localTask: Task<Void, Never>?
@@ -40,8 +48,9 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
     var close: (() -> Void)?
     var isRecording: Bool { recorder != nil || capture != nil || pending }
 
-    init(folder: URL) {
+    init(folder: URL, preferences: UserDefaults = .standard) {
         self.folder = folder
+        self.preferences = preferences
         super.init()
         observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
             if (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.began.rawValue {
@@ -94,7 +103,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         publish()
     }
     private func publish() {
-        let rows = entries.map { ["id": $0.id, "title": $0.title, "date": $0.date, "seconds": $0.seconds, "hasTranscript": $0.transcript != nil || $0.whisperTranscript != nil] as [String: Any] }
+        let rows = entries.map { ["id": $0.id, "title": $0.title, "date": $0.date, "seconds": $0.seconds, "hasTranscript": $0.transcript != nil || $0.whisperTranscript != nil || $0.reviewedTranscript != nil] as [String: Any] }
         let data: [String: Any] = ["recordings": rows, "recording": recorder != nil || capture != nil, "pending": pending,
             "seconds": Int(capture?.seconds ?? recorder?.currentTime ?? 0), "playing": playing,
             "playbackSeconds": Int(player?.currentTime ?? 0), "message": message,
@@ -103,7 +112,9 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
             "deviceTranscribing": deviceTask != nil && !modelDownloading, "modelDownloading": modelDownloading,
             "deviceProgress": deviceEngine?.progress ?? 0,
             "localTranscriptionAvailable": localAvailable && ProcessInfo.processInfo.arguments.contains("--enable-mac-transcription"), "localTranscribing": localTask != nil,
-            "speechStatus": speechStatus, "editorId": editorId, "editorTitle": editorTitle, "editorText": editorText]
+            "speechStatus": speechStatus, "editorId": editorId, "editorTitle": editorTitle, "editorText": editorText,
+            "reviewAvailable": true, "reviewContext": reviewContext, "autoReview": autoReview, "editorDraft": editorDraft,
+            "editorSegments": editorSegments.map { ["start":$0.start,"end":$0.end,"text":$0.text,"confidence":$0.confidence] as [String:Any] }]
         if let json = try? JSONSerialization.data(withJSONObject: data), let text = String(data: json, encoding: .utf8) {
             host.updateState(json: text)
         }
@@ -116,9 +127,11 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         if action == "cancelDeviceTranscription" { deviceTask?.cancel(); deviceEngine?.cancel(); return }
         if action == "cancelLocalTranscription" { localTask?.cancel(); return }
         guard !pending else { return }
-        if (recorder != nil || capture != nil) && ["start", "play", "delete", "rename", "openTranscript", "saveTranscript", "transcribeLocal", "transcribeDevice", "downloadDeviceModel"].contains(action) { return }
+        if (recorder != nil || capture != nil) && ["start", "play", "playSegment", "setReviewContext", "setAutoReview", "delete", "rename", "openTranscript", "saveTranscript", "transcribeLocal", "transcribeDevice", "downloadDeviceModel"].contains(action) { return }
         do {
             switch action {
+            case "setReviewContext": reviewContext=String(title.prefix(2000))
+            case "setAutoReview": autoReview=title == "true"
             case "refresh":
                 localAvailable = try localSTT.pairing() != nil; reload()
             case "transcribeLocal": try transcribeLocal(id)
@@ -126,7 +139,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
             case "downloadDeviceModel": installDeviceModel()
             case "start": requestRecording(title)
             case "stop": finish()
-            case "play":
+            case "play", "playSegment":
                 stopPlayback()
                 guard entries.contains(where: { $0.id == id }) else { throw failure("녹음을 찾지 못했어요.") }
                 let session = AVAudioSession.sharedInstance()
@@ -134,6 +147,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
                 try session.setActive(true)
                 let audio = try AVAudioPlayer(contentsOf: url(id, "m4a"))
                 audio.delegate = self
+                if action == "playSegment", let seconds=Double(title), seconds.isFinite { audio.currentTime=max(0,min(audio.duration,seconds-1)) }
                 guard audio.play() else { throw failure("녹음을 재생할 수 없어요.") }
                 player = audio; playing = id; message = ""; startTimer()
             case "stopPlayback": stopPlayback()
@@ -148,13 +162,14 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
                 try FileManager.default.removeItem(at: url(id, "m4a"))
                 try FileManager.default.removeItem(at: url(id, "json")); reload()
             case "openTranscript":
-                guard let entry = entries.first(where: { $0.id == id }), let text = entry.whisperTranscript ?? entry.transcript else { return }
+                guard let entry = entries.first(where: { $0.id == id }), let text = entry.reviewedTranscript ?? entry.whisperTranscript ?? entry.transcript else { return }
                 editorId = id; editorTitle = entry.title; editorText = text
-            case "closeTranscript": editorId = ""; editorText = ""
+                editorDraft=entry.transcript ?? "";editorSegments=entry.segments ?? []
+            case "closeTranscript": stopPlayback(); editorId = ""; editorText = ""
             case "saveTranscript":
                 guard var entry = entries.first(where: { $0.id == id }), !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       let saveNote else { throw failure("노트로 저장할 받아쓰기 내용이 없어요.") }
-                entry.transcript = title; entry.whisperTranscript = nil; try write(entry)
+                entry.reviewedTranscript = title; try write(entry)
                 if let error = saveNote(id, String(entry.title.replacingOccurrences(of: "\n", with: " ").replacingOccurrences(of: "\r", with: " ").prefix(60)), "## 강의 받아쓰기\n\n" + title) { throw failure(error) }
                 editorId = ""; editorText = ""; message = "받아쓰기를 노트 서재에 저장했어요. 다시 저장하면 같은 노트를 갱신합니다."
                 reload()
@@ -183,7 +198,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         guard entry.seconds <= 7200 else { throw failure("기기 내 변환은 2시간 이내 녹음을 지원합니다.") }
         let file = try url(id, "m4a")
         stopPlayback(); pending = true; speechStatus = ""
-        let engine = LectureDeviceTranscription(); deviceEngine = engine
+        let engine = LectureDeviceTranscription(); engine.context=reviewContext; deviceEngine = engine
         message = "이 기기에서 변환하고 있어요. 앱 화면을 유지해 주세요. 음성을 외부로 전송하지 않습니다."
         let previousIdle = UIApplication.shared.isIdleTimerDisabled
         UIApplication.shared.isIdleTimerDisabled = true; startTimer()
@@ -196,9 +211,10 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
             do {
                 let text = try await engine.transcribe(file: file)
                 try Task.checkCancellation()
-                entry.whisperTranscript = text; try write(entry)
-                editorId = id; editorTitle = entry.title; editorText = text
-                message = "기기 내 변환 완료. 내용을 확인하고 노트로 저장하세요."
+                entry.whisperTranscript = text; entry.segments=engine.segments; entry.recognitionContext=engine.context; try write(entry)
+                editorId = id; editorTitle = entry.title; editorText = entry.reviewedTranscript ?? text
+                editorDraft=entry.transcript ?? "";editorSegments=engine.segments
+                message = "전체 재인식 완료. 기존 교정본이 있으면 유지합니다. 원음 확인에서 재인식 결과를 비교하고 노트로 저장하세요."
             } catch {
                 message = Task.isCancelled ? "변환을 취소했어요. 기존 녹음과 받아쓰기는 유지됩니다." : error.localizedDescription
             }
@@ -221,9 +237,10 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
             do {
                 let text = try await localSTT.transcribe(file: file)
                 try Task.checkCancellation()
-                entry.whisperTranscript = text
+                entry.whisperTranscript = text; entry.segments=nil
                 try write(entry)
-                editorId = id; editorTitle = entry.title; editorText = text
+                editorId = id; editorTitle = entry.title; editorText = entry.reviewedTranscript ?? text
+                editorDraft=entry.transcript ?? "";editorSegments=[]
                 message = "Whisper 변환을 마쳤어요. 내용을 확인한 뒤 노트로 저장하세요."
             } catch {
                 if Task.isCancelled {
@@ -305,7 +322,7 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
                 deactivate(); reload(); return
             }
             try live.start(); capture = live; preparing = nil; pending = false
-            if speechStatus == "한국어 받아쓰기 준비 중…" { speechStatus = "한국어 · 기기 내 실시간 받아쓰기" }
+            if speechStatus == "한국어 받아쓰기 준비 중…" { speechStatus = "실시간 초안 · 녹음 종료 후 전체 재인식" }
             startTimer(); publish()
         } catch {
             if let preparing { _ = preparing.stopAudio(); await preparing.finishTranscription() }
@@ -330,11 +347,13 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
                 await live.finishTranscription()
                 if let current { do { try write(current) } catch { self.message = "받아쓰기 저장에 실패했어요." } }
                 let hasText = !(self.current?.transcript?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+                let savedId=self.current?.id
                 self.current = nil; provisional = ""; pending = false
                 if message == "녹음을 저장하고 마지막 문장을 확정하고 있어요…" {
                     message = hasText ? "녹음과 받아쓰기를 저장했어요." : "받아쓴 문장이 없어 음성만 저장했어요."
                 }
                 reload()
+                if let savedId { reviewAfterSaving(savedId) }
             }
             return
         }
@@ -350,6 +369,15 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
             message = "녹음을 저장했어요."
         } catch { message = "녹음 저장을 완료하지 못했어요. 남은 파일을 보존했으니 재생 여부를 확인해 주세요." }
         deactivate(); reload()
+        reviewAfterSaving(entry.id)
+    }
+    private func reviewAfterSaving(_ id: String) {
+        guard autoReview, entries.contains(where: {$0.id == id}) else { return }
+        guard LectureDeviceTranscription.ready, UIApplication.shared.applicationState == .active else {
+            message += " 전체 재인식 대기: 앱을 열고 모델 준비 후 ‘전체 음성 다시 인식’을 눌러 주세요."
+            publish(); return
+        }
+        do { try transcribeDevice(id) } catch {message=error.localizedDescription;publish()}
     }
     private func stopPlayback() {
         player?.stop(); player = nil; playing = ""
@@ -382,7 +410,11 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         }
         try? FileManager.default.removeItem(at: model)
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        let audio = LectureAudio(folder: folder)
+        let suite="lecture-review-probe-"+UUID().uuidString
+        let preferences=UserDefaults(suiteName:suite)!
+        defer {preferences.removePersistentDomain(forName:suite)}
+        let audio = LectureAudio(folder: folder,preferences:preferences)
+        audio.reviewContext="디지털 시스템, 논리 회로, 논리 게이트"
         defer { try? FileManager.default.removeItem(at: folder) }
         audio.saveNote = save
         let id = UUID().uuidString.lowercased()
@@ -390,12 +422,18 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         try audio.write(Entry(id: id, title: "디지털시스템입문 · 오프라인 검사", date: "2026-09-27", seconds: 12, transcript: "기존 받아쓰기"))
         audio.reload()
         let started = Date()
-        audio.audioCommand(action: "transcribeDevice", id: id, title: "")
+        while UIApplication.shared.applicationState != .active && Date().timeIntervalSince(started)<15 {
+            try await Task.sleep(nanoseconds:100_000_000)
+        }
+        audio.reviewAfterSaving(id)
         guard let task = audio.deviceTask else { throw audio.failure("Device task did not start") }
         await task.value
         guard !audio.pending, audio.editorId == id, audio.editorText.contains("디지털") else { throw audio.failure(audio.message) }
         let saved = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: audio.url(id, "json")))
         guard saved.transcript == "기존 받아쓰기", saved.whisperTranscript == audio.editorText else { throw audio.failure("Original transcript was lost") }
+        guard let segments=saved.segments, !segments.isEmpty,
+              segments.allSatisfy({$0.start >= 0 && $0.end >= $0.start && $0.confidence >= 0 && $0.confidence <= 1}),
+              saved.recognitionContext == audio.reviewContext else {throw audio.failure("Review segments or context missing")}
         let text = audio.editorText
         audio.audioCommand(action: "saveTranscript", id: id, title: text)
         guard audio.editorId.isEmpty else { throw audio.failure("Note save failed") }
@@ -405,8 +443,9 @@ final class LectureAudio: NSObject, LecturePlatform, AVAudioRecorderDelegate, AV
         audio.audioCommand(action: "cancelDeviceTranscription", id: "", title: "")
         await cancelledTask.value
         let unchanged = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: audio.url(id, "json")))
-        guard !audio.pending, unchanged.transcript == text, unchanged.whisperTranscript == nil else { throw audio.failure("Cancellation changed stored transcript") }
-        return ["checks": 7, "failures": [], "text": text, "microphoneUsed": false, "networkUsedForInference": false,
+        guard !audio.pending, unchanged.reviewedTranscript == text, unchanged.transcript == "기존 받아쓰기" else { throw audio.failure("Cancellation changed stored transcript") }
+        return ["checks": 10, "failures": [], "text": text, "microphoneUsed": false, "networkUsedForInference": false,
+                "automaticReview":true,"segments":segments.count,"draftPreserved":true,"reviewPreservedOnCancel":true,
                 "elapsedSeconds": elapsed, "model": "whisper-small-q5_1"]
     }
     @MainActor static func runLocalProbe(input: URL, save: @escaping (String, String, String) -> String?) async throws -> [String: Any] {

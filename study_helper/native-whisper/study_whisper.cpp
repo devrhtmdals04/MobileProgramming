@@ -7,8 +7,20 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <string>
+#include <iomanip>
 
-struct study_stt { std::atomic<bool> cancelled{false}; std::atomic<int> progress{0}; };
+struct study_stt { std::atomic<bool> cancelled{false}; std::atomic<int> progress{0}; std::string prompt; };
+void study_stt_set_prompt(study_stt * j, const char * prompt) { if(j) j->prompt = prompt ? prompt : ""; }
+static std::string json_string(const char * text) {
+    std::string out="\"";
+    for(const unsigned char c : std::string(text)) {
+        if(c=='"' || c=='\\') {out+='\\';out+=c;}
+        else if(c<32) {const char * hex="0123456789abcdef";out+="\\u00";out+=hex[c>>4];out+=hex[c&15];}
+        else out+=c;
+    }
+    return out+'"';
+}
 study_stt * study_stt_create(void) { return new study_stt; }
 void study_stt_cancel(study_stt * j) { if (j) j->cancelled = true; }
 int study_stt_progress(study_stt * j) { return j ? j->progress.load() : 0; }
@@ -32,11 +44,13 @@ int study_stt_run(study_stt * job, const char * model, const char * pcm, const c
         p.n_threads = std::min(4U, std::max(1U, std::thread::hardware_concurrency()));
         p.print_progress = p.print_realtime = p.print_timestamps = p.print_special = false;
         p.no_context = true;
+        p.initial_prompt = job->prompt.empty() ? nullptr : job->prompt.c_str();
         p.suppress_nst = true;
         p.abort_callback = [](void * data) { return static_cast<study_stt *>(data)->cancelled.load(); };
         p.abort_callback_user_data = job;
         std::ofstream text(output, std::ios::binary | std::ios::trunc);
-        if (!text) return -1;
+        std::ofstream segments(std::string(output)+".segments.jsonl", std::ios::binary | std::ios::trunc);
+        if (!text || !segments) return -1;
         // Bound memory even for long lectures; platform decoders also stream to disk.
         std::vector<float> samples(16000 * 60);
         size_t consumed = 0;
@@ -62,7 +76,17 @@ int study_stt_run(study_stt * job, const char * model, const char * pcm, const c
                     return job->cancelled ? 1 : -1;
                 for (int i = 0; i < whisper_full_n_segments(ctx.get()); ++i) {
                     const char * segment = whisper_full_get_segment_text(ctx.get(), i);
-                    if (segment) text << segment << '\n';
+                    if (segment) {
+                        text << segment << '\n';
+                        const double offset=double(consumed)/sizeof(float)/16000.0;
+                        const double end=offset+double(count)/16000.0;
+                        double confidence=0;const int tokens=whisper_full_n_tokens(ctx.get(),i);
+                        for(int t=0;t<tokens;++t) confidence+=whisper_full_get_token_p(ctx.get(),i,t);
+                        segments << "{\"start\":" << std::min(end,offset+whisper_full_get_segment_t0(ctx.get(),i)/100.0)
+                            << ",\"end\":" << std::min(end,offset+whisper_full_get_segment_t1(ctx.get(),i)/100.0)
+                            << ",\"confidence\":" << (tokens ? confidence/tokens : 0)
+                            << ",\"text\":" << json_string(segment) << "}\n";
+                    }
                 }
             }
             if (!text) return -1;
@@ -70,6 +94,7 @@ int study_stt_run(study_stt * job, const char * model, const char * pcm, const c
             job->progress = static_cast<int>(consumed * 100 / bytes);
         }
         text.flush();
-        return job->cancelled ? 1 : (text ? 0 : -1);
+        segments.flush();
+        return job->cancelled ? 1 : (text && segments ? 0 : -1);
     } catch (...) { return -1; }
 }

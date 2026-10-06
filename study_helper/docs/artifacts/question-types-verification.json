@@ -1,0 +1,40 @@
+{
+  "feature": "question types",
+  "types": [
+    "concept",
+    "calculation",
+    "written"
+  ],
+  "tests": {
+    "studyCore/build/test-results/jvmTest": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "studyCore/build/test-results/iosSimulatorArm64Test": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "shared/build/test-results/jvmTest": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "desktopApp/build/test-results/jvmTest": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "desktop_build": "passed",
+  "android_build": "passed",
+  "ios_build": "passed",
+  "iphone_install": "completed",
+  "written_answer_persistence": false,
+  "written_auto_grading": false
+}

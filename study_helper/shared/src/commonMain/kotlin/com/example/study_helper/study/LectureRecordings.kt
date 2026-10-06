@@ -22,6 +22,9 @@ interface LecturePlatform {
 }
 
 data class LectureRecording(val id: String, val title: String, val date: String, val seconds: Int, val hasTranscript: Boolean = false)
+data class LectureSegment(val start: Int, val end: Int, val text: String, val confidence: Double) {
+    val needsReview: Boolean get() = confidence < 0.6 || text.any { it.isDigit() }
+}
 data class LectureAudioState(
     val recordings: List<LectureRecording> = emptyList(), val recording: Boolean = false,
     val pending: Boolean = false, val seconds: Int = 0, val playing: String = "",
@@ -31,6 +34,8 @@ data class LectureAudioState(
     val localTranscriptionAvailable: Boolean = false, val localTranscribing: Boolean = false,
     val deviceTranscriptionAvailable: Boolean = false, val deviceModelReady: Boolean = false,
     val deviceTranscribing: Boolean = false, val modelDownloading: Boolean = false, val deviceProgress: Int = 0,
+    val reviewAvailable: Boolean = false, val reviewContext: String = "", val autoReview: Boolean = false,
+    val editorDraft: String = "", val editorSegments: List<LectureSegment> = emptyList(),
 )
 
 class LectureHost(private val platform: LecturePlatform) {
@@ -55,7 +60,14 @@ class LectureHost(private val platform: LecturePlatform) {
                 text("playing"), number("playbackSeconds"), text("message"),
                 text("transcript"), text("provisional"), text("speechStatus"), text("editorId"), text("editorTitle"), text("editorText"),
                 flag("localTranscriptionAvailable"), flag("localTranscribing"), flag("deviceTranscriptionAvailable"),
-                flag("deviceModelReady"), flag("deviceTranscribing"), flag("modelDownloading"), number("deviceProgress").coerceAtMost(100))
+                flag("deviceModelReady"), flag("deviceTranscribing"), flag("modelDownloading"), number("deviceProgress").coerceAtMost(100),
+                flag("reviewAvailable"),text("reviewContext"),flag("autoReview"),text("editorDraft"),
+                data["editorSegments"]?.jsonArray.orEmpty().map {item ->
+                    val row=item.jsonObject
+                    fun seconds(key:String)=(row[key]?.jsonPrimitive?.doubleOrNull ?: 0.0).takeIf {it.isFinite()}?.toInt()?.coerceAtLeast(0) ?: 0
+                    LectureSegment(seconds("start"),seconds("end"),row["text"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                        (row["confidence"]?.jsonPrimitive?.doubleOrNull ?: 0.0).takeIf {it.isFinite()}?.coerceIn(0.0,1.0) ?: 0.0)
+                })
         } catch (_: Exception) {
             state = state.copy(message = "녹음 상태를 읽지 못했어요. 녹음 화면을 다시 열어 주세요.")
         }
@@ -64,7 +76,8 @@ class LectureHost(private val platform: LecturePlatform) {
     fun command(action: String, id: String = "", title: String = "") {
         if (state.pending && action !in listOf("close", "cancelLocalTranscription", "cancelDeviceTranscription")) return
         if (state.recording && action in listOf("start", "play", "delete", "rename", "openTranscript", "saveTranscript", "transcribeLocal", "transcribeDevice", "downloadDeviceModel")) return
-        platform.audioCommand(action, id, if (action == "saveTranscript") title.trim() else title.trim().take(120))
+        if(state.recording && action in listOf("playSegment","setReviewContext","setAutoReview")) return
+        platform.audioCommand(action, id, when(action) {"saveTranscript" -> title.trim();"setReviewContext" -> title.trim().take(2000);else -> title.trim().take(120)})
     }
 }
 
@@ -78,6 +91,8 @@ fun LectureRecordings(host: LectureHost) {
     var deleting by remember { mutableStateOf<LectureRecording?>(null) }
     var renaming by remember { mutableStateOf<LectureRecording?>(null) }
     var editedTitle by rememberSaveable { mutableStateOf("") }
+    var settings by remember { mutableStateOf(false) }
+    var context by rememberSaveable { mutableStateOf("") }
     val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
     MaterialTheme(colorScheme = colors) {
         Surface(Modifier.fillMaxSize()) {
@@ -89,6 +104,14 @@ fun LectureRecordings(host: LectureHost) {
                 Text("강의 녹음", style = MaterialTheme.typography.headlineMedium)
                 Text("음성은 이 기기에 저장됩니다.", style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(12.dp))
+                if(state.reviewAvailable) {
+                    Row {
+                        Checkbox(checked=state.autoReview,onCheckedChange={host.command("setAutoReview",title=it.toString())},enabled=!state.pending && !state.recording)
+                        Text("녹음 종료 후 자동으로 전체 재인식",modifier=Modifier.padding(top=12.dp))
+                    }
+                    TextButton(onClick={context=state.reviewContext;settings=true},enabled=!state.pending && !state.recording) {Text("과목 용어 · 강의 자료 참고 설정")}
+                    Text("실시간 받아쓰기는 초안입니다. 재인식 중에는 앱 화면을 유지해 주세요.",style=MaterialTheme.typography.bodySmall)
+                }
                 if (state.pending) LinearProgressIndicator(Modifier.fillMaxWidth())
                 if (state.deviceTranscriptionAvailable) {
                     Text(if (state.deviceModelReady) "오프라인 Whisper · 음성은 기기 안에서 처리됩니다." else "오프라인 변환 모델 · 최초 다운로드 약 190MB", style = MaterialTheme.typography.bodySmall)
@@ -117,7 +140,7 @@ fun LectureRecordings(host: LectureHost) {
                 if (state.speechStatus.isNotBlank() && (state.recording || state.pending)) {
                     Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                         Column(Modifier.padding(12.dp)) {
-                            Text(state.speechStatus, style = MaterialTheme.typography.labelMedium)
+                            Text("실시간 초안 · ${state.speechStatus}", style = MaterialTheme.typography.labelMedium)
                             val scroll = rememberScrollState()
                             LaunchedEffect(state.transcript, state.provisional) { scroll.scrollTo(scroll.maxValue) }
                             SelectionContainer {
@@ -147,7 +170,7 @@ fun LectureRecordings(host: LectureHost) {
                                 }
                                 if (state.deviceTranscriptionAvailable) {
                                     TextButton(onClick = { host.command("transcribeDevice", recording.id) }, enabled = state.deviceModelReady && !state.recording && !state.pending) {
-                                        Text("이 기기에서 텍스트로 변환")
+                                        Text(if(state.reviewAvailable) "전체 음성 다시 인식" else "이 기기에서 텍스트로 변환")
                                     }
                                 }
                                 if (state.localTranscriptionAvailable) {
@@ -174,14 +197,36 @@ fun LectureRecordings(host: LectureHost) {
             }
             if (state.editorId.isNotBlank()) {
                 var text by rememberSaveable(state.editorId) { mutableStateOf(state.editorText) }
+                var reviewTab by rememberSaveable(state.editorId) { mutableStateOf("edit") }
                 Dialog(onDismissRequest = { host.command("closeTranscript") }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
                     Surface(Modifier.fillMaxSize()) {
                         Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(20.dp)) {
                             Text(state.editorTitle, style = MaterialTheme.typography.titleLarge)
                             Text("잘못 인식한 내용을 고친 뒤 노트로 저장하세요. 다시 저장하면 같은 노트를 갱신합니다.")
                             if (state.message.isNotBlank()) Text(state.message, Modifier.padding(vertical = 8.dp))
-                            OutlinedTextField(text, { text = it }, label = { Text("강의 받아쓰기") },
-                                modifier = Modifier.weight(1f).fillMaxWidth())
+                            if(state.reviewAvailable) Row {
+                                TextButton(onClick={reviewTab="edit"}) {Text("교정본 편집")}
+                                TextButton(onClick={reviewTab="draft"}) {Text("실시간 초안")}
+                                TextButton(onClick={reviewTab="audio"}) {Text("원음 확인")}
+                            }
+                            when(reviewTab) {
+                                "draft" -> SelectionContainer(Modifier.weight(1f).verticalScroll(rememberScrollState())) {Text(state.editorDraft.ifBlank {"실시간 초안이 없습니다."})}
+                                "audio" -> Column(Modifier.weight(1f)) {
+                                    Text("확인 권장: 인식 신뢰도가 낮거나 숫자가 포함된 구간입니다. 오류로 확정된 것은 아닙니다.",style=MaterialTheme.typography.bodySmall)
+                                    if(state.editorSegments.isEmpty()) Text("구간 정보가 없습니다. 전체 음성을 다시 인식해 주세요.")
+                                    LazyColumn(Modifier.weight(1f)) {
+                                        items(state.editorSegments) {segment ->
+                                            Column(Modifier.padding(vertical=8.dp)) {
+                                                Text((if(segment.needsReview) "확인 권장 · " else "")+audioTime(segment.start),color=if(segment.needsReview) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                                                Text(segment.text)
+                                                TextButton(onClick={host.command("playSegment",state.editorId,segment.start.toString())},enabled=!state.pending) {Text("이 구간 원음 듣기")}
+                                            }
+                                        }
+                                    }
+                                    if(state.playing.isNotEmpty()) TextButton(onClick={host.command("stopPlayback")}) {Text("재생 종료 · ${audioTime(state.playbackSeconds)}")}
+                                }
+                                else -> OutlinedTextField(text, { text = it }, label = { Text("강의 받아쓰기 · 교정본") },modifier = Modifier.weight(1f).fillMaxWidth())
+                            }
                             Row {
                                 TextButton(onClick = { host.command("closeTranscript") }) { Text("닫기") }
                                 Button(onClick = { host.command("saveTranscript", state.editorId, text) }, enabled = text.isNotBlank() && !state.pending) {
@@ -192,6 +237,13 @@ fun LectureRecordings(host: LectureHost) {
                     }
                 }
             }
+            if(settings) AlertDialog(onDismissRequest={settings=false},title={Text("인식 참고 자료")},
+                text={Column {
+                    Text("과목명, 전문용어, 강의 자료의 핵심 문장을 붙여 넣으세요. 재인식에 참고하며 정답으로 간주하거나 자동 치환하지 않습니다.")
+                    OutlinedTextField(context,{context=it.take(2000)},label={Text("예: 전계, 트랜지스터, 베이스 전류, mA")},modifier=Modifier.heightIn(max=260.dp))
+                    Text("${context.length}/2000자 · 기기 안에서만 사용")
+                }},confirmButton={TextButton(onClick={host.command("setReviewContext",title=context);settings=false}) {Text("저장")}},
+                dismissButton={TextButton(onClick={settings=false}) {Text("취소")}})
             deleting?.let { recording ->
                 AlertDialog(onDismissRequest = { deleting = null }, title = { Text("녹음을 삭제할까요?") },
                     text = { Text("‘${recording.title}’의 음성 파일이 기기에서 삭제됩니다.") },

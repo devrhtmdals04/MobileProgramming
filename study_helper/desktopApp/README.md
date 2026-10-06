@@ -1,5 +1,7 @@
 # Study Helper Desktop
 
+PDF 요약·문제 풀이를 브라우저에서 사용하려면 [PC 로컬 웹](../webApp/README.md)을 실행하세요. 루트의 `Study Helper 웹 실행.command` 더블클릭으로 열 수 있으며 Gradle 빌드가 필요하지 않습니다. 아래는 기존 Compose PC 앱 실행 방법입니다.
+
 Compose Desktop 서재와 공통 Kotlin 학습 코어, 별도 프로세스의 Godot 게임을 묶는다. 공부 폴더의 PDF·노트·문제·그림·녹음을 경로 그대로 Google Drive와 양방향 동기화한다. 추가·수정·삭제 목록을 표시하며 모바일에서도 녹음을 올릴 수 있다. [Google 설정·동기화 사용법](../docs/GOOGLE_DRIVE_SYNC.md).
 
 ## macOS

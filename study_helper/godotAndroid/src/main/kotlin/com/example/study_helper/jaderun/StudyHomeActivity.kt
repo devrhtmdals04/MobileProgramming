@@ -30,6 +30,51 @@ import org.json.JSONObject
 
 /** Owns local documents and file pickers. Question files remain in Kotlin; Godot receives public question data. */
 class StudyHomeActivity : ComponentActivity() {
+    private val openAI by lazy { OpenAIStream(lifecycleScope) }
+    private var pdfOpen by mutableStateOf(false)
+    private var pdfCompletion: ((String) -> Unit)? = null
+    private val pdfHost by lazy { PdfStudyHost(object : PdfStudyPlatform {
+        override fun chooseStudyPdf(completion: (String) -> Unit) {
+            pdfCompletion = completion
+            try { pdfLauncher.launch(arrayOf("application/pdf")) }
+            catch (_: Exception) { pdfCompletion = null; completion("{\"error\":\"PDF 선택 화면을 열지 못했어요.\"}") }
+        }
+        override fun generateStudyContent(key: String, model: String, body: String, event: (String) -> Unit, completion: (String) -> Unit) = openAI.generate(key, model, body, event, completion)
+        override fun cancelStudyGeneration() = openAI.cancel()
+    }, { id, title, body ->
+        val noteId = id ?: java.util.UUID.randomUUID().toString()
+        saveNote(noteId, title, body)?.let { error(it) }
+        noteId
+    }, { json ->
+        val saved = withContext(Dispatchers.IO) { documentLock.withLock { quizStore.import(json) } }
+        refreshQuizzes()
+        importedQuizId = saved.id
+    }) }
+    private val pdfLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val completion = pdfCompletion
+        pdfCompletion = null
+        if (uri == null) completion?.invoke("{\"cancelled\":true}")
+        else lifecycleScope.launch {
+            val response = withContext(Dispatchers.IO) { runCatching {
+                val name = contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) cursor.getString(0) else null
+                } ?: "학습자료.pdf"
+                val bytes = (contentResolver.openInputStream(uri) ?: error("PDF를 열지 못했어요.")).use { input ->
+                    val output = ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        require(output.size() + n <= PdfStudyProtocol.MAX_PDF_BYTES) { "12MB 이하의 PDF를 선택해 주세요." }
+                        output.write(buffer, 0, n)
+                    }
+                    output.toByteArray()
+                }
+                JSONObject().put("filename", name).put("base64", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)).toString()
+            }.getOrElse { JSONObject().put("error", it.message ?: "PDF를 읽지 못했어요.").toString() } }
+            completion?.invoke(response)
+        }
+    }
     private val preferences by lazy { getSharedPreferences("study_home", MODE_PRIVATE) }
     private val store by lazy { MarkdownNoteStore(this) }
     private val quizStore by lazy { QuizFileStore(this) }
@@ -117,13 +162,21 @@ class StudyHomeActivity : ComponentActivity() {
         exportNoteId = savedInstanceState?.getString("export_note_id")
         loadInitialNotes()
         setContent {
-            StudyHome(
+            if (pdfOpen) {
+                androidx.activity.compose.BackHandler {
+                    if (pdfHost.busy) pdfHost.cancel()
+                    else if (!pdfHost.saving && !pdfHost.picking) pdfOpen = false
+                }
+                PdfStudyScreen(pdfHost, onClose = { pdfOpen = false })
+            } else StudyHome(
                 notebook = notebook, recap = recap, launching = launching,
                 quizzes = quizzes, importedQuizId = importedQuizId,
                 onBackAction = { action -> navigationBack.action = action; navigationBack.isEnabled = action != null },
                 onOpenLink = { link ->
+                    val source = MobileStudyGuides.source(link)
                     val uri = link.toUri()
-                    if (uri.scheme in listOf("https", "http", "mailto")) launchPicker { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                    if (source != null) openStudySource(source.first, source.second)
+                    else if (uri.scheme in listOf("https", "http", "mailto")) launchPicker { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
                     else notebook = notebook.copy(notice = "첨부 파일과 노트 간 링크 연결은 아직 지원하지 않아요.")
                 },
                 onImportQuiz = {
@@ -147,8 +200,32 @@ class StudyHomeActivity : ComponentActivity() {
                 onRetry = ::loadInitialNotes,
                 onStartLearning = ::startLearning,
                 onOpenRecordings = { recordingsLauncher.launch(Intent(this, LectureAudioActivity::class.java)) },
+                onOpenPdf = { pdfOpen = true },
                 onOpenSync = { driveLauncher.launch(Intent(this, DriveActivity::class.java)) },
             )
+        }
+    }
+
+    private fun openStudySource(path: String, page: Int) {
+        lifecycleScope.launch {
+            runCatching {
+                val syncPreferences = getSharedPreferences("study_drive", MODE_PRIVATE)
+                val account = syncPreferences.getString("drive_account", "").orEmpty()
+                val folder = syncPreferences.getString("drive_folder", "").orEmpty()
+                check(account.isNotEmpty() && folder.isNotEmpty())
+                val disk = com.example.study_helper.sync.FolderFiles(filesDir, false) { null }
+                val file = withContext(Dispatchers.IO) {
+                    disk.execute(kotlinx.serialization.json.buildJsonObject {
+                        put("action", kotlinx.serialization.json.JsonPrimitive("prepare"))
+                        put("key", kotlinx.serialization.json.JsonPrimitive("${account}_$folder"))
+                    })
+                    disk.resolve(path).also { check(it.isFile) }
+                }
+                val uri = androidx.core.content.FileProvider.getUriForFile(this@StudyHomeActivity, "$packageName.sharedfiles", file)
+                val mime = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension.lowercase()) ?: "text/plain"
+                startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                if (file.extension.equals("pdf", true)) notebook = notebook.copy(notice = "원본 PDF ${page}쪽을 확인해 주세요.")
+            }.onFailure { notebook = notebook.copy(error = "원본을 열지 못했어요. 공부 폴더 공유에서 자료를 동기화하고 파일 뷰어를 확인해 주세요.") }
         }
     }
 
@@ -161,6 +238,12 @@ class StudyHomeActivity : ComponentActivity() {
                     store.save(null, preferences.getString("title", "식물의 생명 활동 · 예제")!!,
                         oldBody ?: "## 학습 내용\n\n식물의 생명 활동을 정리한 예제 노트입니다.\n\n## 복습 개념\n" +
                             StudyService().defaultNotes().lines().joinToString("\n") { "- $it" })
+                }
+                val knownNotes = store.list().map { it.id }.toSet()
+                val knownQuizzes = quizStore.list().map { it.document.sourceNoteId }.toSet()
+                for (guide in MobileStudyGuides.all) {
+                    if (guide.noteId !in knownNotes) store.save(guide.noteId, guide.title, guide.body)
+                    if (guide.noteId !in knownQuizzes) quizStore.import(guide.quizJson)
                 }
                 loadNotebook(preferences.getString("selected_note", null))
             }
@@ -206,7 +289,7 @@ class StudyHomeActivity : ComponentActivity() {
         val selected = all.firstOrNull { it.id == selectedId } ?: all.first()
         preferences.edit().putString("selected_note", selected.id).apply()
         return StudyNotebook(selected.id, selected.title, selected.body,
-            all.map { StudyNoteSummary(it.id, it.title, it.body) }, ready = true, busy = false)
+            all.map { StudyNoteSummary(it.id, it.title, it.body, MobileStudyGuides.path(it.id)) }, ready = true, busy = false)
     }
 
     private fun readDocument(uri: Uri): Pair<String, String> {
@@ -258,6 +341,11 @@ class StudyHomeActivity : ComponentActivity() {
                 notebook = notebook.copy(error = "문제 파일로 게임을 열지 못했어요. 파일을 다시 확인해 주세요.")
             }
         }
+    }
+
+    override fun onDestroy() {
+        openAI.cancel()
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

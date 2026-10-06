@@ -2,6 +2,7 @@ package com.example.study_helper.sync
 
 import androidx.compose.runtime.*
 import com.example.study_helper.study.NotebookPlatform
+import com.example.study_helper.study.MobileStudyGuides
 import com.example.study_helper.core.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
@@ -80,6 +81,17 @@ class FolderMirror(private val local: NotebookPlatform, private val native: Fold
         if(note.s("kind")!="notes") return false
         local.setPreference("selected_note",note.s("id")); return true
     }
+    fun notePaths(kind: String = "notes"):Map<String,String> {
+        val account=local.preference("drive_account").orEmpty()
+        val folder=local.preference("drive_folder").orEmpty()
+        val label=local.preference("linked_folder")
+        val scope="folder_mirror_${account}_${folder}_${label ?: "mobile"}"
+        return runCatching {
+            Json.parseToJsonElement(local.preference("${scope}_notes") ?: "{}").jsonObject
+                .entries.filter {it.value.jsonObject.s("kind")==kind}
+                .associate {it.value.jsonObject.s("id") to it.key}
+        }.getOrDefault(emptyMap())
+    }
 
     private fun docs(kind: String): Map<String,String> {
         val result = Json.parseToJsonElement(local.readFiles(kind)).jsonObject
@@ -117,7 +129,43 @@ class FolderMirror(private val local: NotebookPlatform, private val native: Fold
         val bindings = local.preference(noteKey)?.let { Json.parseToJsonElement(it).jsonObject.toMutableMap() } ?: mutableMapOf()
         fun saveBases() = local.setPreference(baseKey, JsonObject(bases).toString())
         fun saveBindings() = local.setPreference(noteKey, JsonObject(bindings).toString())
-        val notes = mapOf("notes" to docs("notes"), "question-sets" to docs("question-sets"))
+        var notes = mapOf("notes" to docs("notes"), "question-sets" to docs("question-sets"))
+        if (apply) {
+            val plan = bundledGuideRetirements(notes, bindings)
+            val aliases = Json.parseToJsonElement(local.preference("guide_document_aliases") ?: "{}").jsonObject.toMutableMap()
+            for (pair in plan.chunked(2)) {
+                // Validate both originals and destinations before retiring either member.
+                val checks = (pair.map { it.oldPath } + pair.map { it.targetPath }).associateWith { path ->
+                    command("text", mapOf("path" to path))
+                }
+                if (checks.any { (path, disk) -> disk.s("hash").isEmpty() || disk.s("text") != bindings.getValue(path).jsonObject.s("raw") }) continue
+                if (pair.any { bases[it.oldPath]?.jsonObject?.s("hash") != checks.getValue(it.oldPath).s("hash") }) continue
+                for (item in pair) {
+                    aliases[item.oldId] = JsonPrimitive(item.targetId)
+                }
+                // Persist redirects first so an interrupted cleanup retains document links.
+                local.setPreference("guide_document_aliases", JsonObject(aliases).toString())
+                for (item in pair) {
+                    command("archive", mapOf("path" to item.oldPath, "expected" to checks.getValue(item.oldPath).s("hash")))
+                    command("archiveNote", mapOf("kind" to item.kind, "id" to item.oldId))
+                    bindings.remove(item.oldPath); saveBindings()
+                }
+            }
+            notes = mapOf("notes" to docs("notes"), "question-sets" to docs("question-sets"))
+        }
+        // Older iOS scans sliced /private/var paths using a /var base length, producing
+        // a spurious first component. Relink only proven empty imports to an existing file.
+        val existingPaths=command("scan").getValue("files").jsonArray.map {it.jsonObject.s("path")}.toSet()
+        for((path,value) in bindings.toMap()) {
+            val bind=value.jsonObject
+            val corrected=path.substringAfter('/',"")
+            if(path in existingPaths || corrected !in existingPaths || corrected in bindings ||
+                bind.s("raw").isNotEmpty() || bind.s("kind")!="notes") continue
+            val placeholder=canonical("notes","",path.substringAfterLast('/'))
+            if(bind.s("content")!=placeholder) continue
+            bindings.remove(path); bindings[corrected]=value
+        }
+        saveBindings()
         // Adopt the old desktop folder map once; keep the user's edited library documents and IDs.
         val migratedKey="${scope}_legacy_adopted"
         if(state.desktop && local.preference(migratedKey)!="true") {
@@ -142,6 +190,11 @@ class FolderMirror(private val local: NotebookPlatform, private val native: Fold
             ?: notes.flatMap { (kind, items) -> items.keys.map { "$kind/$it" } }.toMutableSet()
         if(includeExistingNotes) {
             known.clear()
+        }
+        // Unchanged packaged examples must not become newly authored mobile documents.
+        for (guide in MobileStudyGuides.all) {
+            if (notes["notes"]?.get(guide.noteId) == MarkdownNotes.write(guide.title, guide.body)) known.add("notes/${guide.noteId}")
+            if (notes["question-sets"]?.get(guide.quizId) == QuizFiles.write(QuizFiles.read(guide.quizJson))) known.add("question-sets/${guide.quizId}")
         }
         bindings.values.forEach { val b=it.jsonObject; known.add("${b.s("kind")}/${b.s("id")}") }
         for ((path, value) in bindings.toMap()) {
@@ -263,7 +316,11 @@ class FolderMirror(private val local: NotebookPlatform, private val native: Fold
         for((path,row) in finalFiles) {
             if(decisions[path]==FileDecision.CONFLICT || path.substringAfterLast('.').lowercase() !in setOf("md","json") || row.s("size").toLong()>400400) continue
             val kind=if(path.endsWith(".md",true)) "notes" else "question-sets"
-            val raw=command("text",mapOf("path" to path)).s("text")
+            val document=command("text",mapOf("path" to path))
+            check(document.s("hash").isNotEmpty() && document.s("hash")==row.s("hash")) {
+                "노트 원본을 읽지 못했거나 내용이 변경됐어요: $path"
+            }
+            val raw=document.s("text")
             val text=runCatching { canonical(kind,raw,path.substringAfterLast('/')) }.getOrNull() ?: continue
             val claimed=bindings.values.map {it.jsonObject.s("id")}.toSet()
             val matching=notes[kind]?.entries?.firstOrNull {it.key !in claimed && runCatching {canonical(kind,it.value,path)==text}.getOrDefault(false)}?.key

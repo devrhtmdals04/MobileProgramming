@@ -1,0 +1,103 @@
+{
+  "folderName": "테스트",
+  "syncResult": "43개 반영 완료 · 최신 상태입니다.",
+  "syncFinished": true,
+  "syncFailed": false,
+  "pcFiles": 226,
+  "verifiedFiles": 223,
+  "verifiedLibraryBindings": 182,
+  "mobileBindings": 182,
+  "unsupportedFiles": [
+    "AI와정보보안/06주차/강의/6주차 웹의 이해·HTTP와 웹 보안 기초-3397897/transcript.srt",
+    "AI와정보보안/주차 확인 필요/강의/악성코드의 역사·분류와 감염 증상-3365610/transcript.srt",
+    "AI와정보보안/주차 확인 필요/강의/웹 취약점 강의 복습-3365609/transcript.srt"
+  ],
+  "mismatches": [],
+  "uiVerified": true,
+  "editRoundTripVerified": true,
+  "lectures": [
+    {
+      "canvasItem": "3365609",
+      "filesVerified": 6,
+      "questions": 15,
+      "title": "웹 취약점 강의 복습"
+    },
+    {
+      "canvasItem": "3365610",
+      "filesVerified": 6,
+      "questions": 15,
+      "title": "악성코드의 역사·분류와 감염 증상"
+    },
+    {
+      "canvasItem": "3397897",
+      "filesVerified": 6,
+      "questions": 15,
+      "title": "6주차 웹의 이해·HTTP와 웹 보안 기초"
+    }
+  ],
+  "verificationDate": "2026-10-06",
+  "device": "iPhone 17 Pro Max",
+  "method": "Actual device files, stored library documents, mobile sync baselines and PC Drive baselines compared; no UI automation.",
+  "unexpectedSeedUploads": [
+    "모바일/노트/1주차 · CIA와 AI·디지털 자산 보호--07002c2e-d50c-5544-885a-60abdc61ce92.md",
+    "모바일/노트/2주차 · 인증에서 로그까지, 시스템 보안--c24d9075-3589-50a1-b129-4a0b81f093fc.md",
+    "모바일/노트/3주차 · 네트워크 흐름과 공격 유형 구분--d109188a-cec5-54e1-8dfe-3dc62306ea35.md",
+    "모바일/노트/4주차 · 웹·네트워크 퀴즈 핵심 복습--7fe33189-cc6d-5ddb-be02-45147d14cf1e.md",
+    "모바일/문제/1주차 핵심 복습--298962c8-4d31-59ae-bcf5-4ba32b99e3ca.quiz.json",
+    "모바일/문제/2주차 핵심 복습--bb9abe4f-3a57-5d37-acd8-b6a22a8dc7ae.quiz.json",
+    "모바일/문제/3주차 핵심 복습--83e5c964-165a-5054-b0c8-3ccbe083aa39.quiz.json",
+    "모바일/문제/4주차 핵심 복습--37a4737b-04ad-552a-b10f-a18e18af76ec.quiz.json"
+  ],
+  "duplicateIssue": "Previously bundled guides were treated as new mobile documents and uploaded alongside canonical course files.",
+  "uiVerificationScope": "User confirmed the week 6 summary renders correctly; quiz UI not exercised.",
+  "editingIssue": {
+    "reported": "Korean text does not enter correctly in the mobile note editor",
+    "status": "User typed Korean text, saved and synced after updated app installation; marker verified on iPhone and PC. Broader IME scenarios not tested.",
+    "sharedTestsPassed": 73,
+    "installedAt": "2026-10-06T15:13:45+09:00"
+  },
+  "roundTrip": {
+    "marker": "모바일 동기화 test",
+    "mobileUpload": "1개 반영 완료 · 최신 상태입니다.",
+    "pcDownloadConflicts": 0,
+    "webSummaryContainsMarker": true,
+    "actualMobileNoteMatchesBinding": true,
+    "baselinePreserved": true,
+    "cleanup": "Original SHA-256 restored on PC and Drive; iPhone received restoration in the completed sync.",
+    "cleanupConflicts": []
+  },
+  "duplicateFix": {
+    "status": "verified on actual iPhone; PC duplicates archived",
+    "plannedRetirements": 8,
+    "canonicalTargetsVerified": 8,
+    "sharedTestsPassed": 78,
+    "automaticSeedCreationDisabled": true,
+    "webCleanup": "8 duplicates removed; links merged; temporary local archive and receipt deleted at user request; database backup retained",
+    "retiredDuplicates": 8,
+    "mobileFilesAfter": 215,
+    "pcFilesAfter": 218,
+    "actualLibraryDocumentsVerified": 174,
+    "oldDeviceDocumentsAbsent": 8,
+    "canonicalContentsUnchanged": true,
+    "recentMobileResultUnchanged": true,
+    "allWebAttemptsPreserved": true,
+    "restartAndSecondMobileSyncVerified": false,
+    "pcPostCleanupSync": {
+      "busy": false,
+      "changes": 0,
+      "conflicts": 0,
+      "lastSync": 1791268855.7589078
+    },
+    "localArchiveDeletedAtUserRequest": true
+  },
+  "libraryPresentation": {
+    "date": "2026-10-06",
+    "navigation": "subjects then weekly notes and quizzes",
+    "auxiliaryFiles": "available through menu; excluded from primary study list",
+    "sharedTestsPassed": 81,
+    "iosBuild": "passed",
+    "deviceInstall": "completed",
+    "visualUserVerification": false,
+    "filesMovedOrDeleted": false
+  }
+}

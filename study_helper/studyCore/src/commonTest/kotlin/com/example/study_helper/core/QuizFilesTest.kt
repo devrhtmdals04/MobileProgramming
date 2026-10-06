@@ -18,8 +18,16 @@ class QuizFilesTest {
         assertEquals("note-1", source["sourceNoteId"]!!.jsonPrimitive.content)
     }
 
+    @Test fun subjectMetadataRoundTripsAndRejectsInvalidNames() {
+        val named = fixture.copy(subject = "정보보안")
+        assertEquals(named, QuizFiles.read(QuizFiles.write(named)))
+        assertEquals("", QuizFiles.read(json).subject)
+        assertFailsWith<IllegalArgumentException> { QuizFiles.write(fixture.copy(subject = "x".repeat(61))) }
+        assertFailsWith<IllegalArgumentException> { QuizFiles.read(json.replace("\"title\":", "\"subject\":123,\"title\":")) }
+    }
+
     @Test fun invalidFilesFailWithoutInventingQuestions() {
-        listOf("{}", "[]", "```json\n$json\n```", "{", json.replace("\"schemaVersion\":1", "\"schemaVersion\":2"),
+        listOf("{}", "[]", "```json\n$json\n```", "{", json.replace("\"schemaVersion\":1", "\"schemaVersion\":3"),
             json.replace("\"correctIndex\":0", "\"correctIndex\":3"), json.replace("\"correctIndex\":0", "\"correctIndex\":\"0\""),
             json.replace("\"sourceQuote\":\"원문 근거 1\"", "\"sourceQuote\":\"\""),
             json.replace("\"오답 B\"", "\"오답 A\""), "x".repeat(100_001)).forEach { invalid ->

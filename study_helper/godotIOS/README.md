@@ -114,3 +114,13 @@ xcrun simctl launch --console booted com.example.studyhelper.jaderun -- --notebo
 iPhone 17 Pro Max / iOS 26.6.2에 최신 Google Drive 지원 빌드를 기존 앱 위에 설치했다. 격리된 테스트 서재에서 20개 검사 통과: 노트 가져오기·저장, 파일 선택, 문제 검증, 두 차례 7문제 게임 채점·재진입·결과 저장, 중도 종료, OAuth 미설정 안내. 테스트 후 인자 없이 일반 서재로 재실행했다. 실제 Google 로그인·서버 동기화는 iOS OAuth 클라이언트 미설정으로 검사하지 않았다.
 
 [실기기 검증 보고서](../godot-runner/artifacts/iphone-drive-notebook-report.json) · [공유 저장소 버튼이 있는 실기기 서재](../godot-runner/artifacts/iphone-drive-library.png).
+
+## AI와정보보안 통합 정리 (2026-10-05)
+
+웹에서 검토한 `/Users/goseungmin/Desktop/2026-2/제작기록/ai-security-course.json`을 `python3 tools/course-guides/generate_mobile.py <course-pack.json 경로>`로 공통 Kotlin 콘텐츠로 변환한다. 이 묶음은 기존 자료의 식별·원본 링크·중복 이전을 위한 레거시 카탈로그로 남긴다. 앱 실행 시 정리본·문제를 자동 생성하지 않으며, 현재 학습 자료는 공유 폴더에서 받는다. 웹에서 이후 편집한 내용이나 풀이 기록의 실시간 동기화는 이 기능에 포함되지 않는다.
+
+모바일 서재 첫 화면에 **AI와정보보안 · 수업 통합 정리** 카드를 표시하고, 읽기 화면의 **이 수업 복습하기**로 연결한다. 객관식은 기존 학습 게임, 서술형은 기존 문제 상세의 답안 비교 기능을 사용한다. 4주차는 퀴즈 풀이 메모 범위만 다룬다.
+
+원본 링크는 선택된 Drive 공유 폴더에 이미 내려받은 상대 경로를 사용한다. iOS는 PDFKit 뷰어에서 지정 쪽을 열고, Markdown은 연결된 기기 노트로 이동한다. Android는 설치된 파일 뷰어로 원본을 열고 PDF 쪽수를 안내한다. 원본이 없으면 동기화를 안내하며, 링크를 눌렀다고 자동으로 Drive 파일을 업로드하거나 다운로드하지 않는다.
+
+검증: 공통 JVM 73개 테스트 통과, Android Debug APK 빌드 성공, 서명된 iPhone 빌드 설치·실행 성공. 실제 iPhone 앱 컨테이너에서 4개 노트와 6·8·8·5문항의 문제 파일, 원본 노트 ID 연결을 확인했다. PDF 페이지 이동 UI의 실기기 조작 검증 및 Android 기기 설치는 별도로 필요하다.

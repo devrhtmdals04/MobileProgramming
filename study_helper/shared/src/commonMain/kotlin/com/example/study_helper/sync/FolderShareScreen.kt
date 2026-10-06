@@ -14,6 +14,14 @@ fun FolderShareScreen(sync:DriveSync,onClose:()->Unit,onChanged:()->Unit) {
     val scope=rememberCoroutineScope(); val state=sync.state; val mirror=sync.mirror!!; val folder=mirror.state
     var picking by remember { mutableStateOf(state.folderId.isEmpty()) }
     var name by remember { mutableStateOf("학습") }
+    var currentPath by remember(state.folderId) { mutableStateOf("") }
+    var showChanges by remember { mutableStateOf(false) }
+    var showFiles by remember { mutableStateOf(false) }
+    var showOptions by remember { mutableStateOf(false) }
+    val prefix=if(currentPath.isEmpty()) "" else "$currentPath/"
+    val children=folder.files.filter {it.startsWith(prefix)}.map {it.removePrefix(prefix)}
+    val directories=children.filter {'/' in it}.map {it.substringBefore('/')}.distinct().sorted()
+    val files=children.filter {'/' !in it}.sorted()
     LaunchedEffect(Unit) { sync.folderAction("status") }
     MaterialTheme { Surface(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize().safeDrawingPadding().padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
@@ -31,7 +39,8 @@ fun FolderShareScreen(sync:DriveSync,onClose:()->Unit,onChanged:()->Unit) {
             }
             item {
                 Text("Drive 공유 폴더: ${state.folderName.ifEmpty { "선택하지 않음" }}")
-                Row {
+                TextButton(onClick={showOptions=!showOptions}) { Text(if(showOptions) "설정 접기" else "동기화 설정") }
+                if(showOptions) Row {
                     OutlinedButton(onClick={picking=true;scope.launch {sync.connect()}},enabled=!state.busy) { Text(if(state.folderId.isEmpty()) "Google Drive에서 폴더 선택" else "공유 폴더 변경") }
                     if(state.connected) TextButton(onClick=sync::disconnect,enabled=!state.busy) {Text("로그아웃")}
                 }
@@ -62,23 +71,37 @@ fun FolderShareScreen(sync:DriveSync,onClose:()->Unit,onChanged:()->Unit) {
             if(state.folderId.isNotEmpty() && !picking) {
                 item {
                     Button(onClick={scope.launch {sync.syncFolder();onChanged()}},enabled=!state.busy && (!folder.desktop || folder.label.isNotEmpty()),modifier=Modifier.fillMaxWidth()) {Text("지금 동기화")}
-                    Row {
+                    if(showOptions) Row {
                         TextButton(onClick={scope.launch {sync.syncFolder(preview=true)}},enabled=!state.busy) {Text("변경사항 확인")}
                         TextButton(onClick={scope.launch {sync.folderAction("recordings");onChanged()}},enabled=!state.busy) {Text("저장한 녹음 올리기")}
                     }
-                    TextButton(onClick={scope.launch {sync.folderAction("notes");onChanged()}},enabled=!state.busy) {Text("기존 서재 노트도 올리기")}
-                    Text("PDF·노트·문제·그림·녹음을 폴더 구조 그대로 공유합니다. 녹음은 저장을 마친 뒤 올려주세요.",style=MaterialTheme.typography.bodySmall)
-                    Text("삭제는 Drive 휴지통 또는 이 기기 보관함으로 옮깁니다. 양쪽에서 변경된 파일은 충돌로 표시합니다.",style=MaterialTheme.typography.bodySmall)
+                    if(showOptions) TextButton(onClick={scope.launch {sync.folderAction("notes");onChanged()}},enabled=!state.busy) {Text("기존 서재 노트도 올리기")}
+                    if(showOptions) Text("삭제는 Drive 휴지통 또는 이 기기 보관함으로 옮깁니다. 양쪽에서 변경된 파일은 충돌로 표시합니다.",style=MaterialTheme.typography.bodySmall)
                     if(folder.files.isEmpty() && !state.busy) Text("아직 받은 자료가 없습니다. PC에서 올렸다면 ‘지금 동기화’를 눌러 받아주세요.")
-                    Text(if(folder.finished) "이번 동기화 내역" else "변경사항 목록 · 전체 반영 전",style=MaterialTheme.typography.titleMedium)
+                    TextButton(onClick={showChanges=!showChanges}) {
+                        Text((if(showChanges) "▾ " else "▸ ")+(if(folder.finished) "이번 동기화 내역" else "변경사항 목록 · 전체 반영 전")+" (${folder.changes.size})")
+                    }
                 }
-                items(folder.changes,key={"change-${it.path}"}) {Text("${it.action} · ${it.path}\n${it.detail}")}
-                item { HorizontalDivider(); Text(if(folder.finished) "이 기기의 자료" else "공유할 자료 · 동기화 후 열 수 있습니다",style=MaterialTheme.typography.titleMedium) }
-                items(folder.files,key={"file-$it"}) { path ->
+                if(showChanges) items(folder.changes,key={"change-${it.path}"}) {Text("${it.action} · ${it.path}\n${it.detail}")}
+                item {
+                    TextButton(onClick={showFiles=!showFiles}) { Text(if(showFiles) "원본 파일 접기" else "원본 파일 보기") }
+                }
+                if(showFiles) {
+                item {
+                    HorizontalDivider(); Text(if(folder.finished) "원본 파일" else "공유할 자료 · 동기화 후 열 수 있습니다",style=MaterialTheme.typography.titleMedium)
+                    Text(currentPath.ifEmpty {"공부 폴더"})
+                    if(currentPath.isNotEmpty()) TextButton(onClick={currentPath=currentPath.substringBeforeLast('/',"")}) {Text("‹ 상위 폴더")}
+                }
+                items(directories,key={"directory-$prefix$it"}) { name ->
+                    TextButton(onClick={currentPath=prefix+name},enabled=!state.busy) {Text("📁 $name ›")}
+                }
+                items(files,key={"file-$prefix$it"}) { name ->
+                    val path=prefix+name
                     TextButton(onClick={
                         if(mirror.openNote(path)) {onChanged();onClose()}
                         else scope.launch {sync.folderAction("open",path)}
-                    },enabled=!state.busy && folder.finished) {Text(path)}
+                    },enabled=!state.busy && folder.finished) {Text(name)}
+                }
                 }
             }
         }

@@ -59,23 +59,26 @@ class LectureAudioActivity : ComponentActivity(), LecturePlatform {
     override fun audioCommand(action: String, id: String, title: String) {
         if (action == "cancelDeviceTranscription") { DeviceWhisper.cancelWork(); return }
         if (LectureAudioState.pending) return
-        if (LectureAudioState.recording && action in listOf("start", "play", "delete", "rename", "transcribeDevice", "downloadDeviceModel", "openTranscript", "saveTranscript")) return
+        if (LectureAudioState.recording && action in listOf("start", "play", "playSegment", "setReviewContext", "setAutoReview", "delete", "rename", "transcribeDevice", "downloadDeviceModel", "openTranscript", "saveTranscript")) return
         try {
             when (action) {
+                "setReviewContext" -> {getSharedPreferences("lecture-review",MODE_PRIVATE).edit().putString("context",title.take(2000)).apply();LectureAudioState.refresh(this)}
+                "setAutoReview" -> {getSharedPreferences("lecture-review",MODE_PRIVATE).edit().putBoolean("auto",title=="true").apply();LectureAudioState.refresh(this)}
                 "refresh" -> LectureAudioState.refresh(this)
                 "downloadDeviceModel" -> { stopPlayback(); DeviceWhisper.start(this, null) }
                 "transcribeDevice" -> { stopPlayback(); DeviceWhisper.start(this, id) }
                 "openTranscript" -> {
                     val row = LectureAudioState.entry(id) ?: return
                     LectureAudioState.editorId = id; LectureAudioState.editorTitle = row.getString("title")
-                    LectureAudioState.editorText = row.optString("whisperTranscript", row.optString("transcript"))
+                    LectureAudioState.editorText = row.optString("reviewedTranscript",row.optString("whisperTranscript", row.optString("transcript")))
+                    LectureAudioState.editorDraft=row.optString("transcript");LectureAudioState.editorSegments=row.optJSONArray("segments") ?: org.json.JSONArray()
                 }
-                "closeTranscript" -> { LectureAudioState.editorId = ""; LectureAudioState.editorText = "" }
+                "closeTranscript" -> { stopPlayback(); LectureAudioState.editorId = ""; LectureAudioState.editorText = "" }
                 "saveTranscript" -> {
                     val row = LectureAudioState.entry(id)?.let { org.json.JSONObject(it.toString()) } ?: return
                     require(title.isNotBlank())
                     MarkdownNoteStore(this).save(id, row.getString("title").replace("\n", " ").replace("\r", " ").take(60), "## 강의 받아쓰기\n\n" + title)
-                    row.put("transcript", title); row.remove("whisperTranscript")
+                    row.put("reviewedTranscript", title)
                     LectureAudioState.write(this, row)
                     savedNoteId = id; setResult(RESULT_OK, Intent().putExtra("savedNoteId", id))
                     LectureAudioState.editorId = ""; LectureAudioState.editorText = ""
@@ -91,7 +94,7 @@ class LectureAudioActivity : ComponentActivity(), LecturePlatform {
                     }
                 }
                 "stop" -> startService(Intent(this, LectureAudioService::class.java).setAction(LectureAudioService.STOP))
-                "play" -> {
+                "play", "playSegment" -> {
                     stopPlayback()
                     check(LectureAudioState.entry(id) != null)
                     val focus = if (Build.VERSION.SDK_INT >= 26) {
@@ -106,6 +109,7 @@ class LectureAudioActivity : ComponentActivity(), LecturePlatform {
                     audio.setDataSource(LectureAudioState.file(this, id, "m4a").path)
                     audio.setOnPreparedListener {
                         LectureAudioState.pending = false; LectureAudioState.playing = id
+                        if(action=="playSegment") it.seekTo(((title.toIntOrNull() ?: 0)-1).coerceAtLeast(0).toLong().times(1000).coerceAtMost(it.duration.toLong()).toInt())
                         it.start(); handler.post(ticker)
                     }
                     audio.setOnCompletionListener { stopPlayback() }

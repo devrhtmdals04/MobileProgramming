@@ -1,6 +1,10 @@
 package com.example.study_helper.study
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -20,18 +24,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun NotesEditor(
-    title: String, notes: String, onTitle: (String) -> Unit, onNotes: (String) -> Unit,
-    validate: (String, String) -> String?, onClose: () -> Unit, onSave: suspend () -> String?,
+    initialTitle: String, initialNotes: String,
+    validate: (String, String) -> String?, onClose: () -> Unit, onSave: suspend (String, String) -> String?,
 ) {
     var attempted by rememberSaveable { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var saveError by remember { mutableStateOf<String?>(null) }
     var confirmClose by remember { mutableStateOf(false) }
-    val initialTitle = rememberSaveable { title }
-    val initialNotes = rememberSaveable { notes }
+    // Keep selection and IME composition in the field itself. Do not round-trip
+    // each composing character through the parent screen as a plain String.
+    val titleState = rememberTextFieldState(initialTitle)
+    val notesState = rememberTextFieldState(initialNotes)
+    val title = titleState.text.toString()
+    val notes = notesState.text.toString()
     val changed = title != initialTitle || notes != initialNotes
     val scope = rememberCoroutineScope()
-    val error = remember(title, notes) { validate(title, notes) }
+    val error = remember(attempted, title, notes) { if (attempted) validate(title, notes) else null }
     val close = { if (!saving) { if (changed) confirmClose = true else onClose() } }
     Dialog(onDismissRequest = close, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -42,11 +50,12 @@ internal fun NotesEditor(
                     TextButton(onClick = close, enabled = !saving) { Text("닫기") }
                 }
                 Text("제목, 문단, 목록, 표와 코드를 자유롭게 적으세요.\n저장하면 읽기 화면에서 볼 수 있어요.", color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 23.sp)
-                OutlinedTextField(value = title, onValueChange = { if (it.length <= 60) onTitle(it) },
-                    enabled = !saving, label = { Text("노트 제목") }, singleLine = true,
+                OutlinedTextField(state = titleState, inputTransformation = InputTransformation.maxLength(60),
+                    enabled = !saving, label = { Text("노트 제목") }, lineLimits = TextFieldLineLimits.SingleLine,
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp))
-                OutlinedTextField(value = notes, onValueChange = { if (it.length <= 100_000) onNotes(it) },
-                    enabled = !saving, label = { Text("마크다운 원문") }, minLines = 10,
+                OutlinedTextField(state = notesState, inputTransformation = InputTransformation.maxLength(100_000),
+                    enabled = !saving, label = { Text("마크다운 원문") },
+                    lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 10, maxHeightInLines = 18),
                     textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 14.sp),
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), isError = attempted && error != null)
                 Text("본문 최대 100,000자 · 마크다운 원문으로 저장됩니다.",
@@ -55,9 +64,11 @@ internal fun NotesEditor(
                 saveError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
                 Button(onClick = {
                     attempted = true
-                    if (error == null) scope.launch {
+                    val savedTitle = titleState.text.toString()
+                    val savedNotes = notesState.text.toString()
+                    if (validate(savedTitle, savedNotes) == null) scope.launch {
                         saving = true
-                        try { saveError = onSave() } finally { saving = false }
+                        try { saveError = onSave(savedTitle, savedNotes) } finally { saving = false }
                     }
                 }, enabled = !saving, modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp), shape = RoundedCornerShape(14.dp)) {
                     Text(if (saving) "저장하고 있어요…" else "노트 저장", fontWeight = FontWeight.Bold)

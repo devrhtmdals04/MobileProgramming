@@ -10,6 +10,8 @@ class StudyService {
     private var sessionId = ""
     private var questions = emptyList<GeneratedQuestion>()
     private var pool = emptyList<GeneratedQuestion>()
+    private var numericTemplates = emptyMap<String,QuizItem>()
+    private val previousNumericPrompts=mutableMapOf<String,String>()
     private var continuous = false
     private var title = ""
     private val answers = linkedMapOf<String, JsonObject>()
@@ -67,12 +69,17 @@ class StudyService {
 
     private fun begin(body: JsonObject): JsonObject {
         val quiz = body["questionSet"]?.let { QuizFiles.read(it.toString()) }
-        // Validate before replacing the active session.
+        // Validate before replacing the active session. Written responses are reviewed in the notebook.
+        val playable = quiz?.questions?.filter { it.type != QuestionType.WRITTEN }
+        require(playable == null || playable.isNotEmpty()) { "서술형은 문제 상세에서 답안을 작성하고 비교해 주세요. 게임에는 개념·계산 문제가 필요해요." }
         val repeat = body["continuous"]?.jsonPrimitive?.booleanOrNull == true
-        val generated = if (quiz != null) quiz.questions.mapIndexed { index, q ->
+        val generated = if (quiz != null) playable!!.mapIndexed { index, q ->
             GeneratedQuestion("q${index + 1}", q.prompt, q.choices, q.correctIndex, q.explanation)
         } else QuestionGenerator.generate(body["notes"]?.jsonPrimitive?.content ?: defaultNotes(), Random.Default)
         continuous = repeat
+        numericTemplates=if(quiz!=null && body["varyNumbers"]?.jsonPrimitive?.booleanOrNull!=false)
+            playable!!.mapIndexedNotNull {index,q -> if(q.numberVariant==null) null else "q${index+1}" to q}.toMap() else emptyMap()
+        previousNumericPrompts.clear()
         pool = generated
         questions = shuffledBatch(0, if (repeat) pool.size else 3)
         title = quiz?.title ?: "학습 노트 · 개념 확인"
@@ -91,7 +98,10 @@ class StudyService {
                 val first = ordered[0]; ordered[0] = ordered[different]; ordered[different] = first
             }
         }
-        return ordered.take(size).mapIndexed { index, q ->
+        return ordered.take(size).mapIndexed { index, original ->
+            val variant=numericTemplates[original.id]?.let { NumericQuestions.generate(it,previousPrompt=previousNumericPrompts[original.id]) }
+            if(variant!=null) previousNumericPrompts[original.id]=variant.prompt
+            val q=if(variant==null) original else GeneratedQuestion(original.id,variant.prompt,variant.choices,variant.correctIndex,variant.explanation)
             val order = q.choices.indices.shuffled()
             q.copy(id = "q${offset + index + 1}", choices = order.map { q.choices[it] }, correctChoice = order.indexOf(q.correctChoice))
         }

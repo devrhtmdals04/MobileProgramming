@@ -62,7 +62,24 @@ fun main(args: Array<String>) = application {
     }
 }
 
-class DesktopPlatform(private val scope: CoroutineScope, root: File = defaultRoot()) : NotebookPlatform, DrivePlatform, FolderPlatform {
+class DesktopPlatform(private val scope: CoroutineScope, root: File = defaultRoot()) : NotebookPlatform, DrivePlatform, FolderPlatform, PdfStudyPlatform {
+    private val openAI = OpenAIStream(scope)
+    override fun generateStudyContent(key: String, model: String, body: String, event: (String) -> Unit, completion: (String) -> Unit) = openAI.generate(key, model, body, event, completion)
+    override fun cancelStudyGeneration() = openAI.cancel()
+    override fun chooseStudyPdf(completion: (String) -> Unit) {
+        val chooser = JFileChooser().apply { fileFilter = javax.swing.filechooser.FileNameExtensionFilter("PDF", "pdf") }
+        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) { completion("{\"cancelled\":true}"); return }
+        val file = chooser.selectedFile
+        scope.launch {
+            val response = withContext(Dispatchers.IO) { runCatching {
+                require(file.length() <= PdfStudyProtocol.MAX_PDF_BYTES) { "12MB 이하의 PDF를 선택해 주세요." }
+                val bytes = file.inputStream().use { it.readNBytes(PdfStudyProtocol.MAX_PDF_BYTES + 1) }
+                require(bytes.size <= PdfStudyProtocol.MAX_PDF_BYTES) { "12MB 이하의 PDF를 선택해 주세요." }
+                buildJsonObject { put("filename", file.name); put("base64", java.util.Base64.getEncoder().encodeToString(bytes)) }.toString()
+            }.getOrElse { buildJsonObject { put("error", it.message ?: "PDF를 읽지 못했어요.") }.toString() } }
+            completion(response)
+        }
+    }
     val store = DesktopStore(root)
     val host = NotebookHost(this)
     var settings by mutableStateOf(false)
@@ -182,7 +199,7 @@ class DesktopPlatform(private val scope: CoroutineScope, root: File = defaultRoo
             finally { game = null }
         }
     }
-    fun close() { game?.destroy(); audio.close() }
+    fun close() { openAI.cancel(); game?.destroy(); audio.close() }
     companion object {
         fun defaultRoot(): File {
             System.getenv("STUDY_HELPER_DATA_DIR")?.let { return File(it) }

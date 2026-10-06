@@ -31,3 +31,6 @@ __pycache__/
 *.mobileprovision
 *.keystore
 *.jks
+
+# Local web documents and API configuration
+webApp/.local-data/

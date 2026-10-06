@@ -22,12 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.study_helper.core.QuestionType
 import com.example.study_helper.core.QuizDocument
+import com.example.study_helper.core.NumericQuestions
 
 /** Notes are readable on their own; imported question files are a separate study collection. */
 data class StudyRecap(val title: String, val answered: Int, val correct: Int, val total: Int, val review: List<String>, val reviewed: Int = 0, val continuous: Boolean = false)
-data class StudyNoteSummary(val id: String, val title: String, val markdown: String = "")
-data class StudyQuiz(val id: String, val document: QuizDocument)
+data class StudyNoteSummary(val id: String, val title: String, val markdown: String = "", val path: String = "")
+data class StudyQuiz(val id: String, val document: QuizDocument, val path: String = "")
 data class StudyNotebook(
     val id: String? = null, val title: String = "", val markdown: String = "",
     val notes: List<StudyNoteSummary> = emptyList(), val ready: Boolean = false, val busy: Boolean = true,
@@ -50,8 +52,11 @@ fun StudyHome(
     onBackAction: ((() -> Unit)?) -> Unit,
     onOpenRecordings: (() -> Unit)? = null,
     onOpenSync: (() -> Unit)? = null,
+    onOpenPdf: (() -> Unit)? = null,
+    varyNumbers: Boolean = true,
+    onVaryNumbersChange: (Boolean) -> Unit = {},
 ) {
-    var tab by rememberSaveable { mutableStateOf("notes") }
+    var libraryFolder by rememberSaveable { mutableStateOf("") }
     var reading by rememberSaveable { mutableStateOf(false) }
     var selectedQuiz by rememberSaveable { mutableStateOf<String?>(null) }
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -63,13 +68,13 @@ fun StudyHome(
     val enabled = notebook.ready && !notebook.busy && !launching
     val quiz = quizzes.firstOrNull { it.id == selectedQuiz }
     LaunchedEffect(importedQuizId) {
-        if (importedQuizId != null) { tab = "quizzes"; selectedQuiz = importedQuizId; reading = false }
+        if (importedQuizId != null) { selectedQuiz = importedQuizId; reading = false }
     }
     SideEffect {
         onBackAction(when {
             reading -> { { reading = false } }
             selectedQuiz != null -> { { selectedQuiz = null } }
-            tab != "notes" -> { { tab = "notes" } }
+            libraryFolder.isNotEmpty() -> { { libraryFolder = libraryFolder.substringBeforeLast('/', "") } }
             else -> null
         })
     }
@@ -103,47 +108,39 @@ fun StudyHome(
                 } else if (reading) {
                     ReaderToolbar(onBack = { reading = false }, onEdit = edit, onExport = onExport,
                         onPrompt = { promptHelp = true }, enabled = enabled)
+                    quizzes.firstOrNull { it.document.sourceNoteId == notebook.id }?.let { related ->
+                        TextButton(onClick = { selectedQuiz = related.id; reading = false }, enabled = enabled,
+                            modifier = Modifier.fillMaxWidth()) { Text("이 수업 복습하기 · ${related.document.questions.size}문항") }
+                    }
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         readerStates.SaveableStateProvider(notebook.id.orEmpty()) {
                             NoteReader(notebook.title, notebook.markdown, onOpenLink)
                         }
                     }
-                } else if (quiz != null && tab == "quizzes") {
-                    QuizDetail(quiz, launching, enabled, Modifier.weight(1f), onBack = { selectedQuiz = null },
+                } else if (quiz != null) {
+                    QuizDetail(quiz, launching, enabled, Modifier.weight(1f), varyNumbers,onVaryNumbersChange,onBack = { selectedQuiz = null },
                         onStart = { onStartLearning(quiz.id) },
-                        onSource = notebook.notes.firstOrNull { it.id == quiz.document.sourceNoteId }?.let { source ->
-                            { onSelectNote(source.id); selectedQuiz = null; tab = "notes"; reading = true }
+                        onSource = (notebook.notes.firstOrNull { it.id == quiz.document.sourceNoteId }
+                            ?: notebook.notes.singleOrNull { it.title == quiz.document.sourceNoteTitle })?.let { source ->
+                            { onSelectNote(source.id); selectedQuiz = null; reading = true }
                         })
                 } else {
                     Box(Modifier.weight(1f)) {
-                        if (tab == "notes") NoteLibrary(notebook, enabled, onImport, newNote) {
-                            onSelectNote(it); reading = true
-                        } else QuizLibrary(quizzes, recap, enabled, onImportQuiz) { selectedQuiz = it }
+                        NoteLibrary(notebook, quizzes, recap, enabled, onImport, newNote,
+                            folder = libraryFolder, onFolder = { libraryFolder = it },
+                            onImportQuiz = onImportQuiz, onQuiz = { selectedQuiz = it },
+                            onRead = { onSelectNote(it); reading = true },
+                            onOpenPdf = onOpenPdf, onOpenSync = onOpenSync, onOpenRecordings = onOpenRecordings)
                     }
-                    onOpenSync?.let { open ->
-                        TextButton(onClick = open, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("공부 폴더 공유") }
-                    }
-                    onOpenRecordings?.let { open ->
-                        TextButton(onClick = open, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("강의 녹음 · 녹음 목록") }
-                    }
-                    HorizontalDivider(color = colors.outlineVariant)
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        listOf("notes" to "노트 서재", "quizzes" to "문제 모음").forEach { (key, label) ->
-                            TextButton(onClick = { tab = key }, modifier = Modifier.weight(1f),
-                                colors = ButtonDefaults.textButtonColors(contentColor = if (tab == key) colors.primary else colors.onSurfaceVariant)) {
-                                DocumentGlyph(key, Modifier.size(21.dp))
-                                Spacer(Modifier.width(9.dp))
-                                Text(label, fontWeight = if (tab == key) FontWeight.Bold else FontWeight.Normal)
-                            }
-                        }
-                    }
+
+
                 }
             }
         }
-        if (editing) NotesEditor(draftTitle, draftNotes, { draftTitle = it }, { draftNotes = it }, validateDocument,
-            onClose = { editing = false }, onSave = {
-                val error = onSaveNotes(draftId, draftTitle.trim(), draftNotes)
-                if (error == null) { editing = false; tab = "notes"; reading = true }
+        if (editing) NotesEditor(draftTitle, draftNotes, validateDocument,
+            onClose = { editing = false }, onSave = { title, notes ->
+                val error = onSaveNotes(draftId, title.trim(), notes)
+                if (error == null) { editing = false; reading = true }
                 error
             })
         if (promptHelp) PromptHelp(notebook.title, onClose = { promptHelp = false }, onCopy = onCopyPrompt,
@@ -152,52 +149,83 @@ fun StudyHome(
 }
 
 @Composable
-private fun NoteLibrary(notebook: StudyNotebook, enabled: Boolean, onImport: () -> Unit, onNew: () -> Unit, onRead: (String) -> Unit) {
+private fun NoteLibrary(notebook: StudyNotebook, quizzes: List<StudyQuiz>, recap: StudyRecap?, enabled: Boolean,
+    onImport: () -> Unit, onNew: () -> Unit, folder: String, onFolder: (String) -> Unit,
+    onImportQuiz: () -> Unit, onQuiz: (String) -> Unit, onRead: (String) -> Unit,
+    onOpenPdf: (() -> Unit)?, onOpenSync: (() -> Unit)?, onOpenRecordings: (() -> Unit)?) {
     var query by rememberSaveable { mutableStateOf("") }
-    val filtered = remember(query, notebook.notes) {
-        notebook.notes.filter { query.isBlank() || it.title.contains(query.trim(), true) || it.markdown.contains(query.trim(), true) }
+    var menu by remember { mutableStateOf(false) }
+    var showSearch by rememberSaveable { mutableStateOf(false) }
+    val materials = remember(notebook.notes, quizzes) { studyLibrary(notebook.notes, quizzes) }
+    val filtered = materials.filter {
+        (folder.isEmpty() || it.subject == folder) &&
+            listOf(it.title, it.subject, it.unit).any { text -> text.contains(query.trim(), true) }
     }
-    Column(Modifier.fillMaxSize().padding(horizontal = 22.dp)) {
-        Spacer(Modifier.height(24.dp))
-        Text("STUDY HELPER", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("나의 서재", fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-            Text("${notebook.notes.size}개의 노트", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
+    val subjects = filtered.map { it.subject }.distinct().sortedWith(compareBy({ it == "개인 노트" }, { it }))
+    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
+        Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (folder.isNotEmpty()) TextButton(onClick = { onFolder(""); query = "" }) { Text("‹ 과목") }
+            Text(if (folder.isEmpty()) "내 과목" else folder, fontSize = 23.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Box {
+                TextButton(onClick = { menu = true }) { Text("메뉴") }
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    DropdownMenuItem(text = { Text("검색") }, onClick = { menu = false; showSearch = !showSearch; query = "" })
+                    onOpenSync?.let { action -> DropdownMenuItem(text = { Text("동기화 · 원본 파일") }, enabled = enabled, onClick = { menu = false; action() }) }
+                    DropdownMenuItem(text = { Text("새 노트") }, enabled = enabled, onClick = { menu = false; onNew() })
+                    DropdownMenuItem(text = { Text("노트 가져오기") }, enabled = enabled, onClick = { menu = false; onImport() })
+                    DropdownMenuItem(text = { Text("문제 가져오기") }, enabled = enabled, onClick = { menu = false; onImportQuiz() })
+                    onOpenPdf?.let { action -> DropdownMenuItem(text = { Text("PDF 요약 · 문제 생성") }, enabled = enabled, onClick = { menu = false; action() }) }
+                    onOpenRecordings?.let { action -> DropdownMenuItem(text = { Text("강의 녹음") }, enabled = enabled, onClick = { menu = false; action() }) }
+                }
+            }
         }
-        Spacer(Modifier.height(8.dp))
-        Text("읽고, 정리하고, 오래 기억하기", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-        Spacer(Modifier.height(22.dp))
-        OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), singleLine = true,
-            placeholder = { Text("제목이나 내용 검색", fontSize = 14.sp) }, shape = RoundedCornerShape(12.dp))
-        Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton(onClick = onImport, enabled = enabled, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp)) { Text("노트 가져오기") }
-            Button(onClick = onNew, enabled = enabled, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp)) { Text("＋ 새 노트") }
-        }
-        Text(if (query.isBlank()) "모든 노트 · 최근 수정순" else "검색 결과 ${filtered.size}개",
-            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, modifier = Modifier.padding(vertical = 10.dp))
-        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {
-            if (filtered.isEmpty()) item { Text("검색 결과가 없어요.", Modifier.padding(vertical = 30.dp), color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            items(filtered, key = { it.id }) { note ->
-                Column(Modifier.fillMaxWidth().clickable(enabled = enabled) { onRead(note.id) }.padding(vertical = 19.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
-                            DocumentGlyph("notes", Modifier.padding(12.dp).size(22.dp))
-                        }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text(note.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            val excerpt = remember(note.markdown) {
-                                note.markdown.lineSequence().map { it.trim().trimStart('#', '>', '-', '*', ' ') }
-                                    .firstOrNull { it.isNotBlank() }.orEmpty()
-                                    .replace(Regex("!?\\[([^]]+)\\]\\([^)]*\\)"), "$1")
-                                    .replace("**", "").replace("`", "").take(120)
+        if (showSearch) OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            singleLine = true, placeholder = { Text("과목·제목 검색") }, shape = RoundedCornerShape(12.dp))
+        // Reset scrolling when changing courses; each course retains its own position on return from a reader.
+        key(folder, query) {
+            LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (folder.isEmpty() && query.isBlank()) {
+                    items(subjects, key = { "subject:$it" }) { subject ->
+                        Surface(onClick = { onFolder(subject) }, enabled = enabled,
+                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surface) {
+                            Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text(subject, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Text(excerpt.ifBlank { "첫 문장을 적어 보세요" }, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, lineHeight = 20.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            Text("Markdown  ·  ${note.markdown.length}자", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .8f), fontSize = 11.sp)
+                        }
+                    }
+                } else {
+                    val groups = filtered.groupBy { it.subject to it.unit }
+                    groups.forEach { (location, rows) ->
+                        item(key = "unit:${location.first}/${location.second}") {
+                            Text(if (folder.isEmpty()) "${location.first} · ${location.second}" else location.second,
+                                fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 18.dp, bottom = 4.dp))
+                        }
+                        items(rows, key = { it.key }) { material ->
+                            Surface(onClick = { if (material.quiz) onQuiz(material.id) else onRead(material.id) },
+                                enabled = enabled, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surface) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                    Text(if (material.quiz) "문제 · ${material.questions}문항" else if (material.summary) "요약" else "노트",
+                                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(material.title, fontWeight = FontWeight.Medium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
                         }
                     }
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                if (filtered.isEmpty()) item {
+                    Text(if (query.isNotBlank()) "검색 결과가 없어요." else "메뉴에서 동기화하거나 노트를 추가해 주세요.",
+                        modifier = Modifier.padding(vertical = 24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (folder.isEmpty() && query.isBlank() && recap != null) item {
+                    Text("최근 복습 · ${recap.title}", fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp))
+                }
             }
         }
     }
@@ -224,73 +252,51 @@ private fun ReaderToolbar(onBack: () -> Unit, onEdit: () -> Unit, onExport: () -
 }
 
 @Composable
-private fun QuizLibrary(quizzes: List<StudyQuiz>, recap: StudyRecap?, enabled: Boolean, onImport: () -> Unit, onSelect: (String) -> Unit) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(22.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        item {
-            Text("LEARN WITH YOUR NOTES", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, letterSpacing = 1.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            Text("문제 모음", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(10.dp))
-            Text("노트에서 만든 문제를 모아두고, 원하는 방식으로 복습하세요.", color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 23.sp)
-        }
-        item { Button(onClick = onImport, enabled = enabled, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) { Text("문제 파일 가져오기 (.json)", Modifier.padding(6.dp)) } }
-        if (quizzes.isEmpty()) item {
-            Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(16.dp)) {
-                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("첫 문제 묶음을 만들어 보세요", fontWeight = FontWeight.SemiBold)
-                    Text("1. 노트의 ‘더 보기’에서 프롬프트 복사\n2. 원하는 AI에 붙여넣어 문제 파일 생성\n3. JSON 파일을 가져와 내용 확인",
-                        fontSize = 14.sp, lineHeight = 26.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-        items(quizzes, key = { it.id }) { quiz ->
-            Surface(onClick = { onSelect(quiz.id) }, enabled = enabled, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(14.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                    Text("${quiz.document.questions.size}문제  ·  객관식", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                    Text(quiz.document.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                    Text(quiz.document.sourceNoteTitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-                    Text("문제 확인  →", fontSize = 13.sp, modifier = Modifier.align(Alignment.End))
-                }
-            }
-        }
-        if (recap != null) item {
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(Modifier.height(18.dp))
-            Text("최근 게임 복습", fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(10.dp))
-            Text(recap.title, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-            Text("${recap.answered}문제 풀이 · 첫 답 정답 ${recap.correct}개", Modifier.padding(vertical = 8.dp), fontSize = 18.sp)
-            Text("해설 후 다시 확인 ${recap.reviewed}개", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (!recap.continuous && recap.answered < recap.total) Text("아직 풀지 않은 문제 ${recap.total - recap.answered}개", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            recap.review.forEach { Text(it, Modifier.padding(top = 10.dp), fontSize = 14.sp, lineHeight = 23.sp) }
-        }
-    }
-}
-
-@Composable
-private fun QuizDetail(quiz: StudyQuiz, launching: Boolean, enabled: Boolean, modifier: Modifier, onBack: () -> Unit, onStart: () -> Unit, onSource: (() -> Unit)?) {
+private fun QuizDetail(quiz: StudyQuiz, launching: Boolean, enabled: Boolean, modifier: Modifier,
+    varyNumbers:Boolean,onVaryNumbersChange:(Boolean)->Unit,onBack: () -> Unit, onStart: () -> Unit, onSource: (() -> Unit)?) {
     var reveal by rememberSaveable(quiz.id) { mutableStateOf(false) }
+    var examples by remember(quiz.id, quiz.document) {mutableStateOf(quiz.document.questions)}
+    val playableCount = quiz.document.questions.count { it.type != QuestionType.WRITTEN }
+    val variantCount=quiz.document.questions.count {it.numberVariant!=null}
+    val displayed=if(varyNumbers) examples else quiz.document.questions
     Column(modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = onBack) { Text("‹  문제 모음") }
+            TextButton(onClick = onBack) { Text("‹  서재") }
             Spacer(Modifier.weight(1f))
             TextButton(onClick = { reveal = !reveal }) { Text(if (reveal) "정답 가리기" else "정답·해설 보기") }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(22.dp), verticalArrangement = Arrangement.spacedBy(22.dp)) {
             item {
+                Text(quiz.subjectName(), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 Text(quiz.document.title, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 35.sp)
-                Text("${quiz.document.questions.size}문제  ·  형식 확인 완료", Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.primary, fontSize = 13.sp)
+                Text("${quiz.document.questions.size}문제  ·  ${quiz.document.typeSummary()}", Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.primary, fontSize = 13.sp)
                 Text("출처 노트: ${quiz.document.sourceNoteTitle}", Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
                 if (onSource != null) TextButton(onClick = onSource) { Text("원본 노트 읽기 →") }
                 Text("생성 당시 노트를 기준으로 만든 문제입니다. 학습 전에 내용과 정답을 확인해 주세요.",
                     Modifier.padding(top = 10.dp), fontSize = 13.sp, lineHeight = 21.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if(variantCount>0) {
+                    Row(verticalAlignment=Alignment.CenterVertically) {
+                        Switch(checked=varyNumbers,onCheckedChange=onVaryNumbersChange,enabled=enabled)
+                        Text("계산 $variantCount 문항의 숫자 바꾸기",Modifier.padding(start=10.dp))
+                    }
+                    Text("게임에서 다시 출제할 때 숫자·정답·해설을 함께 바꿉니다. 오답을 다시 풀 때는 같은 숫자를 유지합니다.",fontSize=12.sp)
+                    TextButton(onClick={examples=examples.map {NumericQuestions.generate(it,previousPrompt=it.prompt)};reveal=false},enabled=enabled && varyNumbers) {Text("숫자 바꿔 미리보기")}
+                    Text("아래는 예시이며 게임에서는 새 값을 사용합니다.",fontSize=12.sp)
+                }
             }
             items(quiz.document.questions.size) { index ->
-                val q = quiz.document.questions[index]
+                val q = displayed[index]
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("QUESTION ${(index + 1).toString().padStart(2, '0')}", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, letterSpacing = 1.sp)
+                    Text("${q.type.label} · ${(index + 1).toString().padStart(2, '0')}", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, letterSpacing = 1.sp)
                     Text(q.prompt, fontSize = 17.sp, lineHeight = 27.sp, fontWeight = FontWeight.Medium)
+                    if (q.type == QuestionType.WRITTEN) {
+                        var draft by rememberSaveable(quiz.id, q.id, q.prompt) { mutableStateOf("") }
+                        OutlinedTextField(value = draft, onValueChange = { draft = it.take(5000) },
+                            label = { Text("내 답안") }, minLines = 3, modifier = Modifier.fillMaxWidth())
+                        Text("연습용 답안입니다. 별도로 저장되지 않으며 자동 채점하지 않습니다.", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     q.choices.forEachIndexed { choice, text ->
                         Surface(color = if (reveal && choice == q.correctIndex) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -298,7 +304,11 @@ private fun QuizDetail(quiz: StudyQuiz, launching: Boolean, enabled: Boolean, mo
                         }
                     }
                     if (reveal) {
-                        Text("정답 ${q.correctIndex + 1}  ·  ${q.explanation}", fontSize = 14.sp, lineHeight = 23.sp, color = MaterialTheme.colorScheme.primary)
+                        if (q.type == QuestionType.WRITTEN) {
+                            Text("모범 답안\n${q.modelAnswer}", fontSize = 14.sp, lineHeight = 23.sp)
+                            Text("채점 기준\n" + q.rubric.joinToString("\n") { "• $it" }, fontSize = 14.sp, lineHeight = 23.sp)
+                        }
+                        Text(if (q.type == QuestionType.WRITTEN) q.explanation else "정답 ${q.correctIndex + 1}  ·  ${q.explanation}", fontSize = 14.sp, lineHeight = 23.sp, color = MaterialTheme.colorScheme.primary)
                         Text("노트 근거\n${q.sourceQuote}", fontSize = 13.sp, lineHeight = 22.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     HorizontalDivider(Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
@@ -307,9 +317,9 @@ private fun QuizDetail(quiz: StudyQuiz, launching: Boolean, enabled: Boolean, mo
         }
         Surface(color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("관문 복습 · 전체 문제를 섞어 계속 반복", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Button(onClick = onStart, enabled = enabled, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-                    Text(if (launching) "복습을 준비하고 있어요…" else "이 문제로 게임 시작", Modifier.padding(5.dp), fontWeight = FontWeight.SemiBold)
+                Text("관문 복습 · 개념·계산 ${playableCount}문제 반복 / 서술형은 이 화면에서 답안 비교", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Button(onClick = onStart, enabled = enabled && playableCount > 0, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                    Text(if (launching) "복습을 준비하고 있어요…" else if (playableCount == 0) "서술형은 위에서 연습해 주세요" else "개념·계산 문제로 게임 시작", Modifier.padding(5.dp), fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -356,3 +366,7 @@ private fun DocumentGlyph(kind: String, modifier: Modifier) {
         if (kind == "quizzes") drawCircle(color, size.width * .11f, Offset(size.width * .83f, size.height * .15f))
     }
 }
+
+private fun QuizDocument.typeSummary(): String = QuestionType.entries.mapNotNull { type ->
+    questions.count { it.type == type }.takeIf { it > 0 }?.let { "${type.label} $it" }
+}.joinToString(" · ")

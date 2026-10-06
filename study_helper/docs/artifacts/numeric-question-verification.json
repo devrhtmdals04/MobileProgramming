@@ -1,0 +1,33 @@
+{
+  "feature": "BJT numeric question variants",
+  "types": [
+    "bjt_beta",
+    "bjt_emitter_current",
+    "bjt_collector_current"
+  ],
+  "variant_questions": 3,
+  "generated_cases_per_runtime": 900,
+  "tests": {
+    "studyCore/build/test-results/jvmTest": {
+      "tests": 28,
+      "failures": 0
+    },
+    "studyCore/build/test-results/iosSimulatorArm64Test": {
+      "tests": 28,
+      "failures": 0
+    },
+    "shared/build/test-results/jvmTest": {
+      "tests": 56,
+      "failures": 0
+    },
+    "desktopApp/build/test-results/jvmTest": {
+      "tests": 14,
+      "failures": 0
+    }
+  },
+  "iphone_install": "completed",
+  "live_quiz_sync": "pending user sync; shared quiz updated on PC and iPhone",
+  "iphone_game_probe": "passed",
+  "iphone_game_probe_checks": 19,
+  "iphone_game_probe_failures": 0
+}

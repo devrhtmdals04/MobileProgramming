@@ -5,6 +5,9 @@ import StudyWhisper
 
 /// Offline Whisper. Only model installation uses the network; audio never does.
 final class LectureDeviceTranscription: @unchecked Sendable {
+    struct Segment: Codable { let start: Double; let end: Double; let confidence: Double; let text: String }
+    var segments: [Segment] = []
+    var context = ""
     static let modelName = "ggml-small-q5_1.bin"
     static let digest = "ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb"
     static var folder: URL {
@@ -70,11 +73,14 @@ final class LectureDeviceTranscription: @unchecked Sendable {
         lock.lock(); job = pointer; if cancelled { study_stt_cancel(job) }; lock.unlock()
         defer { lock.lock(); job = nil; study_stt_destroy(pointer); lock.unlock() }
         let output = work.appendingPathComponent("text.txt")
+        study_stt_set_prompt(pointer, String(context.prefix(2000)))
         let result = study_stt_run(pointer, Self.model.path, pcm.path, output.path, 1)
         if result == 1 || isCancelled { throw CancellationError() }
         guard result == 0 else { throw failure("기기에서 변환하지 못했어요. 다른 앱을 닫고 다시 시도해 주세요.") }
         let text = try String(contentsOf: output, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { throw failure("인식된 음성이 없어요. 기존 받아쓰기는 유지됩니다.") }
+        let rows=try String(contentsOf: URL(fileURLWithPath: output.path+".segments.jsonl"),encoding:.utf8)
+        segments=try rows.split(separator:"\n").map {try JSONDecoder().decode(Segment.self,from:Data($0.utf8))}
         return text
     }
     private func decode(_ file: URL, to output: URL) throws {

@@ -1,6 +1,11 @@
 #include <jni.h>
 #include "study_whisper.h"
 extern "C" {
+JNIEXPORT void JNICALL Java_com_example_study_1helper_jaderun_DeviceWhisper_setPrompt(JNIEnv * env, jobject, jlong job, jstring prompt) {
+    const char * value=env->GetStringUTFChars(prompt,nullptr);
+    study_stt_set_prompt(reinterpret_cast<study_stt *>(job),value);
+    env->ReleaseStringUTFChars(prompt,value);
+}
 JNIEXPORT jlong JNICALL Java_com_example_study_1helper_jaderun_DeviceWhisper_create(JNIEnv *, jobject) {
     return reinterpret_cast<jlong>(study_stt_create());
 }

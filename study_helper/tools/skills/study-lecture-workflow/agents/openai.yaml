@@ -1,0 +1,4 @@
+interface:
+  display_name: "강의 정리 · 문제 생성"
+  short_description: "온라인 강의를 전사·요약하고 복습 문제를 서재에 등록"
+  default_prompt: "$study-lecture-workflow 스킬로 이 강의를 전사·요약하고 복습 문제를 만들어 웹 서재에 등록해 줘."

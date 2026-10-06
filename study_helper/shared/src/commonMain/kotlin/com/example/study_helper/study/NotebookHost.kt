@@ -5,11 +5,13 @@ import com.example.study_helper.core.MarkdownNotes
 import com.example.study_helper.core.QuizFiles
 import com.example.study_helper.core.StudyService
 import kotlinx.serialization.json.*
+import kotlinx.coroutines.launch
 import com.example.study_helper.sync.*
 
 /** Platform code supplies storage and system UI; learning data and grading stay in Kotlin. */
 interface NotebookPlatform {
     /** JSON: {"files":[{"id":"UUID","content":"UTF-8 text"}]} or {"error":"message"}. */
+    fun includesStudyGuides(): Boolean = false
     fun readFiles(kind: String): String
     fun writeFile(kind: String, id: String, content: String): String?
     fun newId(): String
@@ -25,8 +27,19 @@ interface NotebookPlatform {
 
 /** Single main-thread owner, including calls from the native engine transport. */
 class NotebookHost(private val platform: NotebookPlatform) {
+    var pdfStudyOpen by mutableStateOf(false)
+    private val pdfStudy by lazy { (platform as? PdfStudyPlatform)?.let { ai ->
+        PdfStudyHost(ai, { id, title, body ->
+            val noteId = id ?: platform.newId()
+            saveNote(noteId, title, body)?.let { error(it) }
+            noteId
+        }, { json -> importDocument("question-sets", "generated.quiz.json", json)?.let { error(it) } })
+    } }
     private val driveSync = (platform as? DrivePlatform)?.let { DriveSync(platform, it) }
     var sharing by mutableStateOf(false)
+    var varyNumbers by mutableStateOf(platform.preference("vary_numbers") != "false")
+        private set
+    private var gameVaryNumbers = true
     val syncBusy: Boolean get() = driveSync?.state?.busy == true
     var notebook by mutableStateOf(StudyNotebook())
         private set
@@ -43,7 +56,10 @@ class NotebookHost(private val platform: NotebookPlatform) {
     private var sessionId = ""
     private var finalSummary: JsonObject? = null
 
-    init { reload() }
+    init {
+        // Course documents come from the shared folder; do not recreate retired seed files.
+        reload()
+    }
 
     fun reload() { operation { load(platform.preference("selected_note")); loadRecap() } }
 
@@ -77,17 +93,24 @@ class NotebookHost(private val platform: NotebookPlatform) {
                 3. **문제 모음**에서 파일을 가져와 정답과 근거를 확인합니다.
                 4. 준비되면 **이 문제로 게임 시작**을 선택합니다.
 
-                > 노트와 문제는 이 기기에 저장됩니다. 앱이 AI에 자동 전송하지 않습니다.
+                > 노트와 문제는 이 기기에 저장됩니다. PDF 요약·문제 생성에서는 API 키를 입력하고 생성 버튼을 누를 때 선택한 PDF를 OpenAI에 전송합니다.
             """.trimIndent())
             write("notes", id, text)
             documents = listOf(id to text)
         }
+        val paths=driveSync?.mirror?.notePaths().orEmpty()
         val notes = documents.map { (id, content) ->
             val note = MarkdownNotes.read(content)
-            StudyNoteSummary(id, note.title, note.body)
+            StudyNoteSummary(id, note.title, note.body, paths[id].orEmpty().ifEmpty { MobileStudyGuides.path(id) })
         }
-        val selected = notes.firstOrNull { it.id == selectedId } ?: notes.first()
-        val questionFiles = files("question-sets").map { (id, content) -> StudyQuiz(id, QuizFiles.read(content)) }
+        val aliases = runCatching { Json.parseToJsonElement(platform.preference("guide_document_aliases") ?: "{}").jsonObject }.getOrDefault(JsonObject(emptyMap()))
+        fun resolved(id: String) = aliases[id]?.jsonPrimitive?.content ?: id
+        val selected = notes.firstOrNull { it.id == resolved(selectedId.orEmpty()) } ?: notes.first()
+        val quizPaths = driveSync?.mirror?.notePaths("question-sets").orEmpty()
+        val questionFiles = files("question-sets").map { (id, content) ->
+            val quiz = QuizFiles.read(content)
+            StudyQuiz(id, quiz.copy(sourceNoteId = resolved(quiz.sourceNoteId)), quizPaths[id].orEmpty().ifEmpty { MobileStudyGuides.path(id) })
+        }
         notebook = StudyNotebook(selected.id, selected.title, selected.markdown, notes, ready = true, busy = false)
         quizzes = questionFiles
         platform.setPreference("selected_note", selected.id)
@@ -145,8 +168,12 @@ class NotebookHost(private val platform: NotebookPlatform) {
         val error = operation {
             val file = files("question-sets").firstOrNull { it.first == id } ?: error("문제 파일을 찾지 못했어요.")
             val quiz = QuizFiles.read(file.second)
+            require(quiz.questions.any { it.type != com.example.study_helper.core.QuestionType.WRITTEN }) {
+                "서술형은 문제 상세에서 답안을 작성하고 비교해 주세요."
+            }
             gameDocument = Json.parseToJsonElement(QuizFiles.write(quiz))
             gameTitle = quiz.title
+            gameVaryNumbers = varyNumbers
             sessionId = ""
             finalSummary = null
             service = StudyService()
@@ -164,6 +191,7 @@ class NotebookHost(private val platform: NotebookPlatform) {
             if (json["type"]?.jsonPrimitive?.content != "begin") request else JsonObject(json + (
                 "body" to buildJsonObject {
                     put("questionSet", gameDocument ?: buildJsonObject {})
+                    put("varyNumbers",gameVaryNumbers)
                     put("continuous", json["body"]?.jsonObject?.get("continuous")?.jsonPrimitive?.booleanOrNull == true)
                 }
             )).toString()
@@ -208,8 +236,25 @@ class NotebookHost(private val platform: NotebookPlatform) {
         }.getOrNull()
     }
 
+    suspend fun openStudyLink(url: String) {
+        if (!url.startsWith("study-source:")) { platform.openLink(url); return }
+        val source = MobileStudyGuides.source(url)
+        if (source == null) { reportError("원본 자료 링크가 올바르지 않아요."); return }
+        try {
+            val mirror = driveSync?.mirror ?: error("공부 폴더 공유에서 원본을 먼저 받아 주세요.")
+            mirror.restore()
+            if (source.first.endsWith(".md") && mirror.openNote(source.first)) reload()
+            else mirror.command("open", mapOf("path" to source.first, "page" to source.second.toString()))
+        } catch (_: Exception) { reportError("원본을 열지 못했어요. 공부 폴더 공유에서 같은 Drive 폴더를 동기화해 주세요.") }
+    }
+
     @Composable
     fun Content() {
+        val scope = rememberCoroutineScope()
+        if (pdfStudyOpen && pdfStudy != null) {
+            PdfStudyScreen(pdfStudy!!, onClose = { pdfStudyOpen = false })
+            return
+        }
         if (sharing && driveSync != null) {
             DriveSyncScreen(driveSync, onClose = { sharing = false }, onChanged = ::reload)
             return
@@ -225,8 +270,10 @@ class NotebookHost(private val platform: NotebookPlatform) {
                 platform.copyText(QuizFiles.prompt(notebook.id.orEmpty(), notebook.title, notebook.markdown))
                 notebook = notebook.copy(notice = "노트 내용과 문제 생성 프롬프트를 복사했어요.")
             },
-            onRetry = ::reload, onStartLearning = ::startLearning, onOpenLink = platform::openLink, onBackAction = {}, onOpenRecordings = platform::openRecordings,
+            onRetry = ::reload, onStartLearning = ::startLearning, onOpenLink = { link -> scope.launch { openStudyLink(link) } }, onBackAction = {}, onOpenRecordings = platform::openRecordings,
+            onOpenPdf = (platform as? PdfStudyPlatform)?.let { { pdfStudyOpen = true } },
             onOpenSync = driveSync?.let { { sharing = true } },
+            varyNumbers=varyNumbers,onVaryNumbersChange={varyNumbers=it;platform.setPreference("vary_numbers",it.toString())},
         )
     }
 }

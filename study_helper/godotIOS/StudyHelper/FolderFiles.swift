@@ -9,7 +9,7 @@ final class SharedFolderFiles {
     private func fail(_ text: String) -> NSError { NSError(domain: "FolderSync", code: 1, userInfo: [NSLocalizedDescriptionKey: text]) }
     private func root() throws -> URL {
         guard !key.isEmpty else { throw fail("먼저 공유 폴더를 선택해 주세요.") }
-        return appRoot.appendingPathComponent("shared-folders").appendingPathComponent(key)
+        return appRoot.appendingPathComponent("shared-folders").appendingPathComponent(key).standardizedFileURL.resolvingSymlinksInPath()
     }
     func resolve(_ path: String) throws -> URL {
         let base = try root()
@@ -100,7 +100,9 @@ final class SharedFolderFiles {
                 let attrs=try url.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey,.fileSizeKey])
                 if attrs.isSymbolicLink == true { iterator.skipDescendants(); continue }
                 guard attrs.isRegularFile == true, extensions.contains(url.pathExtension.lowercased()) else { continue }
-                let rel=String(url.path.dropFirst(base.path.count+1)).precomposedStringWithCanonicalMapping
+                let actual=url.standardizedFileURL.resolvingSymlinksInPath().path
+                guard actual.hasPrefix(base.path + "/") else { throw fail("공유 폴더 밖의 파일입니다.") }
+                let rel=String(actual.dropFirst(base.path.count+1)).precomposedStringWithCanonicalMapping
                 _ = try resolve(rel)
                 guard seen.insert(rel.lowercased()).inserted, rows.count<10000 else { throw fail("중복된 파일 이름이 있거나 파일이 너무 많습니다.") }
                 rows.append(["path":rel,"hash":try hash(url),"size":attrs.fileSize ?? 0])

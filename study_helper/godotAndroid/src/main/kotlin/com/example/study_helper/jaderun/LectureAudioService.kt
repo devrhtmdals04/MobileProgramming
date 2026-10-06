@@ -24,6 +24,10 @@ internal object LectureAudioState {
     var editorId = ""
     var editorTitle = ""
     var editorText = ""
+    var editorDraft = ""
+    var editorSegments=JSONArray()
+    var reviewContext=""
+    var autoReview=true
     var deviceModelReady = false
     var deviceTranscribing = false
     var modelDownloading = false
@@ -45,6 +49,8 @@ internal object LectureAudioState {
     }
     fun refresh(context: Context) {
         deviceModelReady = DeviceWhisper.ready(context)
+        val settings=context.getSharedPreferences("lecture-review",Context.MODE_PRIVATE)
+        reviewContext=settings.getString("context","").orEmpty();autoReview=settings.getBoolean("auto",true)
         try {
             val entries = directory(context).listFiles().orEmpty().filter { it.extension == "json" }.mapNotNull { metadata ->
                 runCatching {
@@ -60,7 +66,7 @@ internal object LectureAudioState {
                             row.put("seconds", (ms + 999) / 1000); write(context, row)
                         } finally { retriever.release() }
                     }
-                    row.put("hasTranscript", row.has("transcript") || row.has("whisperTranscript"))
+                    row.put("hasTranscript", row.has("transcript") || row.has("whisperTranscript") || row.has("reviewedTranscript"))
                 }.getOrNull()
             }.sortedByDescending { it.getString("date") }
             rows = JSONArray(entries)
@@ -71,6 +77,8 @@ internal object LectureAudioState {
     fun publish() {
         listener?.invoke(JSONObject().put("recordings", rows).put("recording", recording).put("pending", pending)
             .put("editorId", editorId).put("editorTitle", editorTitle).put("editorText", editorText)
+            .put("reviewAvailable",true).put("reviewContext",reviewContext).put("autoReview",autoReview)
+            .put("editorDraft",editorDraft).put("editorSegments",editorSegments)
             .put("deviceTranscriptionAvailable", true).put("deviceModelReady", deviceModelReady)
             .put("deviceTranscribing", deviceTranscribing).put("modelDownloading", modelDownloading).put("deviceProgress", deviceProgress)
             .put("seconds", seconds).put("playing", playing).put("playbackSeconds", playbackSeconds).put("message", message).toString())
@@ -171,6 +179,7 @@ class LectureAudioService : Service() {
             } catch (_: Exception) { /* Retain partial files for recovery; never silently delete audio. */ }
             finally { audio.release() }
         }
+        val savedId=entry?.optString("id")
         entry = null
         if (wakeLock?.isHeld == true) wakeLock?.release()
         wakeLock = null
@@ -181,6 +190,10 @@ class LectureAudioService : Service() {
         LectureAudioState.message = if (audio != null && !saved) "녹음을 저장하지 못했어요. 너무 짧은 녹음이거나 저장 공간이 부족할 수 있어요." else reason ?: "녹음을 저장했어요."
         LectureAudioState.refresh(this)
         stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
+        if(saved && savedId!=null && LectureAudioState.autoReview) {
+            if(LectureAudioState.listener!=null && DeviceWhisper.ready(this)) DeviceWhisper.start(this,savedId)
+            else {LectureAudioState.message += " 전체 재인식 대기: 앱을 열고 모델 준비 후 다시 인식해 주세요.";LectureAudioState.publish()}
+        }
     }
     override fun onDestroy() {
         if (recorder != null) finish("녹음 서비스가 종료되어 저장했어요.")

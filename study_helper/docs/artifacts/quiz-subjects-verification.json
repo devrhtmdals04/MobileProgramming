@@ -1,0 +1,25 @@
+{
+  "feature": "subject grouped quiz library",
+  "desktop_build": "passed",
+  "ios_shared_compile": "passed",
+  "iphone_install": "completed 2026-09-29",
+  "tests": {
+    "studyCore": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0
+    },
+    "shared": {
+      "tests": 58,
+      "failures": 0,
+      "errors": 0
+    },
+    "desktopApp": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "ios_build": "passed",
+  "iphone_launch": "passed"
+}

@@ -28,6 +28,7 @@ internal object DeviceWhisper {
     private var nativeJob = 0L
     @Volatile private var connection: HttpURLConnection? = null
     private external fun create(): Long
+    private external fun setPrompt(job: Long, prompt: String)
     private external fun cancel(job: Long)
     private external fun progress(job: Long): Int
     private external fun run(job: Long, model: String, pcm: String, output: String): Int
@@ -61,6 +62,8 @@ internal object DeviceWhisper {
         LectureAudioState.publish(); main.post(ticker)
         executor.execute {
             var text: String? = null
+            var segments=org.json.JSONArray()
+            val context=LectureAudioState.reviewContext
             var failure: String? = null
             try {
                 if (id == null) install(app)
@@ -75,12 +78,14 @@ internal object DeviceWhisper {
                         checkpoint()
                         val job = create()
                         synchronized(nativeLock) { nativeJob = job; if (cancelled.get()) cancel(job) }
+                        setPrompt(job,context.take(2000))
                         val output = File(directory, "text.txt")
                         val result = try { run(job, model(app).path, pcm.path, output.path) }
                         finally { synchronized(nativeLock) { nativeJob = 0; destroy(job) } }
                         checkpoint()
                         check(result == 0) { "기기에서 변환하지 못했어요. 다른 앱을 닫고 다시 시도해 주세요." }
                         text = output.readText().trim()
+                        File(output.path+".segments.jsonl").forEachLine {if(it.isNotBlank()) segments.put(JSONObject(it))}
                         check(text.isNotEmpty()) { "인식된 음성이 없어요. 기존 받아쓰기는 유지됩니다." }
                     } finally { directory.deleteRecursively() }
                 }
@@ -91,11 +96,13 @@ internal object DeviceWhisper {
                     if (cancelled.get()) LectureAudioState.message = "요청을 취소했어요. 기존 녹음과 받아쓰기는 유지됩니다."
                     else if (failure != null) LectureAudioState.message = failure
                     else if (text != null && row != null) {
-                        row.put("whisperTranscript", text)
+                        row.put("whisperTranscript", text).put("segments",segments).put("recognitionContext",context)
                         LectureAudioState.write(app, row)
                         LectureAudioState.editorId = id!!; LectureAudioState.editorTitle = row.getString("title")
-                        LectureAudioState.editorText = text
-                        LectureAudioState.message = "기기 내 변환 완료. 내용을 확인하고 노트로 저장하세요."
+                        LectureAudioState.editorText = row.optString("reviewedTranscript",text)
+                        LectureAudioState.editorDraft=row.optString("transcript")
+                        LectureAudioState.editorSegments=segments
+                        LectureAudioState.message = "전체 재인식 완료. 실시간 초안과 기존 교정본은 유지합니다. 원음을 확인하고 노트로 저장하세요."
                     } else LectureAudioState.message = "모델 준비 완료. 이제 인터넷 없이 변환할 수 있어요."
                 } catch (_: Exception) { LectureAudioState.message = "받아쓰기를 저장하지 못했어요. 저장 공간을 확인해 주세요." }
                 finally {

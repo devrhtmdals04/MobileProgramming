@@ -10,6 +10,33 @@ import kotlinx.serialization.json.*
 import kotlin.test.*
 
 class FolderMirrorTest {
+    @Test fun repairsEmptyImportsWithIncorrectIosPrefixWithoutLosingEdits()=scenario {cloud,pc,_ ->
+        val original="# 수업\n\n원본 본문입니다.\n"
+        for(name in listOf("수업","편집")) pc.folder.resolve("과목/01주차/노트/$name.md").apply {parentFile.mkdirs();writeText(original)}
+        pc.setPreference("drive_account","account");pc.setPreference("drive_folder","rootfolder")
+        val ids=listOf(pc.newId(),pc.newId())
+        val names=listOf("수업","편집")
+        val bindings=buildJsonObject {
+            names.forEachIndexed {i,name ->
+                val placeholder="# $name\n\n"
+                pc.writeFile("notes",ids[i],if(i==0) placeholder else "# 편집\n\n사용자가 추가한 내용")
+                put("QnuPdnT/과목/01주차/노트/$name.md",buildJsonObject {
+                    put("id",ids[i]);put("kind","notes");put("raw","");put("content",placeholder)
+                })
+            }
+        }
+        val scope="folder_mirror_account_rootfolder_${pc.folder.canonicalPath}"
+        pc.setPreference("${scope}_notes",bindings.toString())
+        pc.setPreference("linked_folder",pc.folder.canonicalPath)
+        pc.sync()
+        val saved=Json.parseToJsonElement(pc.readFiles("notes")).jsonObject.getValue("files").jsonArray
+            .associate {it.jsonObject.s("id") to it.jsonObject.s("content")}
+        assertEquals(original,saved[ids[0]])
+        assertEquals(original,saved[ids[1]])
+        assertTrue(saved.values.any {it.contains("사용자가 추가한 내용")})
+        assertEquals("과목/01주차/노트/수업.md",pc.mirror.notePaths()[ids[0]])
+        assertFalse(pc.mirror.notePaths().values.any {it.startsWith("QnuPdnT/")})
+    }
     @Test fun failureIsVisibleAndSurvivesReopening()=scenario {cloud,pc,_ ->
         pc.setPreference("drive_account","account");pc.setPreference("drive_folder","rootfolder")
         pc.folder.resolve("note.md").writeText("# Note\n")

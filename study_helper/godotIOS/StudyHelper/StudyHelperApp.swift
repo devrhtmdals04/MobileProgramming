@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 import Shared
+import PDFKit
 #if DEBUG
 import Speech
 #endif
@@ -38,7 +39,8 @@ private struct NotebookView: UIViewControllerRepresentable {
 }
 
 /// UIKit, files, and transport only. Kotlin owns all document validation and learning rules.
-final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePlatform, FolderPlatform, UIDocumentPickerDelegate, UIDocumentInteractionControllerDelegate {
+final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePlatform, FolderPlatform, PdfStudyPlatform, UIDocumentPickerDelegate, UIDocumentInteractionControllerDelegate {
+    func includesStudyGuides() -> Bool { true }
     lazy var host = NotebookHost(platform: self)
     weak var root: UIViewController?
     private let files = FileManager.default
@@ -59,6 +61,12 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePl
         if input["action"] == "open" {
             do {
                 let url = try sharedFolder.resolve(input["path"] ?? "")
+                if url.pathExtension.lowercased() == "pdf", let document = PDFDocument(url: url) {
+                    let viewer = StudyPDFViewer(document: document, page: Int(input["page"] ?? "1") ?? 1)
+                    viewer.title = url.lastPathComponent
+                    root?.present(UINavigationController(rootViewController: viewer), animated: true)
+                    completion(json([:])); return
+                }
                 sharedDocument = UIDocumentInteractionController(url: url)
                 sharedDocument?.delegate = self
                 if sharedDocument?.presentPreview(animated: true) == true { completion(json([:])); return }
@@ -161,6 +169,23 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePl
         presenter?.present(controller, animated: true)
     }
 
+    private var studyPdfCompletion: ((String) -> Void)?
+    private var studyStream: StudyOpenAIStream?
+    func chooseStudyPdf(completion: @escaping (String) -> Void) {
+        studyPdfCompletion = completion
+        importKind = "study-pdf"
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.pdf], asCopy: true)
+        picker.delegate = self
+        guard let presenter else { studyPdfCompletion = nil; completion("{\"error\":\"파일 선택 화면을 열지 못했어요.\"}"); return }
+        presenter.present(picker, animated: true)
+    }
+    func generateStudyContent(key: String, model: String, body: String, event: @escaping (String) -> Void, completion: @escaping (String) -> Void) {
+        studyStream?.cancel()
+        studyStream = StudyOpenAIStream(key: key, model: model, body: body, event: event, completion: completion)
+        studyStream?.start()
+    }
+    func cancelStudyGeneration() { studyStream?.cancel(); studyStream = nil }
+
     func pickDocument(kind: String) {
         importKind = kind
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
@@ -180,10 +205,36 @@ final class StudyPlatform: NSObject, ObservableObject, NotebookPlatform, DrivePl
             presenter?.present(picker, animated: true)
         } catch { host.reportError(message: "노트를 내보내지 못했어요. \(error.localizedDescription)") }
     }
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { importKind = nil }
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        importKind = nil
+        let completion = studyPdfCompletion; studyPdfCompletion = nil
+        completion?("{\"cancelled\":true}")
+    }
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let kind = importKind, let url = urls.first else { return }
         importKind = nil
+        if kind == "study-pdf" {
+            let completion = studyPdfCompletion; studyPdfCompletion = nil
+            DispatchQueue.global(qos: .userInitiated).async {
+                let access = url.startAccessingSecurityScopedResource()
+                defer { if access { url.stopAccessingSecurityScopedResource() } }
+                var payload: [String: Any] = ["error": "PDF를 읽지 못했어요."]
+                var coordinationError: NSError?
+                NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordinationError) { local in
+                    do {
+                        let handle = try FileHandle(forReadingFrom: local)
+                        defer { try? handle.close() }
+                        let bytes = try handle.read(upToCount: 12 * 1024 * 1024 + 1) ?? Data()
+                        guard bytes.count <= 12 * 1024 * 1024 else { payload = ["error": "12MB 이하의 PDF를 선택해 주세요."]; return }
+                        payload = ["filename": url.lastPathComponent, "base64": bytes.base64EncodedString()]
+                    } catch { payload = ["error": "PDF를 읽지 못했어요. 파일 접근 권한을 확인해 주세요."] }
+                }
+                if coordinationError != nil { payload = ["error": "PDF를 읽지 못했어요. 다시 선택해 주세요."] }
+                let text = String(data: (try? JSONSerialization.data(withJSONObject: payload)) ?? Data(), encoding: .utf8) ?? "{}"
+                DispatchQueue.main.async { completion?(text) }
+            }
+            return
+        }
         // File providers may download from iCloud. Coordinate outside the UI thread.
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -532,3 +583,106 @@ private extension StudyPlatform {
     }
 }
 #endif
+
+
+/// SSE transport. Delegate callbacks use the main queue; no credentials are persisted or logged.
+private final class StudyOpenAIStream: NSObject, URLSessionDataDelegate {
+    private var session: URLSession?
+    private var task: URLSessionDataTask?
+    private let request: URLRequest
+    private let event: (String) -> Void
+    private let completion: (String) -> Void
+    private var pending = Data()
+    private var lines: [String] = []
+    private var completed = false
+    init(key: String, model: String, body: String, event: @escaping (String) -> Void, completion: @escaping (String) -> Void) {
+        var request = URLRequest(url: URL(string: "https://api.openai.com/v1/responses")!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        request.httpBody = body.data(using: .utf8)
+        self.request = request; self.event = event; self.completion = completion
+    }
+    func start() {
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 180
+        config.timeoutIntervalForResource = 360
+        let session = URLSession(configuration: config, delegate: self, delegateQueue: .main)
+        self.session = session
+        task = session.dataTask(with: request)
+        task?.resume()
+    }
+    func cancel() { completed = true; task?.cancel(); session?.invalidateAndCancel(); session = nil }
+    private func finish(_ error: String) {
+        guard !completed else { return }
+        completed = true
+        session?.invalidateAndCancel(); session = nil
+        completion(error)
+    }
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard (200...299).contains(status) else {
+            completionHandler(.cancel)
+            let message: String
+            switch status {
+            case 401, 403: message = "API 키와 사용 권한을 확인해 주세요."
+            case 404: message = "모델을 찾지 못했어요. API 설정을 확인해 주세요."
+            case 429: message = "API 사용 한도에 도달했어요. 잠시 후 다시 시도해 주세요."
+            default: message = "AI 요청을 처리하지 못했어요. PDF와 모델 설정을 확인해 주세요."
+            }
+            finish(message); return
+        }
+        completionHandler(.allow)
+    }
+    private func line(_ value: String) {
+        if value.isEmpty {
+            if !lines.isEmpty { let payload = lines.joined(separator: "\n"); lines.removeAll(); event(payload) }
+        } else if value.hasPrefix("data:") { lines.append(String(value.dropFirst(5)).trimmingCharacters(in: .whitespaces)) }
+    }
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        guard !completed else { return }
+        pending.append(data)
+        while let index = pending.firstIndex(of: 10) {
+            let bytes = pending[..<index]
+            let value = String(decoding: bytes, as: UTF8.self).trimmingCharacters(in: .newlines)
+            pending.removeSubrange(...index)
+            line(value)
+            if completed { return }
+        }
+    }
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard !completed else { return }
+        if error != nil { finish("연결이 끊겼거나 응답 시간이 초과됐어요. 다시 시도해 주세요."); return }
+        if !pending.isEmpty { line(String(decoding: pending, as: UTF8.self).trimmingCharacters(in: .newlines)) }
+        line("")
+        finish("")
+    }
+}
+
+
+private final class StudyPDFViewer: UIViewController {
+    private let document: PDFDocument
+    private let initialPage: Int
+    init(document: PDFDocument, page: Int) {
+        self.document = document; self.initialPage = page
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        let pdf = PDFView(); pdf.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .systemBackground; view.addSubview(pdf)
+        NSLayoutConstraint.activate([
+            pdf.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            pdf.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            pdf.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pdf.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        pdf.document = document; pdf.autoScales = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(close))
+        DispatchQueue.main.async {
+            if let page = self.document.page(at: max(0, min(self.initialPage - 1, self.document.pageCount - 1))) { pdf.go(to: page) }
+        }
+    }
+    @objc private func close() { dismiss(animated: true) }
+}
