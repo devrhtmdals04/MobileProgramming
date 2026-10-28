@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Android: Build Hello World",
+            "type": "shell",
+            "command": "./gradlew",
+            "args": ["assembleDebug"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": { "JAVA_HOME": "/Applications/Android Studio.app/Contents/jbr/Contents/Home" }
+            },
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "Android: Install Hello World",
+            "type": "process",
+            "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
+            "args": ["-e", "install", "--no-streaming", "-r", "${workspaceFolder}/build/outputs/apk/debug/HelloWorld-debug.apk"],
+            "dependsOn": "Android: Build Hello World",
+            "problemMatcher": []
+        },
+        {
+            "label": "Android: Run Hello World",
+            "type": "process",
+            "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
+            "args": ["-e", "shell", "am", "start", "-S", "-W", "-n", "com.example.helloworld/.MainActivity"],
+            "dependsOn": "Android: Install Hello World",
+            "problemMatcher": []
+        }
+    ]
+}

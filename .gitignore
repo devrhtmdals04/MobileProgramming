@@ -5,3 +5,15 @@ build/
 local.properties
 *.iml
 .DS_Store
+
+# Firebase and signing configuration (local only)
+**/google-services.json
+**/service-account*.json
+**/*firebase-adminsdk*.json
+.env
+.env.*
+*.jks
+*.keystore
+keystore.properties
+.externalNativeBuild/
+.cxx/

@@ -14,4 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HelloWorld"
+rootProject.name = "MOPE"
+include(":app")

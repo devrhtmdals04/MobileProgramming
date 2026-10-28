@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Android: Build Hello World",
+            "label": "Android: Build MOPE",
             "type": "shell",
             "command": "./gradlew",
             "args": ["assembleDebug"],
@@ -14,19 +14,19 @@
             "problemMatcher": []
         },
         {
-            "label": "Android: Install Hello World",
+            "label": "Android: Install MOPE",
             "type": "process",
             "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
-            "args": ["-e", "install", "--no-streaming", "-r", "${workspaceFolder}/build/outputs/apk/debug/HelloWorld-debug.apk"],
-            "dependsOn": "Android: Build Hello World",
+            "args": ["-e", "install", "--no-streaming", "-r", "${workspaceFolder}/app/build/outputs/apk/debug/app-debug.apk"],
+            "dependsOn": "Android: Build MOPE",
             "problemMatcher": []
         },
         {
-            "label": "Android: Run Hello World",
+            "label": "Android: Run MOPE",
             "type": "process",
             "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
-            "args": ["-e", "shell", "am", "start", "-S", "-W", "-n", "com.example.helloworld/.MainActivity"],
-            "dependsOn": "Android: Install Hello World",
+            "args": ["-e", "shell", "am", "start", "-S", "-W", "-n", "com.mope.app/.MainActivity"],
+            "dependsOn": "Android: Install MOPE",
             "problemMatcher": []
         }
     ]
