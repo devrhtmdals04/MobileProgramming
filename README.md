@@ -38,6 +38,8 @@ VS Code에는 `Android: Build MOPE`, `Install MOPE`, `Run MOPE` 작업이 있습
 
 Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지 않습니다. 설정 파일만 추가해도 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
 
+users 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users만 구현했으며 다른 컬렉션은 접근을 거절합니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#users-로컬-검증)를 참고하세요.
+
 ## 디렉터리
 
 ```text

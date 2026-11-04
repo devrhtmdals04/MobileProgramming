@@ -1,6 +1,6 @@
 # Firestore 데이터·접근 권한 설계 (v1 초안)
 
-**설계 문서이며 배포된 스키마·Security Rules가 아니다.** SET-03에서 두 명이 계약을 확정하고 SEC-01에서 실제 Rules와 Emulator 테스트를 작성한다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
+**설계 문서이며 배포된 스키마가 아니다.** users 규칙과 Emulator 테스트는 저장소에 구현했다. 나머지 컬렉션 규칙은 후속 작업이며 현재 모두 접근 거절된다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
 
 ## DB 담당과 작업 순서
 
@@ -123,4 +123,24 @@ MVP는 소규모 대학 동아리 목록(가정: 100개 이하)을 읽어 앱 �
 | 필드 초과·잘못된 타입·빈 본문·길이 초과·시간 위조 | 거절 |
 | 동일 방/가입 동시 생성·메시지 재시도 | 중복 문서 없음 |
 
-Rules와 해당 테스트가 아직 구현되지 않았으므로 실제 데이터베이스의 보안 검증 완료를 주장하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
+users 범위는 `firestore.rules`와 `tests/firestore/users.test.mjs`에 구현한다. 나머지 표 항목은 미구현이며 실제 데이터베이스의 보안 검증 완료를 뜻하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
+
+## users 로컬 검증
+
+Node.js 22 이상 및 Java 21 이상을 준비하고 저장소 루트에서 실행한다.
+
+```sh
+npm ci
+npm run test:rules
+```
+
+`demo-mope` 프로젝트의 로컬 Firestore Emulator만 사용한다. Firebase 로그인이나
+실제 프로젝트 설정 파일은 필요하지 않다. 최초 실행은 Emulator 다운로드가 필요하다.
+포트 8080은 비어 있어야 한다. 이 설정을 운영 프로젝트에 배포하지 않는다.
+
+users는 본인 문서 단건 조회만 허용하고 목록 조회·삭제를 거절한다. 최초 생성은
+student 역할과 서버 시각만 허용하며 이후에는 이름만 변경할 수 있다. 신뢰된
+운영 환경이 부여한 club_admin도 클라이언트에서 역할을 변경할 수 없다.
+이름은 1~30자이며 공백만으로 된 이름은 거절한다. 앱의 앞뒤 공백 제거는
+AuthInput이 담당한다. Rules 테스트에서는 정상 생성·조회·수정과 권한·필드·
+타입·길이·시간 위조·미정의 경로 거절을 검증한다.

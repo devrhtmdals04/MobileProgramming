@@ -71,3 +71,11 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - `AuthRepositoryContractTest` 7개: 복원 완료 전 null 발행 방지, 가입 프로필 저장 및 로그아웃, 중복 이메일/잘못된 암호, 저장소를 공유한 세션 복원과 기존 역할 보존, 프로필 실패와 재로그인 복구, 복원 시 프로필 누락 오류, 입력 실패와 취소 전파.
 - `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug` 통과. 전체 단위 테스트 20개, 실패 0개.
 - 이 결과는 메모리 fake 검증이다. 실제 Firebase 인증·프로세스 재시작·Firestore Rules 권한은 미검증이다.
+
+## users Rules 검증
+
+- 실행: Node 24.7.0, Java 25, Firebase CLI 15.34.2, Firestore Emulator 1.22.0에서 `npm run test:rules`.
+- 결과: 8개 통과, 실패 0개. `git diff --check` 통과.
+- users 접근 규칙과 8개 Emulator 테스트를 구현했다. 정상 생성·조회·이름 수정, 비로그인·타인 접근, 목록 조회, 역할 승격·필드 추가·시각 위조·필수 필드 삭제, 타입·길이·공백 오류, 미정의 경로를 검사한다.
+- `demo-mope` 로컬 프로젝트에서 실행한다. 실제 Firebase 프로젝트 배포·실제 인증 SDK 연결·다른 컬렉션 권한은 검증 범위 밖이다.
+- Android 소스와 의존성은 이번 작업에서 변경하지 않았다. 직전 Android 테스트 20개·빌드·Lint 통과 기록은 유지하며 이번에는 Rules 테스트만 실행한다.

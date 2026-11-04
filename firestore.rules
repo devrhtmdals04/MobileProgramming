@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function validProfile(data) {
+      return data.keys().hasAll(['displayName', 'role', 'createdAt'])
+        && data.keys().hasOnly(['displayName', 'role', 'createdAt'])
+        && data.displayName is string
+        && data.displayName.size() >= 1 && data.displayName.size() <= 30
+        && data.displayName.matches('.*[^\\s].*')
+        && data.role in ['student', 'club_admin']
+        && data.createdAt is timestamp;
+    }
+    match /users/{uid} {
+      allow get: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && validProfile(request.resource.data)
+        && request.resource.data.role == 'student'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isOwner(uid)
+        && validProfile(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName']);
+      // 목록 조회·삭제 및 나머지 경로는 기본 거절한다.
+    }
+  }
+}
