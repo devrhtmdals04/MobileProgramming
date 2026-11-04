@@ -96,3 +96,22 @@ UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 
 3. DB: 각 Repository 담당자가 해당 컬렉션의 DTO·스키마·쿼리·인덱스·Rules 테스트를 작성하고 상대가 리뷰한다. 세부 컬렉션 소유권은 firestore-schema.md를 따른다.
 
 RequestRepository의 개설/가입 공유 계약은 유지하되 구현 클래스의 파일 분리·조립 방식은 SET-03에서 먼저 합의한다. 현재 코드는 이 담당 변경으로 수정하지 않았다.
+
+## AUTH-01 인증 기반 구현
+
+인증 입력 검증은 `domain/AuthInput.kt`, SDK와 무관한 오류는
+`data/repository/AuthFailure.kt`에 정의한다. 이메일·표시 이름의 앞뒤 공백은
+제거하고 비밀번호 원문은 유지한다. 가입 시 이름은 trim 후 1~30 UTF-16
+코드 단위, 비밀번호는 6자 이상이며 공백만으로 구성할 수 없다. 로그인은
+기존 계정 정책과의 충돌을 피하기 위해 비밀번호 길이 대신 비어 있는지만 검사한다.
+이는 앱의 초기 입력 정책이며 서버 검증을 대체하지 않는다.
+
+`AuthRepository.currentUser`는 복원 중 최초 값을 보류하고, 복원 완료 후
+미인증일 때 null을 발행한다. 인증 계정이 있지만 프로필을 읽을 수 없으면
+PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상태를 유지하고
+오류 시 재구독한다. 가입 프로필 저장 실패 후 다음 로그인에서 누락 프로필
+생성을 재시도하며, 기존 프로필의 역할·생성 시각은 덮어쓰지 않는다.
+
+현재 입력 검증·오류 타입·계약 문서와 입력 경계 테스트를 구현했다.
+인증 fake·세션 계약 테스트·Firebase 구현·users Rules/Emulator 테스트는
+후속 작업이다. AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
