@@ -113,5 +113,10 @@ PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상�
 생성을 재시도하며, 기존 프로필의 역할·생성 시각은 덮어쓰지 않는다.
 
 현재 입력 검증·오류 타입·계약 문서와 입력 경계 테스트를 구현했다.
-인증 fake·세션 계약 테스트·Firebase 구현·users Rules/Emulator 테스트는
-후속 작업이다. AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
+테스트 소스의 `FakeAuthRepository`와 `FakeAuthStore`로 복원 대기·가입·로그인·
+로그아웃·프로필 저장 실패·재로그인 복구·취소 전파를 검증한다. fake는 앱에
+주입하지 않는다. 새 Repository에 같은 메모리 저장소를 전달하는 복원 테스트는
+실제 프로세스 재시작이나 Firebase 영속 세션 검증을 대신하지 않는다.
+복원 완료는 `completeRestoration()`으로 테스트에서 명시적으로 제어한다.
+Firebase 구현·users Rules/Emulator 테스트는 후속 작업이다.
+AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.

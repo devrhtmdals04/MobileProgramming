@@ -64,3 +64,10 @@ ViewModel은 fake Repository와 테스트 Main dispatcher로 검증한다. Fireb
 | E2E-08 | 로그아웃 후 뒤로·화면 재진입 | 인증 경계 유지, 이전 사용자 메시지 미노출 | 공동 |
 
 Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기준으로 SEC-01 자동 테스트에 구현한다. 테스트 파일·규칙·실행 방법과 통과 로그가 없으면 검증 완료로 기록하지 않는다.
+
+## 인증 계약 fake 검증
+
+- 테스트 전용 `FakeAuthRepository`·`FakeAuthStore` 추가. 앱 실행 경로에는 연결하지 않음.
+- `AuthRepositoryContractTest` 7개: 복원 완료 전 null 발행 방지, 가입 프로필 저장 및 로그아웃, 중복 이메일/잘못된 암호, 저장소를 공유한 세션 복원과 기존 역할 보존, 프로필 실패와 재로그인 복구, 복원 시 프로필 누락 오류, 입력 실패와 취소 전파.
+- `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug` 통과. 전체 단위 테스트 20개, 실패 0개.
+- 이 결과는 메모리 fake 검증이다. 실제 Firebase 인증·프로세스 재시작·Firestore Rules 권한은 미검증이다.
