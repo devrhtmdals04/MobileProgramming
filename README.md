@@ -2,13 +2,13 @@
 
 대학생을 위한 동아리 홍보·탐색·문의·개설 요청 Android 앱. 모바일 프로그래밍 수업의 2인 팀 프로젝트입니다.
 
-**현재는 Firebase 없이 실행하는 Mock 개발 템플릿입니다.** 샘플 홍보 피드·검색·상세와 화면 이동을 사용할 수 있습니다. 로그인·채팅 송수신·개설/가입 제출·프로필 저장은 후속 구현이며, 화면에 미연동 상태를 표시합니다.
+**기본 실행은 Firebase 설정 없이 사용하는 Mock 모드입니다.** 샘플 홍보 피드·검색·상세와 화면 이동을 사용할 수 있습니다. Firebase 인증 Repository는 별도로 구현했으며 화면의 로그인 연결은 후속 작업입니다. 채팅 송수신·개설/가입 제출·프로필 편집도 아직 미연동입니다.
 
 ## 핵심 기능 및 기술
 
 목표 기능: 동아리 홍보 목록·상세·관리자 등록, 이름/키워드·카테고리 탐색, 1:1 실시간 채팅, 개설 요청·본인 내역·운영 검토, 회원가입·인증·프로필, 가입 신청.
 
-Kotlin · Jetpack Compose / Material 3 · Navigation Compose · ViewModel / StateFlow · Coroutines · MVVM + Repository. Firebase Authentication / Firestore는 Phase 2에 도입합니다. Cloud Storage는 추후 검토합니다. Retrofit 및 별도 REST 서버는 사용하지 않습니다.
+Kotlin · Jetpack Compose / Material 3 · Navigation Compose · ViewModel / StateFlow · Coroutines · MVVM + Repository. Firebase Authentication / Firestore 기반 인증을 추가했습니다. Cloud Storage는 추후 검토합니다. Retrofit 및 별도 REST 서버는 사용하지 않습니다.
 
 버전은 [gradle/libs.versions.toml](gradle/libs.versions.toml)에서 관리합니다. AGP 8.13.2, Gradle 8.13, Kotlin/Compose compiler 2.2.21, Compose BOM 2025.10.01을 사용합니다. 최신 버전 일괄 업그레이드보다 기존 AGP·SDK 조합의 안정적인 빌드를 우선했습니다. [AGP 호환성](https://developer.android.com/build/releases/agp-8-13-0-release-notes)과 [Compose Kotlin 설정](https://developer.android.com/jetpack/androidx/releases/compose-kotlin)을 기준으로 구성했습니다.
 
@@ -37,6 +37,8 @@ Lint: `app/build/reports/lint-results-debug.html`.
 VS Code에는 `Android: Build MOPE`, `Install MOPE`, `Run MOPE` 작업이 있습니다. Install/Run 작업은 에뮬레이터 한 대를 가정합니다.
 
 Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지 않습니다. 설정 파일만 추가해도 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
+
+실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. 인증 UI는 아직 연결하지 않았습니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
 users 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users만 구현했으며 다른 컬렉션은 접근을 거절합니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#users-로컬-검증)를 참고하세요.
 

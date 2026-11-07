@@ -79,3 +79,14 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - users 접근 규칙과 8개 Emulator 테스트를 구현했다. 정상 생성·조회·이름 수정, 비로그인·타인 접근, 목록 조회, 역할 승격·필드 추가·시각 위조·필수 필드 삭제, 타입·길이·공백 오류, 미정의 경로를 검사한다.
 - `demo-mope` 로컬 프로젝트에서 실행한다. 실제 Firebase 프로젝트 배포·실제 인증 SDK 연결·다른 컬렉션 권한은 검증 범위 밖이다.
 - Android 소스와 의존성은 이번 작업에서 변경하지 않았다. 직전 Android 테스트 20개·빌드·Lint 통과 기록은 유지하며 이번에는 Rules 테스트만 실행한다.
+
+## Firebase 인증 Repository 통합 검증 (2026-11-07)
+
+- Firebase BoM 34.14.0, Google Services 플러그인 4.4.4, Auth·Firestore 기본 모듈 및 coroutines Task await를 추가했다.
+- Mock·Emulator·실제 Firebase 선택을 구현했다. 실제 Firebase 모드에 설정 파일이 없으면 구성 단계에서 명확히 실패하는 것을 확인했다.
+- `JAVA_HOME`을 Android Studio 내장 JDK로 지정하고 `npm run test:auth:android` 실행: Pixel_4 Android 17/API 37 에뮬레이터에서 5개 통과, 실패 0개.
+- 검증 흐름: 가입 → users 프로필 서버 저장 → Repository 재생성 시 세션 조회 → 로그아웃 → 재로그인. 기존 프로필 생성 시각 보존도 확인했다.
+- 실패 흐름: 중복 이메일·잘못된 암호 매핑, 미인증 Firestore 클라이언트의 실제 Rules 거절 → PROFILE_UNAVAILABLE → 자격 복구 후 같은 계정 재로그인으로 누락 프로필 생성.
+- 구독 중 가입 시 저장 완료 사용자만 전달하는지와 `MopeApplication.authRepository`의 실제 Emulator 연결도 검증했다.
+- 실제 Firebase 프로젝트 설정·배포, 인증 화면/ViewModel 연결, 물리 기기, 프로세스 강제 종료 후 영속 세션 복원은 아직 검증하지 않았다. Repository 재생성을 프로세스 재실행으로 간주하지 않는다.
+- 최종 회귀: 기본 Mock 모드 `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug` 통과(단위 테스트 20개, 실패 0개), `npm run test:rules` 8개 통과, `git diff --check` 통과.

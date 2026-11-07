@@ -66,14 +66,14 @@ UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 
 
 ## Firebase 도입 절차
 
-현재 Firebase SDK·Google Services 플러그인·Rules 배포 파일은 없다. JSON 설정 없이도 Mock 빌드가 가능하며, JSON을 놓는 것만으로 Firebase가 활성화되지 않는다.
+Firebase Auth·Firestore SDK와 users Rules를 추가했다. 기본값은 Mock이며 JSON을 놓는 것만으로 Firebase가 활성화되지 않는다. 현재 화면은 Mock 흐름이며 인증 Repository의 UI 연결은 김민성 담당 후속 작업이다.
 
 1. 팀이 사용할 Firebase 프로젝트를 만들거나 선택하고 두 팀원의 적절한 콘솔 권한을 부여한다. 프로젝트 ID·담당자는 문서에 기록하되 서비스 계정 비밀은 기록하지 않는다.
 2. Android 앱 `com.mope.app`을 등록한다. Firebase에서 발급받은 `google-services.json`을 로컬 `app/`에 둔다. 파일·키를 직접 만들어 넣지 않는다.
 3. 이메일/비밀번호 Authentication을 활성화한다. Firestore 데이터베이스를 만들고 팀의 지역을 결정한다. 광범위한 허용 규칙을 배포하지 않는다.
-4. DATA-01 PR에서 Firebase BoM, `firebase-auth`, `firebase-firestore`, 필요 시 `kotlinx-coroutines-play-services`, Google Services 플러그인을 버전 카탈로그에 추가한다. 해당 시점의 공식 안정 버전·Kotlin/SDK 호환성을 확인한다. 분리된 Firebase `-ktx` 모듈을 새로 도입하지 않는다.
-5. Mock/실환경 선택을 명시적으로 구현한다. 권장: 기본값 mock, `-PmopeBackend=firebase` opt-in과 설정 파일 검사. 플러그인은 해당 모드에서만 적용하고 Firebase 모드를 요청했는데 파일이 없으면 명확히 실패시킨다. Mock은 설정 유무와 무관하게 독립 빌드한다. **이 옵션은 아직 구현되지 않았다.**
-6. 인터넷 권한, FirebaseAuthRepository/Firestore 구현체, DTO 및 주입 전환을 추가한다. 현재 Manifest에 네트워크 권한은 필요하지 않아 넣지 않았다.
+4. 버전 카탈로그에 Firebase BoM 34.14.0, `firebase-auth`, `firebase-firestore`, `kotlinx-coroutines-play-services`, Google Services 플러그인 4.4.4를 고정했다. 기존 minSdk 24를 유지하며 분리된 `-ktx` 모듈은 사용하지 않는다.
+5. 기본 `-PmopeBackend=mock`은 설정 파일 없이 실행한다. `emulator`는 debug 전용 `demo-mope` 설정으로 Auth 9099·Firestore 8080에 연결하고, `firebase`는 실제 `app/google-services.json`이 없으면 Gradle 구성 단계에서 실패한다. Google Services 플러그인은 firebase 모드에서만 적용한다.
+6. 인터넷 권한과 `FirebaseAuthRepository`를 추가했다. `MopeApplication.authRepository`는 Mock에서 null, 나머지 모드에서는 실제 Repository를 지연 생성한다. 동아리 Repository와 화면 이동은 여전히 Mock이다. 화면은 null을 인증 성공으로 취급하지 않아야 한다.
 7. 별도 Emulator 환경에서 Auth·Firestore·Rules를 테스트한다. 운영 계정/데이터로 개발 테스트를 하지 않는다. 필요 인덱스와 Rules를 코드로 추적하고 검증 후 팀 담당자가 배포한다.
 8. 시연용 학생·동아리 관리자 계정을 준비한다. 운영 권한 claim은 신뢰된 운영 환경의 Admin SDK로만 부여한다. 앱에는 Admin SDK 비밀이나 권한 변경 기능을 넣지 않는다.
 9. Cloud Storage는 IMAGE-01 합의 이후에만 의존성·권한·이미지 처리를 추가한다.
@@ -119,5 +119,38 @@ PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상�
 실제 프로세스 재시작이나 Firebase 영속 세션 검증을 대신하지 않는다.
 복원 완료는 `completeRestoration()`으로 테스트에서 명시적으로 제어한다.
 users Rules와 Emulator 테스트는 `firestore.rules` 및 `tests/firestore/`에 구현했다.
-실제 Firebase 인증 구현과 나머지 컬렉션 규칙은 후속 작업이다.
+Firebase 인증 구현은 `data/remote/auth/`에 추가했다. 나머지 컬렉션 규칙과 인증 UI 연결은 후속 작업이다.
 AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
+
+## 인증 원격 구현과 통합 테스트
+
+`FirebaseAuthRepository`는 Auth 변경 리스너를 구독하고 `awaitClose`에서 해제한다.
+프로필은 서버에서 읽으며 캐시의 오래된 사용자를 복원 성공으로 취급하지 않는다.
+변경 작업과 프로필 조회를 Mutex로 직렬화해 가입 중 부분 완료 사용자 발행을 막는다.
+가입은 Auth 표시 이름 저장과 Firestore transaction의 프로필 생성이 완료된 후 반환한다.
+로그인은 누락 프로필만 student로 생성하며 기존 이름·역할·생성 시각을 덮어쓰지 않는다.
+프로필 실패는 PROFILE_UNAVAILABLE로 전달하고 원인을 cause에 보존한다.
+Auth 표시 이름 저장도 실패했다면 복구 이름은 이메일의 @ 앞부분(최대 30자), 없으면
+`학생`이다. 프로필 복구가 필요한 계정은 재가입 대신 기존 자격 증명으로 로그인한다.
+
+`currentUser` Flow 오류는 구독을 종료하므로 UI는 복구/재시도 시 다시 구독해야 한다.
+Firebase SDK 객체는 이 계층 내부에서만 사용하고 CancellationException은 변환하지 않는다.
+운영 권한 claim·프로필 편집 기능은 이 작업 범위에 포함하지 않는다.
+
+Android 에뮬레이터 한 대를 부팅한 후 실행한다. 호스트 주소 `10.0.2.2`는 Android
+에뮬레이터용이다. 물리 기기 연결 설정은 별도로 필요하며 이번 검증 범위 밖이다.
+
+```sh
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+npm ci
+npm run test:auth:android
+```
+
+이 명령은 Auth·Firestore Emulator를 함께 실행하고 Android instrumentation 테스트를
+실행한 뒤 종료한다. 테스트 계정은 매번 고유 이메일을 사용한다. 초기화·네트워크·로컬
+저장은 실제 Android SDK를 사용하며 users 규칙을 우회하지 않는다. 복원 테스트는 같은
+Auth 세션에서 Repository 재생성까지이며 실제 프로세스 종료·재실행은 별도 검증 대상이다.
+
+공식 근거: [Android SDK 릴리스](https://firebase.google.com/support/release-notes/android),
+[Auth Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_auth),
+[Firestore Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_firestore).

@@ -4,6 +4,17 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val mopeBackend = providers.gradleProperty("mopeBackend").orElse("mock").get()
+require(mopeBackend in setOf("mock", "emulator", "firebase")) {
+    "mopeBackend must be mock, emulator, or firebase"
+}
+if (mopeBackend == "firebase") {
+    require(file("google-services.json").isFile) {
+        "Firebase mode requires app/google-services.json from the Firebase console"
+    }
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.mope.app"
     compileSdk = 36
@@ -16,8 +27,16 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BACKEND", "\"$mopeBackend\"")
+        manifestPlaceholders["allowEmulatorTraffic"] = (mopeBackend == "emulator").toString()
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
+    buildTypes {
+        getByName("release") {
+            manifestPlaceholders["allowEmulatorTraffic"] = "false"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -39,6 +58,12 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
     implementation(libs.coroutines.android)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.coroutines.play.services)
+    androidTestImplementation(libs.android.test.runner)
+    androidTestImplementation(libs.android.test.junit)
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
 }

@@ -4,7 +4,8 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
-    "test:rules": "firebase emulators:exec --only firestore --project demo-mope \"node --test tests/firestore/users.test.mjs\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-mope \"node --test tests/firestore/users.test.mjs\"",
+    "test:auth:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator :app:connectedDebugAndroidTest\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",

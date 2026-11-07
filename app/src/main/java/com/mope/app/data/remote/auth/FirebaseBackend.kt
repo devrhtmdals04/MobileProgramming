@@ -1,0 +1,38 @@
+package com.mope.app.data.remote.auth
+
+import android.content.Context
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.MemoryCacheSettings
+import com.mope.app.BuildConfig
+import com.mope.app.data.repository.AuthRepository
+
+object FirebaseBackend {
+    fun createAuthRepository(context: Context): AuthRepository {
+        check(BuildConfig.BACKEND != "mock") { "Mock mode has no real authentication" }
+        val emulator = BuildConfig.BACKEND == "emulator"
+        check(!emulator || BuildConfig.DEBUG) { "Emulator backend is debug-only" }
+        val app = if (emulator) {
+            FirebaseApp.getApps(context).find { it.name == "mope-emulator" }
+                ?: FirebaseApp.initializeApp(context, FirebaseOptions.Builder()
+                    .setProjectId("demo-mope")
+                    .setApplicationId("1:1234567890:android:mope-emulator")
+                    .setApiKey("demo-mope-api-key")
+                    .build(), "mope-emulator")
+        } else {
+            FirebaseApp.initializeApp(context) ?: error("Missing Firebase configuration")
+        }
+        val auth = FirebaseAuth.getInstance(app)
+        val firestore = FirebaseFirestore.getInstance(app)
+        if (emulator) {
+            auth.useEmulator("10.0.2.2", 9099)
+            firestore.useEmulator("10.0.2.2", 8080)
+            firestore.firestoreSettings = FirebaseFirestoreSettings.Builder()
+                .setLocalCacheSettings(MemoryCacheSettings.newBuilder().build()).build()
+        }
+        return FirebaseAuthRepository(auth, firestore)
+    }
+}
