@@ -11,7 +11,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repository = (application as MopeApplication).clubRepository
-        setContent { MopeTheme { MopeNavHost(repository) } }
+        val app = application as MopeApplication
+        setContent {
+            MopeTheme {
+                MopeNavHost(
+                    repository = app.clubRepository,
+                    authRepository = app.authRepository,
+                )
+            }
+        }
     }
 }
