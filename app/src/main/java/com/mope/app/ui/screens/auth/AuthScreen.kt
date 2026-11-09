@@ -14,7 +14,7 @@ import com.mope.app.ui.theme.MopeTheme
 fun AuthScreen(onExplore: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    Page("MOPE · 모프") {
+    Page("GRU · 그루") {
         Text("우리 대학 동아리의 시작")
         OutlinedTextField(email, { email = it }, label = { Text("이메일") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(password, { password = it }, label = { Text("비밀번호") }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())

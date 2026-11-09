@@ -1,4 +1,6 @@
-# 모프 MOPE
+# 그루 GRU
+
+앱 이름은 **그루(GRU)**입니다. 모프(MoPE)는 과목 이름입니다. 내부 패키지 `com.mope.app`, 기존 클래스명·Gradle 옵션·테스트 프로젝트 ID는 기존 연결을 유지하기 위해 그대로 사용합니다.
 
 대학생을 위한 동아리 홍보·탐색·문의·개설 요청 Android 앱. 모바일 프로그래밍 수업의 2인 팀 프로젝트입니다.
 
@@ -34,7 +36,7 @@ Windows에서는 `gradlew.bat`을 사용합니다. 다른 환경의 JAVA_HOME은
 APK: `app/build/outputs/apk/debug/app-debug.apk` (debug 서명, 제출용 최종 빌드는 Phase 5).
 테스트: `app/build/reports/tests/testDebugUnitTest/index.html`.
 Lint: `app/build/reports/lint-results-debug.html`.
-VS Code에는 `Android: Build MOPE`, `Install MOPE`, `Run MOPE` 작업이 있습니다. Install/Run 작업은 에뮬레이터 한 대를 가정합니다.
+VS Code에는 `Android: Build GRU`, `Install GRU`, `Run GRU` 작업이 있습니다. Install/Run 작업은 에뮬레이터 한 대를 가정합니다.
 
 Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지 않습니다. 설정 파일만 추가해도 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
 
@@ -66,7 +68,7 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 ├── docs/
 ├── .github/{ISSUE_TEMPLATE/,PULL_REQUEST_TEMPLATE.md}
 ├── legacy/hello-world/       # 기존 설정·README 원본
-├── src/, test.kt             # 기존 예제 원본, MOPE 빌드에서 제외
+├── src/, test.kt             # 기존 예제 원본, GRU 빌드에서 제외
 ├── README.md
 ├── CONTRIBUTING.md
 └── 개발 계획.md

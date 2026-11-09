@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MOPE"
+rootProject.name = "GRU"
 include(":app")

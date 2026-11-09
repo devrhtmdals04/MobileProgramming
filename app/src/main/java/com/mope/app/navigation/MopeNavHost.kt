@@ -26,7 +26,7 @@ fun MopeNavHost(repository: ClubRepository) {
     val route = entry?.destination?.route
     val tabs = listOf("home" to "홈", "search" to "탐색", "chats" to "대화", "requests" to "개설", "profile" to "내 정보")
     Scaffold(
-        topBar = { if (route != "auth") Surface { Text("MOPE · Mock 미리보기", Modifier.statusBarsPadding().padding(horizontal = 16.dp)) } },
+        topBar = { if (route != "auth") Surface { Text("GRU · Mock 미리보기", Modifier.statusBarsPadding().padding(horizontal = 16.dp)) } },
         bottomBar = {
             if (tabs.any { it.first == route }) NavigationBar {
                 tabs.forEach { (target, label) ->

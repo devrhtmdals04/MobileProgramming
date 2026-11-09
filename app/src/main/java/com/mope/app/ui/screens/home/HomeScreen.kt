@@ -10,7 +10,7 @@ import com.mope.app.ui.theme.MopeTheme
 
 @Composable
 fun HomeScreen(state: LoadState<List<Promotion>>, onRetry: () -> Unit, onPromotion: (String) -> Unit) {
-    Page("모프 · 캠퍼스의 새로운 만남") {
+    Page("그루 · 캠퍼스의 새로운 만남") {
         Text("나와 맞는 동아리를 만나 보세요.")
         StateContent(state, onRetry) { posts ->
             posts.forEach { InfoCard(it.title, it.body) { onPromotion(it.id) } }
