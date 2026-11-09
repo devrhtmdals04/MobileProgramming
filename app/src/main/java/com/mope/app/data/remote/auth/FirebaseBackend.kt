@@ -33,6 +33,7 @@ object FirebaseBackend {
             firestore.firestoreSettings = FirebaseFirestoreSettings.Builder()
                 .setLocalCacheSettings(MemoryCacheSettings.newBuilder().build()).build()
         }
-        return FirebaseAuthRepository(auth, firestore)
+        return FirebaseAuthRepository(auth, firestore,
+            context.getSharedPreferences("auth-logout-${app.name}", Context.MODE_PRIVATE))
     }
 }

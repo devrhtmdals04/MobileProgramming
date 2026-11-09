@@ -90,3 +90,11 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - 구독 중 가입 시 저장 완료 사용자만 전달하는지와 `MopeApplication.authRepository`의 실제 Emulator 연결도 검증했다.
 - 실제 Firebase 프로젝트 설정·배포, 인증 화면/ViewModel 연결, 물리 기기, 프로세스 강제 종료 후 영속 세션 복원은 아직 검증하지 않았다. Repository 재생성을 프로세스 재실행으로 간주하지 않는다.
 - 최종 회귀: 기본 Mock 모드 `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug` 통과(단위 테스트 20개, 실패 0개), `npm run test:rules` 8개 통과, `git diff --check` 통과.
+
+## 인증 프로세스 재실행 검증 (2026-11-09)
+
+- `npm run test:auth:restart`: Android Pixel_4/API 37에서 seed → restored → signOut → loggedOut 네 단계 통과. 각 단계 사이 앱·테스트 앱을 force-stop하고 PID 변경을 검사했다.
+- 최초 실행에서 signOut 직후 종료하면 이전 사용자가 복원되는 결함을 재현했다. 앱 소유 로그아웃 표시를 동기 영속화하고 세션 복원보다 우선하도록 수정한 뒤 네 단계를 통과했다.
+- 테스트는 Firebase Emulator 서버를 유지한 실제 Android SDK·앱 프로세스 재시작 검증이다. 물리 기기·OS 재부팅·실제 Firebase 프로젝트는 범위 밖이다.
+- 재현 코드: `AuthProcessRestartTest.kt`, `scripts/test-auth-restart.mjs`. 기본 통합 테스트 실행에서는 sessionStage 인자가 없어 이 단계 테스트가 skip된다.
+- 회귀: 기존 Android 인증 통합 테스트 5개 통과(별도 프로세스 단계용 테스트 1개는 의도적 skip), 기본 Mock APK 빌드·단위 테스트 20개·Lint 통과.

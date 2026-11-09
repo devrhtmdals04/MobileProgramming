@@ -1,5 +1,6 @@
 package com.mope.app.data.remote.auth
 
+import android.content.SharedPreferences
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +19,8 @@ import com.mope.app.data.repository.AuthFailureReason
 import com.mope.app.data.repository.AuthRepository
 import com.mope.app.domain.AuthInput
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,9 +37,15 @@ import kotlinx.coroutines.tasks.await
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
+    private val logoutPreferences: SharedPreferences? = null,
 ) : AuthRepository {
     private val mutation = Mutex()
     private val revision = MutableStateFlow(0L)
+
+    init {
+        // 앱의 명시적 로그아웃을 SDK의 이전 영속 세션보다 우선한다.
+        if (wasExplicitlySignedOut()) auth.signOut()
+    }
 
     override val currentUser: Flow<User?> = combine(
         callbackFlow {
@@ -47,7 +56,7 @@ class FirebaseAuthRepository(
         revision,
     ) { _, _ -> Unit }.mapLatest {
         mutation.withLock {
-            auth.currentUser?.let { account ->
+            (if (wasExplicitlySignedOut()) null else auth.currentUser)?.let { account ->
                 profileOperation {
                     decodeProfile(firestore.collection("users").document(account.uid).get(Source.SERVER).await())
                 }
@@ -63,6 +72,7 @@ class FirebaseAuthRepository(
                     auth.createUserWithEmailAndPassword(input.email, input.password).await().user
                         ?: throw AuthFailure(AuthFailureReason.UNKNOWN)
                 }
+                authOperation { persistLogout(false) }
                 profileOperation {
                     account.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(input.displayName).build()).await()
                     ensureProfile(account, input.displayName)
@@ -81,6 +91,7 @@ class FirebaseAuthRepository(
                     auth.signInWithEmailAndPassword(input.email, input.password).await().user
                         ?: throw AuthFailure(AuthFailureReason.UNKNOWN)
                 }
+                authOperation { persistLogout(false) }
                 profileOperation { ensureProfile(account, recoveryName(account)) }
             } finally {
                 revision.value++
@@ -90,8 +101,22 @@ class FirebaseAuthRepository(
 
     override suspend fun signOut() {
         mutation.withLock {
-            authOperation { auth.signOut() }
+            authOperation {
+                persistLogout(true)
+                auth.signOut()
+            }
             revision.value++
+        }
+    }
+
+    private fun wasExplicitlySignedOut(): Boolean = logoutPreferences?.getBoolean("signedOut", false) == true
+
+    private suspend fun persistLogout(signedOut: Boolean) {
+        val preferences = logoutPreferences ?: return
+        withContext(Dispatchers.IO) {
+            check(preferences.edit().putBoolean("signedOut", signedOut).commit()) {
+                "Could not persist authentication logout state"
+            }
         }
     }
 

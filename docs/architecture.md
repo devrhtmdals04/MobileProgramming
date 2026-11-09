@@ -148,8 +148,22 @@ npm run test:auth:android
 
 이 명령은 Auth·Firestore Emulator를 함께 실행하고 Android instrumentation 테스트를
 실행한 뒤 종료한다. 테스트 계정은 매번 고유 이메일을 사용한다. 초기화·네트워크·로컬
-저장은 실제 Android SDK를 사용하며 users 규칙을 우회하지 않는다. 복원 테스트는 같은
-Auth 세션에서 Repository 재생성까지이며 실제 프로세스 종료·재실행은 별도 검증 대상이다.
+저장은 실제 Android SDK를 사용하며 users 규칙을 우회하지 않는다.
+
+실제 프로세스 재실행 검증은 `npm run test:auth:restart`로 실행한다. Android 에뮬레이터가
+완전히 부팅된 상태에서 실행하며 여러 기기가 있으면 `ANDROID_SERIAL`로 선택한다.
+`ANDROID_HOME` 또는 `local.properties`의 sdk.dir에서 adb를 찾는다. 호스트 스크립트가
+가입·복원·로그아웃·미인증 확인을 각각 force-stop 후 별도 instrumentation 실행으로
+검증하고 이전 단계와 PID가 다른지도 확인한다. Firebase Emulator는 네 단계 동안 유지한다.
+일반 `test:auth:android` 실행에서는 이 단계 테스트 한 개가 의도적으로 skip된다.
+
+이 검증에서 SDK signOut 호출 후 즉시 종료하면 이전 사용자로 복원되는 현상을 재현했다.
+`FirebaseBackend`가 주입하는 앱 소유 SharedPreferences에 명시적 로그아웃 표시를
+IO 스레드에서 commit한 후 SDK signOut을 호출한다. 재실행 시에는 이 표시를 우선해
+SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한다. 새 가입·로그인이
+인증 계정을 얻었을 때만 표시를 해제하며, 비밀번호나 토큰은 이 저장소에 기록하지 않는다.
+이름이 다른 FirebaseApp의 로그아웃 표시는 서로 분리한다. 직접 Repository를 생성하는
+테스트 fixture는 선택 인자인 로그아웃 저장소를 생략하며, 실제 앱은 항상 저장소를 주입한다.
 
 공식 근거: [Android SDK 릴리스](https://firebase.google.com/support/release-notes/android),
 [Auth Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_auth),
