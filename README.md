@@ -40,7 +40,9 @@ Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지
 
 실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. 인증 UI는 아직 연결하지 않았습니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
-users 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users만 구현했으며 다른 컬렉션은 접근을 거절합니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#users-로컬-검증)를 참고하세요.
+users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages를 구현했으며 다른 컬렉션은 접근을 거절합니다. 채팅 Repository와 UI 송수신은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
+
+실제 앱 프로세스를 종료한 뒤 로그인·로그아웃 상태가 유지되는지는 `npm run test:auth:restart`로 검증합니다. 완전히 부팅된 Android 에뮬레이터 한 대와 위의 JDK 설정이 필요합니다. 가입 → 재실행 복원 → 로그아웃 → 재실행 미인증의 네 단계에서 PID 변경을 확인합니다.
 
 ## 디렉터리
 

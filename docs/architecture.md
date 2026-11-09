@@ -119,7 +119,7 @@ PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상�
 실제 프로세스 재시작이나 Firebase 영속 세션 검증을 대신하지 않는다.
 복원 완료는 `completeRestoration()`으로 테스트에서 명시적으로 제어한다.
 users Rules와 Emulator 테스트는 `firestore.rules` 및 `tests/firestore/`에 구현했다.
-Firebase 인증 구현은 `data/remote/auth/`에 추가했다. 나머지 컬렉션 규칙과 인증 UI 연결은 후속 작업이다.
+Firebase 인증 구현은 `data/remote/auth/`에 추가했다. users·채팅 규칙은 구현했고 나머지 컬렉션 규칙과 인증 UI 연결은 후속 작업이다.
 AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
 
 ## 인증 원격 구현과 통합 테스트

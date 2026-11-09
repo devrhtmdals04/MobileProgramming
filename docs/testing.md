@@ -98,3 +98,11 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - 테스트는 Firebase Emulator 서버를 유지한 실제 Android SDK·앱 프로세스 재시작 검증이다. 물리 기기·OS 재부팅·실제 Firebase 프로젝트는 범위 밖이다.
 - 재현 코드: `AuthProcessRestartTest.kt`, `scripts/test-auth-restart.mjs`. 기본 통합 테스트 실행에서는 sessionStage 인자가 없어 이 단계 테스트가 skip된다.
 - 회귀: 기존 Android 인증 통합 테스트 5개 통과(별도 프로세스 단계용 테스트 1개는 의도적 skip), 기본 Mock APK 빌드·단위 테스트 20개·Lint 통과.
+
+## 채팅 DB 권한 검증 (2026-11-09)
+
+- `firestore.rules`에 chatRooms/messages 필드·참조·참여자·서버 시각 검증을 구현했다. 읽기는 방 참여자만, 메시지는 본인 senderId만 작성할 수 있다. 방·메시지의 수정·삭제는 거절한다.
+- `npm run test:rules`: users 8개 + 채팅 11개 = 19개 통과, 실패 0개.
+- 참여자/발신자/생성 시각 위조, 없는 동아리·사용자, 자기 자신과 채팅, 본문 길이·타입·공백, 목록 쿼리 조건, 동시 transaction에서 같은 방 생성·재사용을 검증했다.
+- 관리자 변경 시 새 관리자의 과거 대화 접근 거절, 여러 줄 메시지 허용, 기존 메시지 ID 재조회 허용과 덮어쓰기 거절도 확인했다.
+- clubs 문서는 테스트 fixture로만 Rules를 우회해 준비했다. 채팅 요청 자체는 Rules를 우회하지 않는다. clubs 클라이언트 권한·ChatRepository·실시간 채팅 UI·운영 Firebase 배포는 미구현/미수행이다.

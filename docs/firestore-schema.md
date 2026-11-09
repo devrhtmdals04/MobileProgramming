@@ -1,6 +1,6 @@
 # Firestore 데이터·접근 권한 설계 (v1 초안)
 
-**설계 문서이며 배포된 스키마가 아니다.** users 규칙과 Emulator 테스트는 저장소에 구현했다. 나머지 컬렉션 규칙은 후속 작업이며 현재 모두 접근 거절된다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
+**설계 문서이며 배포된 스키마가 아니다.** users·chatRooms/messages 규칙과 Emulator 테스트는 저장소에 구현했다. 나머지 컬렉션 규칙은 후속 작업이며 현재 모두 접근 거절된다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
 
 ## DB 담당과 작업 순서
 
@@ -123,7 +123,7 @@ MVP는 소규모 대학 동아리 목록(가정: 100개 이하)을 읽어 앱 �
 | 필드 초과·잘못된 타입·빈 본문·길이 초과·시간 위조 | 거절 |
 | 동일 방/가입 동시 생성·메시지 재시도 | 중복 문서 없음 |
 
-users 범위는 `firestore.rules`와 `tests/firestore/users.test.mjs`에 구현한다. 나머지 표 항목은 미구현이며 실제 데이터베이스의 보안 검증 완료를 뜻하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
+users와 채팅 범위는 `firestore.rules` 및 `tests/firestore/{users,chat}.test.mjs`에 구현한다. 나머지 표 항목은 미구현이며 실제 데이터베이스의 보안 검증 완료를 뜻하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
 
 ## users 로컬 검증
 
@@ -144,3 +144,22 @@ student 역할과 서버 시각만 허용하며 이후에는 이름만 변경할
 이름은 1~30자이며 공백만으로 된 이름은 거절한다. 앱의 앞뒤 공백 제거는
 AuthInput이 담당한다. Rules 테스트에서는 정상 생성·조회·수정과 권한·필드·
 타입·길이·시간 위조·미정의 경로 거절을 검증한다.
+
+## 채팅 Rules 로컬 검증
+
+같은 `npm run test:rules` 명령이 users 8개와 채팅 11개를 순서대로 실행한다.
+파일별 데이터 초기화가 충돌하지 않도록 Node test-concurrency는 1로 고정한다.
+
+- 방 생성자는 본인 studentId여야 하며 clubs.adminId와 일치하는 별도 관리자 및 두 users 문서가 존재해야 한다. users.role은 관리 권한의 근거로 사용하지 않는다.
+- participantIds는 학생·관리자 두 명만 포함한다. 방은 생성 후 수정·삭제하지 않는다. 생성 시각은 서버 시각만 허용한다.
+- 방 목록은 `where('participantIds', 'array-contains', uid)`로 요청한다. 전체 목록을 읽어 앱에서 필터링할 수 없다.
+- 아직 없는 방은 본인 uid의 정규 방 ID만 단건 조회할 수 있다. 본인 users와 참조 clubs가 존재하고 본인이 해당 관리자가 아니어야 한다. 이 예외는 최초 transaction 조회용이며 이미 존재하는 타인의 방에는 적용되지 않는다.
+- 각 clubId/uid는 1~128자이며 구분자 `__`와 `/`를 포함할 수 없다.
+- 메시지는 부모 방 참여자만 읽고, 본인 senderId로 작성한다. 본문 1~2000자·공백만인 본문 거절·서버 시각·정해진 필드를 검사한다. 줄바꿈이 포함된 정상 본문은 허용한다.
+- 메시지 수정·삭제·덮어쓰기는 거절한다. 전송 재시도는 같은 ID를 먼저 재조회해 이미 저장됐으면 재사용한다.
+- clubs의 관리자가 바뀌어도 과거 방의 참여자는 바뀌지 않으며 새 관리자는 과거 대화를 읽을 수 없다.
+
+정상 조회·송신, 비참여자 접근, 참여자·발신자·참조·시간 위조, 본문 경계, 목록 쿼리,
+동시 transaction의 동일 방 생성·재사용을 검증한다. clubs는 테스트 fixture로만 신뢰된
+환경에서 주입한다. clubs 자체의 클라이언트 읽기/쓰기 권한과 ChatRepository 구현,
+실시간 UI 송수신은 아직 미구현이다. 이번 변경을 실제 서비스에 배포하지 않았다.

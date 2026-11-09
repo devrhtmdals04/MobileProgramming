@@ -24,5 +24,54 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName']);
       // 목록 조회·삭제 및 나머지 경로는 기본 거절한다.
     }
+    function validChatId(value) {
+      return value is string && value.size() >= 1 && value.size() <= 128
+        && value.split('__').size() == 1 && value.split('/').size() == 1;
+    }
+    function isParticipant(room) {
+      return request.auth != null && request.auth.uid in room.participantIds;
+    }
+    function canReadMissingRoom(roomId) {
+      let parts = roomId.split('__');
+      return request.auth != null
+        && !exists(/databases/$(database)/documents/chatRooms/$(roomId))
+        && parts.size() == 2 && validChatId(parts[0]) && validChatId(parts[1])
+        && parts[1] == request.auth.uid
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/clubs/$(parts[0])).data.adminId != request.auth.uid;
+    }
+    function validRoom(room, roomId) {
+      return room.keys().hasAll(['clubId', 'studentId', 'adminId', 'participantIds', 'createdAt'])
+        && room.keys().hasOnly(['clubId', 'studentId', 'adminId', 'participantIds', 'createdAt'])
+        && validChatId(room.clubId) && validChatId(room.studentId) && validChatId(room.adminId)
+        && room.studentId == request.auth.uid && room.studentId != room.adminId
+        && roomId == room.clubId + '__' + room.studentId
+        && room.participantIds is list && room.participantIds.size() == 2
+        && room.participantIds.hasAll([room.studentId, room.adminId])
+        && get(/databases/$(database)/documents/clubs/$(room.clubId)).data.adminId == room.adminId
+        && exists(/databases/$(database)/documents/users/$(room.studentId))
+        && exists(/databases/$(database)/documents/users/$(room.adminId))
+        && room.createdAt is timestamp && room.createdAt == request.time;
+    }
+    match /chatRooms/{roomId} {
+      allow get: if isParticipant(resource.data) || canReadMissingRoom(roomId);
+      allow list: if isParticipant(resource.data);
+      allow create: if request.auth != null && validRoom(request.resource.data, roomId);
+      // 참여자·동아리·생성 시각을 포함한 방의 수정·삭제는 허용하지 않는다.
+      match /messages/{messageId} {
+        function participatesInParent() {
+          return isParticipant(get(/databases/$(database)/documents/chatRooms/$(roomId)).data);
+        }
+        allow read: if participatesInParent();
+        allow create: if participatesInParent()
+          && request.resource.data.keys().hasAll(['senderId', 'text', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['senderId', 'text', 'createdAt'])
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 2000
+          && request.resource.data.text.matches('(?s).*[^\\s].*')
+          && request.resource.data.createdAt is timestamp && request.resource.data.createdAt == request.time;
+      }
+    }
   }
 }
