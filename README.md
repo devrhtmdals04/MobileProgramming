@@ -106,3 +106,5 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 - [Figma 원본](https://www.figma.com/design/vUavTwW7VuTMCQojbNkrJT/모프?node-id=0-1): 현재 구조 접근 불가, 실제 디자인 일치 여부 미확인
 
 초기 검증: Mock APK 빌드·단위 테스트·Lint 실행 기록은 `docs/testing.md`가 기준입니다. 원격 Issue/PR 생성과 Firebase 배포는 수행하지 않았습니다. 초기 템플릿·테스트·문서는 `feature/mope-setup` 브랜치에서 검토하며 실제 커밋 이력은 Git 로그를 참고하세요.
+
+문의 헤더 백엔드: [공개 정보 조회 계약](docs/chat-public-context-contract.md). 화면 연결과 공개 정보 운영 게시는 별도다.

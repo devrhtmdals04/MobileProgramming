@@ -38,8 +38,14 @@ try {
     await runTransaction(store, async tx => {
       const existing = await tx.get(club);
       tx.set(club, { name: '찰칵 사진부', category: '문화', description: '캠퍼스의 순간을 함께 기록해요.',
-        recruitment: '매주 목요일 · 초보 환영', adminId: admin.uid,
+        recruitment: '매주 목요일 · 초보 환영', recruitmentTitle: '신입 부원 모집', adminId: admin.uid,
         createdAt: existing.get('createdAt') ?? serverTimestamp() });
+    });
+    const contact = doc(store, 'clubs', 'photo', 'publicContacts', admin.uid);
+    await runTransaction(store, async tx => {
+      const existing = await tx.get(contact);
+      tx.set(contact, { displayName: '사진부 문의 담당', responseHint: '평일에 답변해요',
+        updatedAt: existing.get('updatedAt') ?? serverTimestamp() });
     });
     await updateDoc(doc(store, 'users', admin.uid), { role: 'club_admin' });
   });
