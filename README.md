@@ -50,6 +50,8 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 
 현재 추가 작업 범위는 백엔드·DB입니다. 실제 Figma 7개 화면과 데이터 계약을 대조한 [백엔드 연결 점검](docs/figma-backend-contract.md)에 가입 폼·수요조사·채팅 헤더 등 미지원 항목과 담당/범위 결정을 기록했습니다. 기존 채팅 지원 코드가 있다는 사실을 Figma 전체 지원 완료로 해석하지 않습니다.
 
+비밀번호 찾기 백엔드는 `AuthRepository.requestPasswordReset(email)`로 제공하며 가입 여부를 UI 결과로 구분하지 않습니다. [재설정 계약](docs/auth-password-reset-contract.md)을 참고하세요. 비밀번호 찾기 버튼과 화면 연결은 프론트 후속 작업입니다.
+
 실제 앱 프로세스를 종료한 뒤 로그인·로그아웃 상태가 유지되는지는 `npm run test:auth:restart`로 검증합니다. 완전히 부팅된 Android 에뮬레이터 한 대와 위의 JDK 설정이 필요합니다. 가입 → 재실행 복원 → 로그아웃 → 재실행 미인증의 네 단계에서 PID 변경을 확인합니다.
 
 ## 디렉터리

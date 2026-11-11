@@ -137,3 +137,10 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - SavedStateHandle 검증은 스냅샷으로 ViewModel을 재생성한 테스트다. 새 채팅 UI의 실제 프로세스 종료/복원 및 시각 검증은 아직 수행하지 않았다.
 - `npm run test:chat:demo` 1개 통과: 학생·관리자 데모 계정과 photo 동아리·방·예시 메시지 두 개를 준비하고 두 번째 실행에서도 동일 ID·생성 시각·메시지 수가 유지되는 것을 확인했다. 이 스크립트는 localhost의 demo-mope 전용이며 기존 사진부 Mock ID와 일치한다.
 - 화면 인계 문서 `docs/chat-ui-handoff.md`에 Route content 연결, 상태/버튼 매핑, Mock 분기, SavedState 범위와 데모 실행 절차를 기록했다. 시각 UI와 Navigation 연결은 미완료다.
+
+## 비밀번호 재설정 백엔드 (2026-11-11)
+
+- 전용 브랜치: feature/auth-password-reset. requestPasswordReset(email) 계약·이메일 검증·Firebase 요청 구현과 미가입 주소의 중립 결과 처리를 추가했다. UI 소스는 수정하지 않았다.
+- Mock APK 빌드·Lint·단위 테스트 43개 통과. 형식 오류·네트워크 실패·취소·기존 세션 보존을 검사했다.
+- Android 인증/채팅 15개 통과, 실패 0개(프로세스 단계 테스트 1개 의도적 skip). 추가한 2개는 요청 후 세션 보존/미가입 처리 및 Emulator 재설정 코드 적용 후 기존 암호 거절·새 암호 로그인·동일 프로필 확인이다.
+- 실제 Firebase 프로젝트 메일 발송·템플릿과 UI 버튼 연결은 검증 범위 밖이다.
