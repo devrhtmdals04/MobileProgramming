@@ -48,6 +48,8 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 
 채팅 UI 연결용 `ChatListRoute`·`ChatRoomRoute`, ViewModel·상태·이벤트를 준비했습니다. 화면 담당자는 [채팅 UI 연결 안내](docs/chat-ui-handoff.md)의 상태/콜백 표를 따라 기존 디자인을 Route의 content에 연결하면 됩니다. 로컬 데이터는 `npm run dev:firebase` 실행 후 다른 터미널의 `npm run seed:chat:demo`로 준비합니다. 실제 채팅 화면·Navigation 연결은 아직 남아 있습니다.
 
+현재 추가 작업 범위는 백엔드·DB입니다. 실제 Figma 7개 화면과 데이터 계약을 대조한 [백엔드 연결 점검](docs/figma-backend-contract.md)에 가입 폼·수요조사·채팅 헤더 등 미지원 항목과 담당/범위 결정을 기록했습니다. 기존 채팅 지원 코드가 있다는 사실을 Figma 전체 지원 완료로 해석하지 않습니다.
+
 실제 앱 프로세스를 종료한 뒤 로그인·로그아웃 상태가 유지되는지는 `npm run test:auth:restart`로 검증합니다. 완전히 부팅된 Android 에뮬레이터 한 대와 위의 JDK 설정이 필요합니다. 가입 → 재실행 복원 → 로그아웃 → 재실행 미인증의 네 단계에서 PID 변경을 확인합니다.
 
 ## 디렉터리
