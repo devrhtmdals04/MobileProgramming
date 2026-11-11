@@ -68,7 +68,9 @@ class FirestoreChatRepositoryTest {
                 connection.connectTimeout = 10_000
                 connection.readTimeout = 10_000
                 connection.doOutput = true
-                val body = JSONObject().put("fields", JSONObject().put("adminId", JSONObject().put("stringValue", adminSdk.auth.currentUser!!.uid)))
+                val body = JSONObject().put("fields", JSONObject()
+                    .put("adminId", JSONObject().put("stringValue", adminSdk.auth.currentUser!!.uid))
+                    .put("name", JSONObject().put("stringValue", "사진부")))
                 connection.outputStream.use { it.write(body.toString().toByteArray()) }
                 assertEquals("Could not seed club fixture", 200, connection.responseCode)
             } finally { connection.disconnect() }
@@ -240,6 +242,91 @@ class FirestoreChatRepositoryTest {
                 withContext(Dispatchers.Main) { store.clear() }
             }
         }
+    }
+
+    @Test fun roomContextUsesPublishedContactRatherThanPrivateProfile() = runBlocking {
+        withTimeout(60_000) {
+            val room = student.getOrCreateRoom(clubId)
+            val adminId = adminSdk.auth.currentUser!!.uid
+            seedDocument("clubs/$clubId", JSONObject()
+                .put("adminId", stringField(adminId)).put("name", stringField("사진부"))
+                .put("recruitmentTitle", stringField("신입 부원 모집"))
+                .put("recruitmentDeadlineAt", timeField()))
+            seedDocument("clubs/$clubId/publicContacts/$adminId", JSONObject()
+                .put("displayName", stringField("공개 문의 담당"))
+                .put("responseHint", stringField("평일에 답변해요"))
+                .put("updatedAt", timeField()))
+            seedDocument("users/$adminId", JSONObject().put("displayName", stringField("사적 프로필 이름"))
+                .put("role", stringField("club_admin")).put("createdAt", timeField()).put("phone", stringField("private-only")))
+            val context = student.getRoomContext(room)
+            assertEquals("사진부", context.clubName)
+            assertEquals("신입 부원 모집", context.recruitmentTitle)
+            assertNotNull(context.recruitmentDeadlineMillis)
+            assertEquals(adminId, context.adminId)
+            assertEquals("공개 문의 담당", context.contact!!.displayName)
+            assertEquals("평일에 답변해요", context.contact!!.responseHint)
+            assertTrue(context.contact!!.updatedAtMillis > 0L)
+            assertEquals(context, admin.getRoomContext(room))
+        }
+    }
+
+    @Test fun contextHandlesOptionalFieldsAndEnforcesParticipantAndSession() = runBlocking {
+        withTimeout(60_000) {
+            val missing = "${clubId}__${studentSdk.auth.currentUser!!.uid}"
+            failure(ChatFailureReason.NOT_FOUND) { student.getRoomContext(missing) }
+            val room = student.getOrCreateRoom(clubId)
+            val context = student.getRoomContext(room)
+            assertNull(context.contact)
+            assertNull(context.recruitmentTitle)
+            assertNull(context.recruitmentDeadlineMillis)
+            failure(ChatFailureReason.PERMISSION_DENIED) { outsider.getRoomContext(room) }
+            failure(ChatFailureReason.INVALID_INPUT) { student.getRoomContext("bad") }
+            studentSdk.auth.signOut()
+            failure(ChatFailureReason.UNAUTHENTICATED) { student.getRoomContext(room) }
+        }
+    }
+
+    @Test fun contextKeepsOriginalRoomAdminAfterClubAdminChange() = runBlocking {
+        withTimeout(60_000) {
+            val room = student.getOrCreateRoom(clubId)
+            val originalAdmin = adminSdk.auth.currentUser!!.uid
+            seedDocument("clubs/$clubId/publicContacts/$originalAdmin", JSONObject()
+                .put("displayName", stringField("기존 문의 담당")).put("updatedAt", timeField()))
+            seedDocument("clubs/$clubId", JSONObject().put("name", stringField("사진부"))
+                .put("adminId", stringField(outsiderSdk.auth.currentUser!!.uid)))
+            val context = student.getRoomContext(room)
+            assertEquals(originalAdmin, context.adminId)
+            assertEquals(originalAdmin, context.contact!!.userId)
+            failure(ChatFailureReason.PERMISSION_DENIED) { outsider.getRoomContext(room) }
+        }
+    }
+
+    @Test fun malformedOrPrivateContactFieldsAreNotReturned() = runBlocking {
+        withTimeout(60_000) {
+            val room = student.getOrCreateRoom(clubId)
+            val path = "clubs/$clubId/publicContacts/${adminSdk.auth.currentUser!!.uid}"
+            seedDocument(path, JSONObject().put("displayName", stringField("관리자"))
+                .put("updatedAt", timeField()).put("phone", stringField("private-only")))
+            failure(ChatFailureReason.PERMISSION_DENIED) { student.getRoomContext(room) }
+            seedDocument(path, JSONObject().put("displayName", stringField("관리자")).put("updatedAt", timeField()))
+            seedDocument("clubs/$clubId", JSONObject().put("name", JSONObject().put("integerValue", "1"))
+                .put("adminId", stringField(adminSdk.auth.currentUser!!.uid)))
+            failure(ChatFailureReason.INVALID_DATA) { student.getRoomContext(room) }
+        }
+    }
+
+    private fun stringField(value: String) = JSONObject().put("stringValue", value)
+    private fun timeField() = JSONObject().put("timestampValue", "2026-11-11T00:00:00Z")
+    private fun seedDocument(path: String, fields: JSONObject) {
+        val connection = URL("http://10.0.2.2:8080/v1/projects/demo-mope/databases/(default)/documents/$path").openConnection() as HttpURLConnection
+        try {
+            connection.requestMethod = "PATCH"
+            connection.setRequestProperty("Authorization", "Bearer owner")
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.connectTimeout = 10_000; connection.readTimeout = 10_000; connection.doOutput = true
+            connection.outputStream.use { it.write(JSONObject().put("fields", fields).toString().toByteArray()) }
+            assertEquals(200, connection.responseCode)
+        } finally { connection.disconnect() }
     }
 
     private suspend fun failure(reason: ChatFailureReason, block: suspend () -> Unit) {

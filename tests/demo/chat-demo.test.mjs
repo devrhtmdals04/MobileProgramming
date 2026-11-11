@@ -22,7 +22,11 @@ test('로컬 데모를 반복 준비해도 같은 방·두 메시지·생성 시
       assert.equal(messages.size, 2);
       assert.equal((await getDoc(doc(db, 'clubs/photo'))).get('adminId'), room.get('adminId'));
       assert.equal((await getDoc(doc(db, 'users', room.get('adminId')))).get('role'), 'club_admin');
-      return { id: room.id, createdAt: room.get('createdAt').toMillis(),
+      const contact = await getDoc(doc(db, 'clubs', 'photo', 'publicContacts', room.get('adminId')));
+      assert.deepEqual(Object.keys(contact.data()).sort(), ['displayName', 'responseHint', 'updatedAt']);
+      assert.equal(contact.get('displayName'), '사진부 문의 담당');
+      assert.equal((await getDoc(doc(db, 'clubs/photo'))).get('recruitmentTitle'), '신입 부원 모집');
+      return { contactUpdatedAt: contact.get('updatedAt').toMillis(), id: room.id, createdAt: room.get('createdAt').toMillis(),
         messages: messages.docs.map(item => [item.id, item.get('createdAt').toMillis()]) };
     });
   }

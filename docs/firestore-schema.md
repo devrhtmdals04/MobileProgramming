@@ -147,7 +147,7 @@ AuthInput이 담당한다. Rules 테스트에서는 정상 생성·조회·수�
 
 ## 채팅 Rules 로컬 검증
 
-같은 `npm run test:rules` 명령이 users 8개와 채팅/동아리 단건 권한 12개를 순서대로 실행한다.
+같은 `npm run test:rules` 명령이 users 8개와 채팅/동아리·공개 연락처 권한 15개를 순서대로 실행한다.
 파일별 데이터 초기화가 충돌하지 않도록 Node test-concurrency는 1로 고정한다.
 
 - 방 생성자는 본인 studentId여야 하며 clubs.adminId와 일치하는 별도 관리자 및 두 users 문서가 존재해야 한다. users.role은 관리 권한의 근거로 사용하지 않는다.
@@ -163,3 +163,7 @@ AuthInput이 담당한다. Rules 테스트에서는 정상 생성·조회·수�
 동시 transaction의 동일 방 생성·재사용을 검증한다. clubs는 테스트 fixture로만 신뢰된
 환경에서 주입한다. clubs 단건 조회를 이용한 ChatRepository 구현과 Android SDK 통합 테스트를 추가했다.
 clubs 목록·쓰기와 실시간 UI 송수신 연결은 아직 미구현이다. 이번 변경을 실제 서비스에 배포하지 않았다.
+
+## 문의 공개 정보 구현
+
+[공개 정보 계약](chat-public-context-contract.md)에 따라 clubs의 선택 모집 제목/마감과 publicContacts 하위 문서를 조회한다. 공개 연락처는 인증 사용자 단건 조회만 가능하며 허용 키 밖의 정보가 있으면 거절한다. 클라이언트 쓰기·목록은 금지한다. 사적 users 권한은 유지한다.

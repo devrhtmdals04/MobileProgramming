@@ -144,3 +144,7 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - Mock APK 빌드·Lint·단위 테스트 43개 통과. 형식 오류·네트워크 실패·취소·기존 세션 보존을 검사했다.
 - Android 인증/채팅 15개 통과, 실패 0개(프로세스 단계 테스트 1개 의도적 skip). 추가한 2개는 요청 후 세션 보존/미가입 처리 및 Emulator 재설정 코드 적용 후 기존 암호 거절·새 암호 로그인·동일 프로필 확인이다.
 - 실제 Firebase 프로젝트 메일 발송·템플릿과 UI 버튼 연결은 검증 범위 밖이다.
+
+## 2026-11-11 문의 공개 정보
+
+feature/chat-public-context에서 Rules 23개 통과, Android SDK 통합 19개 통과·프로세스 재시작 단계 1개 건너뜀(XML tests=20, failures=0, errors=0). Mock 단위 43개·빌드·lint 통과. 프로덕션 Screen/ViewModel/Route는 수정하지 않았다. 공개 연락처와 모집 제목을 로컬 데모 fixture에 추가했다.

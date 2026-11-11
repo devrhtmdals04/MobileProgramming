@@ -56,6 +56,7 @@ internal class ChatFixture(private val auth: ChatAuthFixture) : ChatRepository {
         openFailure?.let { throw it }
         return "${clubId}__${requireNotNull(auth.users.value).id}"
     }
+    override suspend fun getRoomContext(roomId: String) = error("Not used by ViewModel tests")
     override fun observeMessages(roomId: String): Flow<List<Message>> = flow {
         val owner = requireNotNull(auth.users.value).id
         activeMessageListeners++
