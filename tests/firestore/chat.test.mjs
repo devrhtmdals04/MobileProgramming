@@ -76,6 +76,41 @@ test('채팅 관리자 확인용 동아리 단건 조회만 허용, 목록·쓰�
   await assertFails(deleteDoc(doc(db('admin'), 'clubs/club1')));
 });
 
+test('공개 연락 정보는 로그인 사용자 단건 조회만 허용하고 사적 프로필은 보호', async () => {
+  const path = 'clubs/club1/publicContacts/admin';
+  await env.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), path), { displayName: '공개 관리자', responseHint: '평일 답변', updatedAt: serverTimestamp() });
+  });
+  for (const uid of ['alice', 'admin', 'bob']) await assertSucceeds(getDoc(doc(db(uid), path)));
+  await assertFails(getDoc(doc(db(), path)));
+  await assertFails(getDoc(doc(db('alice'), 'users/admin')));
+  await assertFails(getDocs(collection(db('alice'), 'clubs/club1/publicContacts')));
+  await assertSucceeds(getDoc(doc(db('alice'), 'clubs/club1/publicContacts/missing')));
+});
+
+test('공개 연락 정보의 편집은 관리자 클라이언트도 불가', async () => {
+  const path = 'clubs/club1/publicContacts/admin';
+  const value = { displayName: '공개 관리자', updatedAt: serverTimestamp() };
+  await assertFails(setDoc(doc(db('admin'), path), value));
+  await env.withSecurityRulesDisabled(async context => { await setDoc(doc(context.firestore(), path), value); });
+  for (const uid of ['admin', 'alice', null]) {
+    await assertFails(updateDoc(doc(db(uid), path), { displayName: '위조' }));
+    await assertFails(deleteDoc(doc(db(uid), path)));
+  }
+});
+
+test('공개 문서에 사적 필드·잘못된 타입·길이가 섞이면 읽기 거절', async () => {
+  const path = 'clubs/club1/publicContacts/admin';
+  for (const extra of [{ phone: 'private' }, { email: 'private@example.com' }, { displayName: '' },
+    { displayName: '   ' }, { displayName: '가'.repeat(31) }, { responseHint: '가'.repeat(121) },
+    { responseHint: '  ' }, { responseHint: null }, { updatedAt: 'invalid' }]) {
+    await env.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), path), { displayName: '관리자', updatedAt: serverTimestamp(), ...extra });
+    });
+    await assertFails(getDoc(doc(db('alice'), path)));
+  }
+});
+
 test('비로그인·비참여자의 방·메시지 읽기/쓰기 거절', async () => {
   await createRoom();
   await setDoc(messageRef('alice'), message());

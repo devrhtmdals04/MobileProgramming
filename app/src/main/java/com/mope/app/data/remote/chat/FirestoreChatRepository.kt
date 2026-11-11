@@ -8,7 +8,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import com.mope.app.data.model.ChatRoom
+import com.mope.app.data.model.ChatContext
+import com.mope.app.data.model.PublicChatContact
 import com.mope.app.data.model.Message
 import com.mope.app.data.repository.ChatFailure
 import com.mope.app.data.repository.ChatFailureReason
@@ -29,6 +32,40 @@ class FirestoreChatRepository(
     private val sessionUid: () -> String? = { auth.currentUser?.uid },
 ) : ChatRepository {
     override fun newMessageId(): String = UUID.randomUUID().toString()
+
+    override suspend fun getRoomContext(roomId: String): ChatContext = operation {
+        checkRoomId(roomId)
+        val uid = requireUser()
+        val document = firestore.collection("chatRooms").document(roomId).get(Source.SERVER).await()
+        requireSameUser(uid)
+        if (!document.exists()) throw ChatFailure(ChatFailureReason.NOT_FOUND)
+        val room = decodeRoom(document)
+        if (uid !in room.participantIds) throw ChatFailure(ChatFailureReason.PERMISSION_DENIED)
+        val adminId = document.getString("adminId") ?: throw ChatFailure(ChatFailureReason.INVALID_DATA)
+        val clubRef = firestore.collection("clubs").document(room.clubId)
+        val club = clubRef.get(Source.SERVER).await()
+        requireSameUser(uid)
+        if (!club.exists()) throw ChatFailure(ChatFailureReason.NOT_FOUND)
+        val contactDoc = clubRef.collection("publicContacts").document(adminId).get(Source.SERVER).await()
+        requireSameUser(uid)
+        decode {
+            val name = club.getString("name") ?: throw ChatFailure(ChatFailureReason.INVALID_DATA)
+            if (name.isBlank() || name.length > 50) throw ChatFailure(ChatFailureReason.INVALID_DATA)
+            val title = club.getString("recruitmentTitle")
+            if (title != null && (title.isBlank() || title.length > 100)) throw ChatFailure(ChatFailureReason.INVALID_DATA)
+            val contact = if (!contactDoc.exists()) null else {
+                val displayName = contactDoc.getString("displayName") ?: throw ChatFailure(ChatFailureReason.INVALID_DATA)
+                val hint = contactDoc.getString("responseHint")
+                val updatedAt = contactDoc.getTimestamp("updatedAt") ?: throw ChatFailure(ChatFailureReason.INVALID_DATA)
+                if (displayName.isBlank() || displayName.length > 30 || (hint != null && (hint.isBlank() || hint.length > 120))) {
+                    throw ChatFailure(ChatFailureReason.INVALID_DATA)
+                }
+                PublicChatContact(adminId, displayName, hint, updatedAt.toDate().time)
+            }
+            ChatContext(roomId, room.clubId, name, adminId, title,
+                club.getTimestamp("recruitmentDeadlineAt")?.toDate()?.time, contact)
+        }
+    }
 
     override fun observeMyRooms(): Flow<List<ChatRoom>> = observe(
         query = { uid -> firestore.collection("chatRooms").whereArrayContains("participantIds", uid) },
