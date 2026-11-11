@@ -9,11 +9,18 @@ data class SignUpInput(val email: String, val password: String, val displayName:
 
 object AuthInput {
     fun signIn(email: String, password: String): SignInInput {
-        val normalizedEmail = email.trim()
-        requireInput(normalizedEmail.matches(Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")))
+        val normalizedEmail = normalizeEmail(email)
         // 기존 계정의 로그인에는 신규 가입 비밀번호 정책을 강제하지 않는다.
         requireInput(password.isNotEmpty())
         return SignInInput(normalizedEmail, password)
+    }
+
+    fun passwordReset(email: String): String = normalizeEmail(email)
+
+    private fun normalizeEmail(email: String): String {
+        val normalized = email.trim()
+        requireInput(normalized.matches(Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")))
+        return normalized
     }
 
     fun signUp(email: String, password: String, displayName: String): SignUpInput {

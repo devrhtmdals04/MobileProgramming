@@ -22,4 +22,9 @@ interface AuthRepository {
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String, displayName: String)
     suspend fun signOut()
+    /**
+     * 재설정 메일 요청. 가입 여부는 결과로 구분하지 않으며 현재 세션을 변경하지 않는다.
+     * 정상 반환은 요청 접수이며 실제 메일 수신/비밀번호 변경 완료를 뜻하지 않는다.
+     */
+    suspend fun requestPasswordReset(email: String)
 }

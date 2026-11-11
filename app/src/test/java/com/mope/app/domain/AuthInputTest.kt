@@ -6,6 +6,10 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AuthInputTest {
+    @Test fun passwordResetValidatesEmailWithoutRequiringPassword() {
+        assertEquals("Student@example.com", AuthInput.passwordReset("  Student@example.com  "))
+        listOf("", "a@@b.com", "a@b", "a b@c.com").forEach { invalid { AuthInput.passwordReset(it) } }
+    }
     @Test fun normalizesEmailAndNameButPreservesPassword() {
         val input = AuthInput.signUp("  Student@example.com  ", " secret ", "  승민  ")
         assertEquals("Student@example.com", input.email)

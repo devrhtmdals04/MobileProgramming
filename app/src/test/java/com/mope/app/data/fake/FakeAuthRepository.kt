@@ -28,6 +28,8 @@ class FakeAuthRepository(val store: FakeAuthStore = FakeAuthStore()) : AuthRepos
 
     private val session = MutableStateFlow<Session>(Session.Restoring)
     var nextProfileFailure: Throwable? = null
+    val passwordResetRequests = mutableListOf<String>()
+    var nextPasswordResetFailure: Throwable? = null
 
     override val currentUser: Flow<User?> = session.transform { state ->
         when (state) {
@@ -86,6 +88,14 @@ class FakeAuthRepository(val store: FakeAuthStore = FakeAuthStore()) : AuthRepos
     override suspend fun signOut() {
         store.sessionUid = null
         session.value = Session.Ready(null)
+    }
+
+    override suspend fun requestPasswordReset(email: String) {
+        val normalized = AuthInput.passwordReset(email)
+        val failure = nextPasswordResetFailure
+        nextPasswordResetFailure = null
+        if (failure != null) throw failure
+        passwordResetRequests.add(normalized)
     }
 
     private fun fail(reason: AuthFailureReason): Nothing = throw AuthFailure(reason)

@@ -24,6 +24,7 @@ internal class ChatAuthFixture : AuthRepository {
     override suspend fun signIn(email: String, password: String) = error("Not used by chat tests")
     override suspend fun signUp(email: String, password: String, displayName: String) = error("Not used by chat tests")
     override suspend fun signOut() { users.value = null }
+    override suspend fun requestPasswordReset(email: String) = error("Not used by chat tests")
 }
 
 internal class ChatFixture(private val auth: ChatAuthFixture) : ChatRepository {

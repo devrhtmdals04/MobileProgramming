@@ -28,6 +28,9 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
 
 /** 실제 Android SDK → Auth/Firestore Emulator → users Rules 통합 검증. */
 @RunWith(AndroidJUnit4::class)
@@ -112,6 +115,41 @@ class FirebaseAuthRepositoryTest {
             } finally {
                 wired.signOut()
             }
+        }
+    }
+
+    @Test fun passwordResetRequestIsNeutralAndPreservesSession() = runBlocking {
+        withTimeout(60_000) {
+            repository.signUp(email, "secret123", "승민")
+            val user = repository.currentUser.first()
+            repository.requestPasswordReset(" $email ")
+            repository.requestPasswordReset("unknown-${UUID.randomUUID()}@example.com")
+            assertEquals(user, repository.currentUser.first())
+            failure(AuthFailureReason.INVALID_INPUT) { repository.requestPasswordReset("invalid") }
+            repository.signOut()
+            repository.requestPasswordReset(email)
+            assertNull(repository.currentUser.first())
+        }
+    }
+
+    @Test fun passwordResetCodeChangesPasswordWithoutChangingProfile() = runBlocking {
+        withTimeout(60_000) {
+            repository.signUp(email, "secret123", "승민")
+            val user = repository.currentUser.first()!!
+            repository.signOut()
+            repository.requestPasswordReset(email)
+            val connection = URL("http://10.0.2.2:9099/emulator/v1/projects/demo-mope/oobCodes").openConnection() as HttpURLConnection
+            val code = try {
+                connection.connectTimeout = 10_000; connection.readTimeout = 10_000
+                assertEquals(200, connection.responseCode)
+                val codes = JSONObject(connection.inputStream.bufferedReader().use { it.readText() }).getJSONArray("oobCodes")
+                (0 until codes.length()).map { codes.getJSONObject(it) }
+                    .last { it.optString("email") == email && it.optString("requestType") == "PASSWORD_RESET" }.getString("oobCode")
+            } finally { connection.disconnect() }
+            auth.confirmPasswordReset(code, "new-secret123").await()
+            failure(AuthFailureReason.INVALID_CREDENTIALS) { repository.signIn(email, "secret123") }
+            repository.signIn(email, "new-secret123")
+            assertEquals(user, repository.currentUser.first())
         }
     }
 

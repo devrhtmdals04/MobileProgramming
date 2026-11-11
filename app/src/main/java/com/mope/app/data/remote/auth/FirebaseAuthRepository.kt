@@ -111,6 +111,18 @@ class FirebaseAuthRepository(
 
     private fun wasExplicitlySignedOut(): Boolean = logoutPreferences?.getBoolean("signedOut", false) == true
 
+    override suspend fun requestPasswordReset(email: String) {
+        val normalized = AuthInput.passwordReset(email)
+        authOperation {
+            try {
+                auth.sendPasswordResetEmail(normalized).await()
+            } catch (failure: FirebaseAuthException) {
+                // 프로젝트의 이메일 열거 방지 설정과 관계없이 가입 여부를 UI에 노출하지 않는다.
+                if (failure.errorCode != "ERROR_USER_NOT_FOUND") throw failure
+            }
+        }
+    }
+
     private suspend fun persistLogout(signedOut: Boolean) {
         val preferences = logoutPreferences ?: return
         withContext(Dispatchers.IO) {
