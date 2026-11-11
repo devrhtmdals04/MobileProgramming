@@ -32,7 +32,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 - HomeViewModel: 홍보 목록 Flow → Loading/Empty/Error/Content, 재시도 시 기존 Job 취소.
 - SearchViewModel: 목록·검색어·카테고리 Flow 결합. `filterClubs`는 공백 제거·이름/소개 포함 검색·카테고리 AND 조건을 수행한다. UI는 생명주기에 맞춰 수집한다.
 - ClubViewModel: route ID로 홍보/동아리 상세를 찾는다. 없는 ID는 Empty다. 상세 오류 시 뒤로 간 뒤 다시 여는 방식이다. 세밀한 상세 재시도 UX는 김민성의 후속 작업이다.
-- Auth/Profile: AuthViewModel이 세션 Flow·폼 상태·중복 제출 방지·오류 메시지를 처리한다. Mock 모드에서는 AuthRepository가 null이라 둘러보기만 가능하고, emulator/firebase 모드에서 실제 저장소와 연결한다. Chat/Request ViewModel은 아직 없다.
+- Auth/Profile: AuthViewModel이 세션 Flow·폼 상태·중복 제출 방지·오류 메시지를 처리한다. Mock 모드에서는 AuthRepository가 null이라 둘러보기만 가능하고, emulator/firebase 모드에서 실제 저장소와 연결한다. ChatListViewModel·ChatRoomViewModel과 상태/콜백을 제공하는 ChatRoutes를 준비했다. 실제 채팅 화면 연결과 Request ViewModel은 후속 작업이다.
 - Mock 데이터는 메모리의 읽기 전용 샘플이다. 영속 저장, 사용자 인증, 원격 변경 동기화는 없다.
 - 기본 UI는 작은 샘플 목록을 스크롤 Column으로 표시한다. 실제 데이터 연결 시 김민성이 LazyColumn과 목록 규모·스크롤 복원 정책을 검토한다.
 
