@@ -126,3 +126,14 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - 최종 회귀: `npm run test:rules` users·채팅·동아리 단건 권한 20개 통과. 기본 Mock 모드 `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug` 통과(단위 테스트 20개, 실패 0개), `git diff --check` 통과.
 - Push 전 원격 `feature/auth-auth-01` 병합 변경을 확인하고 인증 UI·AuthViewModel·Navigation 커밋들을 보존해 통합했다. 병합 후 기본 Mock APK 빌드·Lint·단위 테스트 27개 통과. 채팅 UI는 연결하지 않았다.
 - 병합 후 Android 인증·채팅 통합 테스트도 12개 통과, 실패 0개(프로세스 단계 테스트 1개 의도적 skip).
+
+## 채팅 UI 연결 준비 (2026-11-11)
+
+- ChatListViewModel·ChatRoomViewModel·ChatUiState 및 상태/콜백만 전달하는 Compose Route 어댑터를 추가했다. 기존 화면 디자인·Navigation 연결은 유지한다.
+- 새 ViewModel 테스트 13개 통과. 전체 JVM 단위 테스트 40개, 실패 0개. Mock APK 빌드·Lint 통과.
+- 중복 제출 방지, 같은 ID/본문 재시도, 새 입력 보존, 서버 수신과 로컬 전송 행 중복 제거, 오류 후 재구독, SavedStateHandle 스냅샷 복원과 명시적 재시도, 계정/대상 변경·권한 상실 시 상태 삭제, 화면 ViewModel 해제 시 구독·전송 취소를 검증했다.
+- UI가 보던 사용자와 실제 Firebase 세션이 다르면 전송을 차단하는 expectedUserId 검사를 추가했다.
+- Android 인증·채팅 통합 테스트 13개 통과, 실패 0개(별도 프로세스 단계 테스트 1개 의도적 skip). 실제 Repository → ViewModel → 상태의 학생 전송·관리자 답변·로그아웃 흐름을 포함한다.
+- SavedStateHandle 검증은 스냅샷으로 ViewModel을 재생성한 테스트다. 새 채팅 UI의 실제 프로세스 종료/복원 및 시각 검증은 아직 수행하지 않았다.
+- `npm run test:chat:demo` 1개 통과: 학생·관리자 데모 계정과 photo 동아리·방·예시 메시지 두 개를 준비하고 두 번째 실행에서도 동일 ID·생성 시각·메시지 수가 유지되는 것을 확인했다. 이 스크립트는 localhost의 demo-mope 전용이며 기존 사진부 Mock ID와 일치한다.
+- 화면 인계 문서 `docs/chat-ui-handoff.md`에 Route content 연결, 상태/버튼 매핑, Mock 분기, SavedState 범위와 데모 실행 절차를 기록했다. 시각 UI와 Navigation 연결은 미완료다.

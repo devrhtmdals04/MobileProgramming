@@ -46,6 +46,8 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 
 채팅 Repository는 Android 에뮬레이터를 부팅한 뒤 `npm run test:chat:android`로 검증합니다. 방 생성·목록 구독, 두 계정 메시지 교환, 같은 ID 재전송, 최신 50개 정렬, 비참여자 접근 거절과 로그아웃을 실제 SDK로 검사합니다. 재시도 시에는 첫 전송 전에 `newMessageId()`로 만든 ID를 보관해야 합니다. [채팅 구현 계약](docs/architecture.md#채팅-repository-구현)을 참고하세요.
 
+채팅 UI 연결용 `ChatListRoute`·`ChatRoomRoute`, ViewModel·상태·이벤트를 준비했습니다. 화면 담당자는 [채팅 UI 연결 안내](docs/chat-ui-handoff.md)의 상태/콜백 표를 따라 기존 디자인을 Route의 content에 연결하면 됩니다. 로컬 데이터는 `npm run dev:firebase` 실행 후 다른 터미널의 `npm run seed:chat:demo`로 준비합니다. 실제 채팅 화면·Navigation 연결은 아직 남아 있습니다.
+
 실제 앱 프로세스를 종료한 뒤 로그인·로그아웃 상태가 유지되는지는 `npm run test:auth:restart`로 검증합니다. 완전히 부팅된 Android 에뮬레이터 한 대와 위의 JDK 설정이 필요합니다. 가입 → 재실행 복원 → 로그아웃 → 재실행 미인증의 네 단계에서 PID 변경을 확인합니다.
 
 ## 디렉터리

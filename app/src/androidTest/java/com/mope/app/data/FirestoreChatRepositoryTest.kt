@@ -2,6 +2,8 @@ package com.mope.app.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelStore
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -15,6 +17,12 @@ import com.mope.app.data.remote.auth.FirebaseAuthRepository
 import com.mope.app.data.remote.chat.FirestoreChatRepository
 import com.mope.app.data.repository.ChatFailure
 import com.mope.app.data.repository.ChatFailureReason
+import com.mope.app.ui.screens.chat.ChatConnection
+import com.mope.app.ui.screens.chat.ChatDelivery
+import com.mope.app.ui.screens.chat.ChatListViewModel
+import com.mope.app.ui.screens.chat.ChatRoomViewModel
+import com.mope.app.ui.screens.chat.ChatTarget
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -24,6 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.junit.After
 import org.junit.AfterClass
@@ -121,6 +130,10 @@ class FirestoreChatRepositoryTest {
             failure(ChatFailureReason.INVALID_INPUT) { student.sendMessage(room, "   ") }
             failure(ChatFailureReason.INVALID_INPUT) { student.sendMessage(room, "가".repeat(2001)) }
             failure(ChatFailureReason.INVALID_INPUT) { student.sendMessage(room, "본문", "bad/id") }
+            failure(ChatFailureReason.UNAUTHENTICATED) {
+                student.sendMessage(room, "다른 세션의 입력", student.newMessageId(), expectedUserId = adminSdk.auth.currentUser!!.uid)
+            }
+            assertTrue(student.observeMessages(room).first().isEmpty())
         }
     }
 
@@ -191,6 +204,41 @@ class FirestoreChatRepositoryTest {
                 auth.signOut()
                 failure(ChatFailureReason.UNAUTHENTICATED) { chat.observeMyRooms().first() }
             } finally { auth.signOut() }
+        }
+    }
+
+    @Test fun viewModelsExposeRealExchangeForUi() = runBlocking {
+        withTimeout(60_000) {
+            val store = ViewModelStore()
+            val auth = FirebaseAuthRepository(studentSdk.auth, studentSdk.store)
+            val pair = withContext(Dispatchers.Main) {
+                val room = ChatRoomViewModel(ChatTarget.Club(clubId), auth, student, SavedStateHandle())
+                val list = ChatListViewModel(auth, student)
+                store.put("room", room); store.put("list", list)
+                room to list
+            }
+            val (room, list) = pair
+            try {
+                val connected = room.state.first { it.connection == ChatConnection.READY }
+                val roomId = requireNotNull(connected.roomId)
+                assertTrue(list.state.first { it.rooms.any { item -> item.id == roomId } }.rooms.isNotEmpty())
+                withContext(Dispatchers.Main) {
+                    room.onDraftChange("ViewModel에서 전송")
+                    assertTrue(room.state.value.canSend)
+                    room.sendDraft()
+                }
+                assertEquals("ViewModel에서 전송", admin.observeMessages(roomId).first { it.isNotEmpty() }.last().text)
+                val confirmed = room.state.first { state -> state.timeline.any { it.text == "ViewModel에서 전송" && it.delivery == ChatDelivery.SENT } }
+                assertEquals(1, confirmed.timeline.count { it.text == "ViewModel에서 전송" })
+                admin.sendMessage(roomId, "관리자 답변")
+                assertFalse(room.state.first { state -> state.timeline.any { it.text == "관리자 답변" } }.timeline.last().isMine)
+                auth.signOut()
+                val signedOut = room.state.first { it.connection == ChatConnection.SIGNED_OUT }
+                assertTrue(signedOut.timeline.isEmpty())
+                assertTrue(list.state.first { it.error?.requiresSignIn == true }.rooms.isEmpty())
+            } finally {
+                withContext(Dispatchers.Main) { store.clear() }
+            }
         }
     }
 

@@ -32,7 +32,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 - HomeViewModel: 홍보 목록 Flow → Loading/Empty/Error/Content, 재시도 시 기존 Job 취소.
 - SearchViewModel: 목록·검색어·카테고리 Flow 결합. `filterClubs`는 공백 제거·이름/소개 포함 검색·카테고리 AND 조건을 수행한다. UI는 생명주기에 맞춰 수집한다.
 - ClubViewModel: route ID로 홍보/동아리 상세를 찾는다. 없는 ID는 Empty다. 상세 오류 시 뒤로 간 뒤 다시 여는 방식이다. 세밀한 상세 재시도 UX는 김민성의 후속 작업이다.
-- Auth/Profile: AuthViewModel이 세션 Flow·폼 상태·중복 제출 방지·오류 메시지를 처리한다. Mock 모드에서는 AuthRepository가 null이라 둘러보기만 가능하고, emulator/firebase 모드에서 실제 저장소와 연결한다. Chat/Request ViewModel은 아직 없다.
+- Auth/Profile: AuthViewModel이 세션 Flow·폼 상태·중복 제출 방지·오류 메시지를 처리한다. Mock 모드에서는 AuthRepository가 null이라 둘러보기만 가능하고, emulator/firebase 모드에서 실제 저장소와 연결한다. ChatListViewModel·ChatRoomViewModel과 상태/콜백을 제공하는 ChatRoutes를 준비했다. 실제 채팅 화면 연결과 Request ViewModel은 후속 작업이다.
 - Mock 데이터는 메모리의 읽기 전용 샘플이다. 영속 저장, 사용자 인증, 원격 변경 동기화는 없다.
 - 기본 UI는 작은 샘플 목록을 스크롤 Column으로 표시한다. 실제 데이터 연결 시 김민성이 LazyColumn과 목록 규모·스크롤 복원 정책을 검토한다.
 
@@ -171,6 +171,8 @@ SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한�
 
 ## 채팅 Repository 구현
 
+UI 연결용 ViewModel·Route·데모 실행 절차는 [채팅 UI 연결 안내](chat-ui-handoff.md)를 따른다. 현재 화면 디자인과 Navigation은 아직 이 어댑터를 호출하지 않는다.
+
 `FirestoreChatRepository`는 `ChatRepository`의 방 생성·본인 목록·메시지 구독·전송을 구현한다.
 `FirebaseBackend.createRepositories()`가 인증과 채팅에 같은 Auth/Firestore 및 명시적
 로그아웃 상태를 전달한다. `MopeApplication.chatRepository`는 Mock이면 null이다.
@@ -182,6 +184,7 @@ SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한�
 - `observeMessages(roomId)`는 서버 시각 오름차순, 같은 시각이면 문서 ID 순서의 최신 50개를 반환한다. 이전 메시지 페이지 기능은 아직 없다. 시각은 remote에서 millis로 변환하고 pending timestamp는 null로 표현한다.
 - 최초 서버 검증 전 캐시 snapshot은 발행하지 않는다. 오프라인에서 과거 캐시를 새 구독의 권한 확인으로 취급하지 않는다. 전송 transaction은 네트워크 연결이 필요하며 오프라인 큐는 구현하지 않았다.
 - 화면은 첫 전송 전에 `newMessageId()`로 만든 ID와 본문을 보관하고 실패 후 같은 값을 재사용한다. 같은 ID·발신자·본문은 기존 문서를 확인해 쓰기 없이 성공한다. 다른 내용의 같은 ID는 CONFLICT다. 기본 인자에 맡겨 매번 새 ID로 호출하면 재시도 중복 방지를 보장하지 않는다.
+- ChatRoomViewModel은 ID 보관과 재시도를 수행하고 expectedUserId로 입력 당시 세션을 확인한다. 이 인자는 발신자 지정이 아니며 실제 발신자는 SDK의 인증 사용자에서 얻는다.
 - Query listener와 Auth listener는 구독 종료 시 모두 제거한다. 로그아웃·계정 변경은 UNAUTHENTICATED로 구독을 종료한다. UI는 기존 개인 목록을 지우고 다시 로그인한 뒤 재구독한다. 전송 직전과 구독 버퍼 전달 직전에도 현재 uid를 검사한다.
 - 오류는 SDK 타입 대신 `ChatFailure`로 전달하고 코루틴 취소는 그대로 전파한다. 구독 실패 후 재시도는 재구독으로 수행한다.
 

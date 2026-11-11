@@ -102,11 +102,12 @@ class FirestoreChatRepository(
         }.await().also { requireSameUser(uid) }
     }
 
-    override suspend fun sendMessage(roomId: String, text: String, messageId: String) = operation {
+    override suspend fun sendMessage(roomId: String, text: String, messageId: String, expectedUserId: String?) = operation {
         checkRoomId(roomId)
         checkId(messageId)
         if (text.isBlank() || text.length > 2000) throw ChatFailure(ChatFailureReason.INVALID_INPUT)
         val uid = requireUser()
+        if (expectedUserId != null && expectedUserId != uid) throw ChatFailure(ChatFailureReason.UNAUTHENTICATED)
         val room = firestore.collection("chatRooms").document(roomId)
         val ref = room.collection("messages").document(messageId)
         firestore.runTransaction { tx ->

@@ -7,7 +7,10 @@
     "test:rules": "firebase emulators:exec --only firestore --project demo-mope \"node --test --test-concurrency=1 tests/firestore/*.test.mjs\"",
     "test:auth:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator :app:connectedDebugAndroidTest\"",
     "test:auth:restart": "firebase emulators:exec --only auth,firestore --project demo-mope \"node scripts/test-auth-restart.mjs\"",
-    "test:chat:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator -Pandroid.testInstrumentationRunnerArguments.class=com.mope.app.data.FirestoreChatRepositoryTest :app:connectedDebugAndroidTest\""
+    "test:chat:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator -Pandroid.testInstrumentationRunnerArguments.class=com.mope.app.data.FirestoreChatRepositoryTest :app:connectedDebugAndroidTest\"",
+    "dev:firebase": "firebase emulators:start --only auth,firestore --project demo-mope",
+    "seed:chat:demo": "node scripts/seed-chat-demo.mjs",
+    "test:chat:demo": "firebase emulators:exec --only auth,firestore --project demo-mope \"node --test tests/demo/chat-demo.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",
