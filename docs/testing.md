@@ -135,3 +135,5 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - UI가 보던 사용자와 실제 Firebase 세션이 다르면 전송을 차단하는 expectedUserId 검사를 추가했다.
 - Android 인증·채팅 통합 테스트 13개 통과, 실패 0개(별도 프로세스 단계 테스트 1개 의도적 skip). 실제 Repository → ViewModel → 상태의 학생 전송·관리자 답변·로그아웃 흐름을 포함한다.
 - SavedStateHandle 검증은 스냅샷으로 ViewModel을 재생성한 테스트다. 새 채팅 UI의 실제 프로세스 종료/복원 및 시각 검증은 아직 수행하지 않았다.
+- `npm run test:chat:demo` 1개 통과: 학생·관리자 데모 계정과 photo 동아리·방·예시 메시지 두 개를 준비하고 두 번째 실행에서도 동일 ID·생성 시각·메시지 수가 유지되는 것을 확인했다. 이 스크립트는 localhost의 demo-mope 전용이며 기존 사진부 Mock ID와 일치한다.
+- 화면 인계 문서 `docs/chat-ui-handoff.md`에 Route content 연결, 상태/버튼 매핑, Mock 분기, SavedState 범위와 데모 실행 절차를 기록했다. 시각 UI와 Navigation 연결은 미완료다.

@@ -12,6 +12,9 @@ interface ChatRepository {
     fun observeMessages(roomId: String): Flow<List<Message>>
     /** UI는 최초 전송 전에 생성한 ID를 저장하고 재시도에 그대로 사용한다. */
     fun newMessageId(): String
-    /** 같은 ID·발신자·본문의 재시도는 성공, 다른 내용의 ID 재사용은 충돌이다. */
+    /**
+     * 같은 ID·발신자·본문의 재시도는 성공, 다른 내용의 ID 재사용은 충돌이다.
+     * expectedUserId는 UI가 입력을 받던 세션의 확인용이며 발신자를 임의 지정하지 않는다.
+     */
     suspend fun sendMessage(roomId: String, text: String, messageId: String = newMessageId(), expectedUserId: String? = null)
 }
