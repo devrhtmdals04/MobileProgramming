@@ -32,7 +32,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 - HomeViewModel: 홍보 목록 Flow → Loading/Empty/Error/Content, 재시도 시 기존 Job 취소.
 - SearchViewModel: 목록·검색어·카테고리 Flow 결합. `filterClubs`는 공백 제거·이름/소개 포함 검색·카테고리 AND 조건을 수행한다. UI는 생명주기에 맞춰 수집한다.
 - ClubViewModel: route ID로 홍보/동아리 상세를 찾는다. 없는 ID는 Empty다. 상세 오류 시 뒤로 간 뒤 다시 여는 방식이다. 세밀한 상세 재시도 UX는 김민성의 후속 작업이다.
-- Auth/Chat/Request/Profile: UI 골격이다. AuthViewModel·ChatViewModel·RequestViewModel은 아직 없다. 로컬 입력 상태만 Compose에서 관리하고 실제 인증·저장·송신은 비활성이다. 해당 기능 착수 시 로직을 ViewModel로 옮긴다.
+- Auth/Profile: AuthViewModel이 세션 Flow·폼 상태·중복 제출 방지·오류 메시지를 처리한다. Mock 모드에서는 AuthRepository가 null이라 둘러보기만 가능하고, emulator/firebase 모드에서 실제 저장소와 연결한다. Chat/Request ViewModel은 아직 없다.
 - Mock 데이터는 메모리의 읽기 전용 샘플이다. 영속 저장, 사용자 인증, 원격 변경 동기화는 없다.
 - 기본 UI는 작은 샘플 목록을 스크롤 Column으로 표시한다. 실제 데이터 연결 시 김민성이 LazyColumn과 목록 규모·스크롤 복원 정책을 검토한다.
 
@@ -62,11 +62,11 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 
 UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 전용 StateFlow를 제공하고 변이 Flow는 private으로 둔다. `viewModelScope`에서 작업하고, 여러 입력이 결합되는 상태는 `stateIn`과 WhileSubscribed를 사용한다. 인증·채팅 리스너는 `callbackFlow`와 `awaitClose`에서 정리한다. 로그아웃 시 채팅 구독은 오류로 종료하며 UI는 개인 상태를 폐기하고 보호 화면 백스택을 비워야 한다. 신청 구독은 후속 구현이다.
 
-현재 홈·탐색·상세는 상태 UI를 사용한다. 정적 골격까지 가짜 로딩·가짜 서버 오류를 만들지 않았다. 인증 복원 중에는 보호 화면을 잠깐 표시하지 않도록 별도 Loading 상태를 AUTH-02에서 구현한다. 검색 query의 프로세스 종료 복원과 실제 인증 Navigation은 아직 구현되지 않았다.
+현재 홈·탐색·상세는 상태 UI를 사용한다. 정적 골격까지 가짜 로딩·가짜 서버 오류를 만들지 않았다. 인증 복원 중에는 AuthSessionUiState.Restoring으로 보호 화면을 바로 노출하지 않는다. 로그아웃·세션 만료 시 auth로 백스택을 비운다. Mock 둘러보기는 예외적으로 보호 화면을 열 수 있다. 검색 query의 프로세스 종료 복원은 아직 구현되지 않았다.
 
 ## Firebase 도입 절차
 
-Firebase Auth·Firestore SDK와 users Rules를 추가했다. 기본값은 Mock이며 JSON을 놓는 것만으로 Firebase가 활성화되지 않는다. 현재 화면은 Mock 흐름이며 인증 Repository의 UI 연결은 김민성 담당 후속 작업이다.
+Firebase Auth·Firestore SDK와 users Rules를 추가했다. 기본값은 Mock이며 JSON을 놓는 것만으로 Firebase가 활성화되지 않는다. 기본 화면은 Mock 흐름이며 emulator/firebase 모드에서는 김민성이 구현한 AuthViewModel·로그인/회원가입·프로필·인증 Navigation이 연결된다.
 
 1. 팀이 사용할 Firebase 프로젝트를 만들거나 선택하고 두 팀원의 적절한 콘솔 권한을 부여한다. 프로젝트 ID·담당자는 문서에 기록하되 서비스 계정 비밀은 기록하지 않는다.
 2. Android 앱 `com.mope.app`을 등록한다. Firebase에서 발급받은 `google-services.json`을 로컬 `app/`에 둔다. 파일·키를 직접 만들어 넣지 않는다.
@@ -119,7 +119,7 @@ PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상�
 실제 프로세스 재시작이나 Firebase 영속 세션 검증을 대신하지 않는다.
 복원 완료는 `completeRestoration()`으로 테스트에서 명시적으로 제어한다.
 users Rules와 Emulator 테스트는 `firestore.rules` 및 `tests/firestore/`에 구현했다.
-Firebase 인증 구현은 `data/remote/auth/`에 추가했다. users·채팅 규칙은 구현했고 나머지 컬렉션 규칙과 인증 UI 연결은 후속 작업이다.
+Firebase 인증 구현은 `data/remote/auth/`에 추가했다. users·채팅 규칙은 구현했고 인증 UI는 연결했고 나머지 컬렉션 규칙과 채팅 UI 연결은 후속 작업이다.
 AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
 
 ## 인증 원격 구현과 통합 테스트
@@ -174,7 +174,7 @@ SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한�
 `FirestoreChatRepository`는 `ChatRepository`의 방 생성·본인 목록·메시지 구독·전송을 구현한다.
 `FirebaseBackend.createRepositories()`가 인증과 채팅에 같은 Auth/Firestore 및 명시적
 로그아웃 상태를 전달한다. `MopeApplication.chatRepository`는 Mock이면 null이다.
-화면·ViewModel은 아직 연결하지 않았으며 UI에서 Firebase SDK에 직접 접근하지 않는다.
+채팅 화면·ViewModel은 아직 연결하지 않았으며 UI에서 Firebase SDK에 직접 접근하지 않는다.
 
 - `getOrCreateRoom(clubId)`는 transaction에서 동아리 관리자와 정규 ID 방을 읽고 기존 방을 재사용한다. 없으면 현재 사용자·관리자를 고정해 생성한다. 자기 자신 문의와 잘못된 ID를 거절한다.
 - 의존 권한으로 로그인 사용자의 `clubs/{clubId}` 단건 조회만 허용했다. clubs 목록·쓰기, 상세/검색 Repository는 별도 작업이다.

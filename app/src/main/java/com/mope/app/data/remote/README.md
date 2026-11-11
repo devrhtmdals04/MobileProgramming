@@ -4,5 +4,5 @@
 Auth·Firestore SDK를 추가했고 Google Services 플러그인은 firebase 모드에서만 적용한다.
 `chat/FirestoreChatRepository`에 채팅방 생성·목록·메시지 구독·ID 기반 전송 재시도를 구현했다.
 인증·채팅은 MopeApplication의 단일 FirebaseRepositories에서 같은 Auth/Firestore를 공유한다.
-동아리 목록·신청 원격 구현과 인증·채팅 UI 연결은 후속 작업이다.
+인증 UI는 연결했으며 동아리 목록·신청 원격 구현과 채팅 UI 연결은 후속 작업이다.
 계약, 오류 처리, timestamp 변환, snapshot listener 해제 기준은 docs/architecture.md 참조.

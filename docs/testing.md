@@ -65,6 +65,12 @@ ViewModel은 fake Repository와 테스트 Main dispatcher로 검증한다. Fireb
 
 Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기준으로 SEC-01 자동 테스트에 구현한다. 테스트 파일·규칙·실행 방법과 통과 로그가 없으면 검증 완료로 기록하지 않는다.
 
+## AuthViewModel 화면 상태 검증 (2026-11-09)
+
+- `AuthViewModelTest` 7개: 복원 대기, 로그인 성공·비밀번호 초기화, 잘못된 입력 메시지, 처리 중 중복 제출 무시, 중복 이메일 가입 실패, 프로필 불가 후 재시도, 로그아웃.
+- Mock 기본 모드에서 `:app:testDebugUnitTest` 통과. 실제 Firebase 콘솔·프로세스 강제 종료·물리 기기 Navigation은 미검증이다.
+- AuthScreen은 로그인/회원가입 전환·처리 중 비활성·오류 문구를 표시한다. ProfileScreen은 역할 표시와 로그아웃을 제공한다.
+
 ## 인증 계약 fake 검증
 
 - 테스트 전용 `FakeAuthRepository`·`FakeAuthStore` 추가. 앱 실행 경로에는 연결하지 않음.
@@ -118,3 +124,5 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - 테스트의 동아리 fixture만 로컬 Emulator의 owner 권한으로 주입했다. 방 생성·전송·구독은 실제 SDK와 Rules를 통과한다. 생성에 필요한 로그인 사용자의 clubs 단건 조회만 최소 추가했고 목록·쓰기 권한은 열지 않았다.
 - 실제 Firebase 프로젝트·물리 기기·채팅 UI·오래된 메시지 페이지·오프라인 전송 큐는 검증/구현 범위 밖이다. 취소 시 리스너 제거는 callbackFlow의 awaitClose에서 수행한다.
 - 최종 회귀: `npm run test:rules` users·채팅·동아리 단건 권한 20개 통과. 기본 Mock 모드 `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug` 통과(단위 테스트 20개, 실패 0개), `git diff --check` 통과.
+- Push 전 원격 `feature/auth-auth-01` 병합 변경을 확인하고 인증 UI·AuthViewModel·Navigation 커밋들을 보존해 통합했다. 병합 후 기본 Mock APK 빌드·Lint·단위 테스트 27개 통과. 채팅 UI는 연결하지 않았다.
+- 병합 후 Android 인증·채팅 통합 테스트도 12개 통과, 실패 0개(프로세스 단계 테스트 1개 의도적 skip).
