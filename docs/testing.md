@@ -106,3 +106,15 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 - 참여자/발신자/생성 시각 위조, 없는 동아리·사용자, 자기 자신과 채팅, 본문 길이·타입·공백, 목록 쿼리 조건, 동시 transaction에서 같은 방 생성·재사용을 검증했다.
 - 관리자 변경 시 새 관리자의 과거 대화 접근 거절, 여러 줄 메시지 허용, 기존 메시지 ID 재조회 허용과 덮어쓰기 거절도 확인했다.
 - clubs 문서는 테스트 fixture로만 Rules를 우회해 준비했다. 채팅 요청 자체는 Rules를 우회하지 않는다. clubs 클라이언트 권한·ChatRepository·실시간 채팅 UI·운영 Firebase 배포는 미구현/미수행이다.
+
+## 실시간 채팅 Repository 통합 검증 (2026-11-11)
+
+- `FirestoreChatRepository`와 `ChatFailure`를 구현하고 앱에 인증·채팅이 공유하는 Firebase backend를 연결했다. Mock 화면은 유지하며 UI를 실제 채팅에 연결하지 않았다.
+- `npm run test:chat:android`: Android Pixel_4/API 37에서 채팅 7개 테스트 통과.
+- `npm run test:auth:android`: 최종 인증 5개 + 채팅 7개 = 12개 통과, 실패 0개. 별도 프로세스 재실행 단계 테스트 1개는 의도적 skip.
+- 검증 흐름: 생성 전 목록 구독 → 중복 없는 방 생성·목록 반영 → 학생/관리자 양방향 실시간 수신 → 재구독 후 저장 메시지 확인. 동시 생성, 같은 메시지 ID 동시 재전송, 다른 내용/발신자의 ID 충돌도 확인했다.
+- 같은 서버 시각의 55개 메시지 중 문서 ID 기준 최신 50개가 정렬되어 반환되는지 확인했다. 비참여자 읽기/쓰기 거절, 빈/긴 본문·잘못된 ID, 자기 자신 문의·없는 동아리, 구독 취소·로그아웃·다른 사용자 로그인도 검사했다.
+- FirebaseBackend의 Auth/Firestore 공유와 명시적 로그아웃 guard를 앱 경로로 확인했다. `npm run test:auth:restart`의 실제 프로세스 재실행 네 단계도 통과했다.
+- 테스트의 동아리 fixture만 로컬 Emulator의 owner 권한으로 주입했다. 방 생성·전송·구독은 실제 SDK와 Rules를 통과한다. 생성에 필요한 로그인 사용자의 clubs 단건 조회만 최소 추가했고 목록·쓰기 권한은 열지 않았다.
+- 실제 Firebase 프로젝트·물리 기기·채팅 UI·오래된 메시지 페이지·오프라인 전송 큐는 검증/구현 범위 밖이다. 취소 시 리스너 제거는 callbackFlow의 awaitClose에서 수행한다.
+- 최종 회귀: `npm run test:rules` users·채팅·동아리 단건 권한 20개 통과. 기본 Mock 모드 `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug` 통과(단위 테스트 20개, 실패 0개), `git diff --check` 통과.

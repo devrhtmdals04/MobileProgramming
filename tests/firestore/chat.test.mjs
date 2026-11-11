@@ -66,6 +66,16 @@ test('방 목록은 본인 participantIds 조건으로만 조회', async () => {
   await assertFails(getDocs(query(collection(db('bob'), 'chatRooms'), where('participantIds', 'array-contains', 'alice'))));
 });
 
+test('채팅 관리자 확인용 동아리 단건 조회만 허용, 목록·쓰기·비로그인 조회 거절', async () => {
+  await assertSucceeds(getDoc(doc(db('alice'), 'clubs/club1')));
+  await assertSucceeds(getDoc(doc(db('admin'), 'clubs/club1')));
+  await assertFails(getDoc(doc(db(), 'clubs/club1')));
+  await assertFails(getDocs(collection(db('alice'), 'clubs')));
+  await assertFails(setDoc(doc(db('alice'), 'clubs/new'), { adminId: 'alice' }));
+  await assertFails(updateDoc(doc(db('admin'), 'clubs/club1'), { adminId: 'alice' }));
+  await assertFails(deleteDoc(doc(db('admin'), 'clubs/club1')));
+});
+
 test('비로그인·비참여자의 방·메시지 읽기/쓰기 거절', async () => {
   await createRoom();
   await setDoc(messageRef('alice'), message());

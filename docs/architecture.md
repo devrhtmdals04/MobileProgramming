@@ -44,7 +44,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 |---|---|---|
 | ClubRepository | observeClubs, observePromotions | 김민성 UI·ViewModel·원격 구현 |
 | AuthRepository | currentUser, signIn, signUp, signOut | 고승민 Repository / 김민성 UI·ViewModel |
-| ChatRepository | observeMyRooms, getOrCreateRoom, observeMessages, sendMessage | 고승민 Repository / 김민성 UI·ViewModel |
+| ChatRepository | observeMyRooms, getOrCreateRoom, observeMessages, newMessageId, sendMessage | 고승민 Repository / 김민성 UI·ViewModel |
 | RequestRepository | submitClubRequest, observeMyRequests, observePendingRequests, reviewRequest, applyToClub, observeMyApplications | 고승민 개설 Repository / 김민성 가입 Repository 및 전체 UI·ViewModel |
 
 홍보글 등록은 `createPromotion(clubId, title, body): String` 계약 추가가 필요하다. 회원가입·인증 결과로 사용자 uid를 직접 전달받아 임의 생성하지 않는다. 구현체가 현재 인증 사용자 ID를 읽는다. `UserRole`은 화면용 STUDENT/CLUB_ADMIN 표시이며 실제 쓰기 권한은 `clubs.adminId`와 Rules로 확인한다. 운영자 판단은 신뢰된 custom claim을 사용하는 별도 capability로 Phase 2에 추가한다. 현재 모델에 운영자 필드를 조급하게 노출하지 않았다.
@@ -60,7 +60,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 
 ## 상태와 수명주기
 
-UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 전용 StateFlow를 제공하고 변이 Flow는 private으로 둔다. `viewModelScope`에서 작업하고, 여러 입력이 결합되는 상태는 `stateIn`과 WhileSubscribed를 사용한다. 원격 리스너는 `callbackFlow`와 `awaitClose { registration.remove() }`로 정리할 예정이다. 로그아웃 시 채팅·신청 구독과 개인 상태를 폐기하고 보호 화면 백스택을 비운다.
+UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 전용 StateFlow를 제공하고 변이 Flow는 private으로 둔다. `viewModelScope`에서 작업하고, 여러 입력이 결합되는 상태는 `stateIn`과 WhileSubscribed를 사용한다. 인증·채팅 리스너는 `callbackFlow`와 `awaitClose`에서 정리한다. 로그아웃 시 채팅 구독은 오류로 종료하며 UI는 개인 상태를 폐기하고 보호 화면 백스택을 비워야 한다. 신청 구독은 후속 구현이다.
 
 현재 홈·탐색·상세는 상태 UI를 사용한다. 정적 골격까지 가짜 로딩·가짜 서버 오류를 만들지 않았다. 인증 복원 중에는 보호 화면을 잠깐 표시하지 않도록 별도 Loading 상태를 AUTH-02에서 구현한다. 검색 query의 프로세스 종료 복원과 실제 인증 Navigation은 아직 구현되지 않았다.
 
@@ -168,3 +168,33 @@ SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한�
 공식 근거: [Android SDK 릴리스](https://firebase.google.com/support/release-notes/android),
 [Auth Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_auth),
 [Firestore Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_firestore).
+
+## 채팅 Repository 구현
+
+`FirestoreChatRepository`는 `ChatRepository`의 방 생성·본인 목록·메시지 구독·전송을 구현한다.
+`FirebaseBackend.createRepositories()`가 인증과 채팅에 같은 Auth/Firestore 및 명시적
+로그아웃 상태를 전달한다. `MopeApplication.chatRepository`는 Mock이면 null이다.
+화면·ViewModel은 아직 연결하지 않았으며 UI에서 Firebase SDK에 직접 접근하지 않는다.
+
+- `getOrCreateRoom(clubId)`는 transaction에서 동아리 관리자와 정규 ID 방을 읽고 기존 방을 재사용한다. 없으면 현재 사용자·관리자를 고정해 생성한다. 자기 자신 문의와 잘못된 ID를 거절한다.
+- 의존 권한으로 로그인 사용자의 `clubs/{clubId}` 단건 조회만 허용했다. clubs 목록·쓰기, 상세/검색 Repository는 별도 작업이다.
+- `observeMyRooms()`는 participantIds array-contains uid 쿼리를 사용한다. 최근 대화순 정렬은 아직 제공하지 않는다.
+- `observeMessages(roomId)`는 서버 시각 오름차순, 같은 시각이면 문서 ID 순서의 최신 50개를 반환한다. 이전 메시지 페이지 기능은 아직 없다. 시각은 remote에서 millis로 변환하고 pending timestamp는 null로 표현한다.
+- 최초 서버 검증 전 캐시 snapshot은 발행하지 않는다. 오프라인에서 과거 캐시를 새 구독의 권한 확인으로 취급하지 않는다. 전송 transaction은 네트워크 연결이 필요하며 오프라인 큐는 구현하지 않았다.
+- 화면은 첫 전송 전에 `newMessageId()`로 만든 ID와 본문을 보관하고 실패 후 같은 값을 재사용한다. 같은 ID·발신자·본문은 기존 문서를 확인해 쓰기 없이 성공한다. 다른 내용의 같은 ID는 CONFLICT다. 기본 인자에 맡겨 매번 새 ID로 호출하면 재시도 중복 방지를 보장하지 않는다.
+- Query listener와 Auth listener는 구독 종료 시 모두 제거한다. 로그아웃·계정 변경은 UNAUTHENTICATED로 구독을 종료한다. UI는 기존 개인 목록을 지우고 다시 로그인한 뒤 재구독한다. 전송 직전과 구독 버퍼 전달 직전에도 현재 uid를 검사한다.
+- 오류는 SDK 타입 대신 `ChatFailure`로 전달하고 코루틴 취소는 그대로 전파한다. 구독 실패 후 재시도는 재구독으로 수행한다.
+
+```kotlin
+val messageId = repository.newMessageId() // 전송 대기 상태에 저장
+repository.sendMessage(roomId, text, messageId)
+// 재시도할 때도 같은 roomId, text, messageId 사용
+```
+
+Android 에뮬레이터 한 대를 부팅하고 JDK를 설정한 뒤 `npm run test:chat:android`로
+전용 통합 테스트를 실행한다. `npm run test:auth:android`는 인증·채팅 전체를 실행한다.
+테스트의 clubs fixture만 로컬 Emulator owner 권한으로 준비하며 Repository 호출은
+실제 users·clubs·채팅 Rules를 적용한다. 물리 기기·운영 Firebase·채팅 UI는 범위 밖이다.
+
+공식 참고: [실시간 구독](https://firebase.google.com/docs/firestore/query-data/listen),
+[트랜잭션](https://firebase.google.com/docs/firestore/manage-data/transactions).

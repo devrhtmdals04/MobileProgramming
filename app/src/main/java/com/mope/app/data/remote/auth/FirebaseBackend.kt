@@ -9,9 +9,13 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.MemoryCacheSettings
 import com.mope.app.BuildConfig
 import com.mope.app.data.repository.AuthRepository
+import com.mope.app.data.repository.ChatRepository
+import com.mope.app.data.remote.chat.FirestoreChatRepository
+
+data class FirebaseRepositories(val auth: AuthRepository, val chat: ChatRepository)
 
 object FirebaseBackend {
-    fun createAuthRepository(context: Context): AuthRepository {
+    fun createRepositories(context: Context): FirebaseRepositories {
         check(BuildConfig.BACKEND != "mock") { "Mock mode has no real authentication" }
         val emulator = BuildConfig.BACKEND == "emulator"
         check(!emulator || BuildConfig.DEBUG) { "Emulator backend is debug-only" }
@@ -33,7 +37,10 @@ object FirebaseBackend {
             firestore.firestoreSettings = FirebaseFirestoreSettings.Builder()
                 .setLocalCacheSettings(MemoryCacheSettings.newBuilder().build()).build()
         }
-        return FirebaseAuthRepository(auth, firestore,
-            context.getSharedPreferences("auth-logout-${app.name}", Context.MODE_PRIVATE))
+        val logoutPreferences = context.getSharedPreferences("auth-logout-${app.name}", Context.MODE_PRIVATE)
+        val authRepository = FirebaseAuthRepository(auth, firestore, logoutPreferences)
+        return FirebaseRepositories(authRepository, FirestoreChatRepository(auth, firestore) {
+            if (logoutPreferences.getBoolean("signedOut", false)) null else auth.currentUser?.uid
+        })
     }
 }

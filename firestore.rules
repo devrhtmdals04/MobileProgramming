@@ -28,6 +28,11 @@ service cloud.firestore {
       return value is string && value.size() >= 1 && value.size() <= 128
         && value.split('__').size() == 1 && value.split('/').size() == 1;
     }
+    // 채팅방 생성 시 현재 관리자 확인에 필요한 최소 단건 조회.
+    // 동아리 목록·생성·수정 권한은 별도 담당 작업으로 남긴다.
+    match /clubs/{clubId} {
+      allow get: if request.auth != null;
+    }
     function isParticipant(room) {
       return request.auth != null && request.auth.uid in room.participantIds;
     }

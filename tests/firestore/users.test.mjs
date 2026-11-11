@@ -87,7 +87,7 @@ test('이름 길이·타입·공백 및 위조 시각·필드 누락 거절', as
 });
 
 test('정의되지 않은 컬렉션과 사용자 하위 경로 거절', async () => {
-  for (const path of ['clubs/club1', 'users/alice/private/data']) {
+  for (const path of ['promotions/post1', 'users/alice/private/data']) {
     const ref = doc(db('alice'), path);
     await assertFails(setDoc(ref, { value: true }));
     await assertFails(getDoc(ref));
