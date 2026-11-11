@@ -15,6 +15,30 @@ import org.junit.Test
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AuthRepositoryContractTest {
+    @Test fun passwordResetDoesNotRevealAccountExistenceOrChangeSession() = runTest {
+        val repository = FakeAuthRepository()
+        repository.signUp("a@b.com", "secret", "승민")
+        val user = repository.currentUser.first()
+        repository.requestPasswordReset(" a@b.com ")
+        repository.requestPasswordReset("missing@b.com")
+        assertEquals(user, repository.currentUser.first())
+        repository.signOut()
+        repository.requestPasswordReset("a@b.com")
+        assertNull(repository.currentUser.first())
+        assertEquals(listOf("a@b.com", "missing@b.com", "a@b.com"), repository.passwordResetRequests)
+    }
+
+    @Test fun passwordResetValidationFailureAndCancellationAreNotSuccess() = runTest {
+        val repository = FakeAuthRepository()
+        failure(AuthFailureReason.INVALID_INPUT) { repository.requestPasswordReset("bad") }
+        repository.nextPasswordResetFailure = AuthFailure(AuthFailureReason.NETWORK)
+        failure(AuthFailureReason.NETWORK) { repository.requestPasswordReset("a@b.com") }
+        val cancelled = CancellationException("cancelled")
+        repository.nextPasswordResetFailure = cancelled
+        try { repository.requestPasswordReset("a@b.com"); fail("Expected cancellation") }
+        catch (actual: CancellationException) { assertSame(cancelled, actual) }
+        assertTrue(repository.passwordResetRequests.isEmpty())
+    }
     @Test fun restorationDoesNotEmitLoggedOutBeforeItCompletes() = runTest {
         val repository = FakeAuthRepository()
         val first = async { repository.currentUser.first() }
