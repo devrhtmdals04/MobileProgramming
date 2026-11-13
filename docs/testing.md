@@ -160,3 +160,11 @@ feature/chat-public-context에서 Rules 23개 통과, Android SDK 통합 19개 �
 - Mock 단위 43개·assembleDebug·lintDebug 모두 통과했다.
 
 테스트의 operator claim은 localhost Auth Emulator의 owner fixture로만 부여한다. 제품 코드에 운영자 권한 부여 기능은 없다. 복합 인덱스 설정은 저장소에 추적하지만 Emulator 테스트만으로 실제 프로젝트의 인덱스 배포를 검증하지는 않는다. UI·ViewModel·Navigation은 수정하지 않았다.
+
+## 우리 담당 최종 인계 검증 (2026-11-13)
+
+- `npm run verify:backend` 전체 순서 통과: 설정 점검 도구 3개 → Mock 단위 43개·APK·Lint → Rules 29개 → 데모 1개 → Android 통합 26개(프로세스 단계 1개 의도적 skip) → 실제 프로세스 재시작 네 단계.
+- 실제 Android Emulator Wi-Fi·모바일 데이터를 끄고 activeNetwork=null을 확인한 뒤 채팅 전송·공개 정보 조회·개설 요청이 NETWORK 오류를 전달하는지 검증했다. 원래 연결을 복원한 뒤 같은 ID로 두 번 재시도해 저장이 한 건인지 확인했다. 테스트 취소/실패 시에도 NonCancellable finally에서 연결 설정을 복원한다. 호스트 컴퓨터의 네트워크는 변경하지 않는다.
+- SDK disableNetwork()만으로는 이 환경의 transaction 통신이 차단되지 않는 것을 확인했다. 해당 방식의 실패 결과를 완료 근거로 사용하지 않고 실제 Emulator 연결 차단으로 바꿔 통과했다.
+- Firebase 설정 점검 도구는 대상 프로젝트·앱 ID/패키지 일치·필수 설정을 검사한다. 설정이 없으면 명확히 실패하며 키/JSON 원문을 출력하지 않는다. 실제 계정·메일·Rules/인덱스 배포는 검사하지 않는다.
+- CI는 Backend checks workflow의 원격 실행 결과를 별도로 확인한다. 로컬 검증 완료를 원격 CI 통과로 대신하지 않는다. 운영 연결·프론트 연결·상대 리뷰의 미완료 항목은 backend-ready.md에 기록했다.
