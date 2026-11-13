@@ -95,6 +95,18 @@ class FirestoreClubRequestRepositoryTest {
             assertEquals("Concurrent review results: $results", 1, results.count { it == RequestFailureReason.CONFLICT })
         }
     }
+    @Test fun offlineSubmitFailsAndSameIdRecoversWithoutDuplicates() = runBlocking {
+        withTimeout(60_000) {
+            val id = student.newRequestId()
+            withoutEmulatorNetwork {
+                failure(RequestFailureReason.NETWORK) { student.submitClubRequest("사진부", "네트워크 복구", id) }
+            }
+            student.submitClubRequest("사진부", "네트워크 복구", id)
+            student.submitClubRequest("사진부", "네트워크 복구", id)
+            assertEquals(1, student.observeMyRequests().first().count { it.id == id })
+        }
+    }
+
     @Test fun ownershipValidationAndOrdinaryReviewerAreEnforced() = runBlocking {
         withTimeout(60_000) {
             val id = student.submitClubRequest("사진부", "기록")
