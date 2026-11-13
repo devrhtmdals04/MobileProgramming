@@ -60,7 +60,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 
 ## 상태와 수명주기
 
-UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 전용 StateFlow를 제공하고 변이 Flow는 private으로 둔다. `viewModelScope`에서 작업하고, 여러 입력이 결합되는 상태는 `stateIn`과 WhileSubscribed를 사용한다. 인증·채팅 리스너는 `callbackFlow`와 `awaitClose`에서 정리한다. 로그아웃 시 채팅 구독은 오류로 종료하며 UI는 개인 상태를 폐기하고 보호 화면 백스택을 비워야 한다. 신청 구독은 후속 구현이다.
+UI는 `collectAsStateWithLifecycle`로 구독한다. ViewModel은 공개 읽기 전용 StateFlow를 제공하고 변이 Flow는 private으로 둔다. `viewModelScope`에서 작업하고, 여러 입력이 결합되는 상태는 `stateIn`과 WhileSubscribed를 사용한다. 인증·채팅 리스너는 `callbackFlow`와 `awaitClose`에서 정리한다. 로그아웃 시 채팅 구독은 오류로 종료하며 UI는 개인 상태를 폐기하고 보호 화면 백스택을 비워야 한다. 개설 요청 구독도 로그아웃·계정 변경 시 오류로 종료하고 리스너를 해제한다. 가입 신청은 후속 구현이다.
 
 현재 홈·탐색·상세는 상태 UI를 사용한다. 정적 골격까지 가짜 로딩·가짜 서버 오류를 만들지 않았다. 인증 복원 중에는 AuthSessionUiState.Restoring으로 보호 화면을 바로 노출하지 않는다. 로그아웃·세션 만료 시 auth로 백스택을 비운다. Mock 둘러보기는 예외적으로 보호 화면을 열 수 있다. 검색 query의 프로세스 종료 복원은 아직 구현되지 않았다.
 
@@ -201,3 +201,7 @@ Android 에뮬레이터 한 대를 부팅하고 JDK를 설정한 뒤 `npm run te
 
 공식 참고: [실시간 구독](https://firebase.google.com/docs/firestore/query-data/listen),
 [트랜잭션](https://firebase.google.com/docs/firestore/manage-data/transactions).
+
+## 개설 요청 원격 구현
+
+[개설 요청 인계 계약](club-request-backend-contract.md)을 따른다. 개설 전용 Repository를 앱에 제공하며 가입 신청은 별도 담당이다. 신뢰된 operator claim으로 검토 권한을 확인하고 같은 ID의 제출 재시도는 transaction으로 중복 저장을 방지한다. 화면·Navigation 연결은 프론트 담당이다.

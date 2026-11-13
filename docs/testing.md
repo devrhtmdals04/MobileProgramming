@@ -148,3 +148,15 @@ Firestore 권한의 허용·거절 상세 행렬은 `firestore-schema.md`를 기
 ## 2026-11-11 문의 공개 정보
 
 feature/chat-public-context에서 Rules 23개 통과, Android SDK 통합 19개 통과·프로세스 재시작 단계 1개 건너뜀(XML tests=20, failures=0, errors=0). Mock 단위 43개·빌드·lint 통과. 프로덕션 Screen/ViewModel/Route는 수정하지 않았다. 공개 연락처와 모집 제목을 로컬 데모 fixture에 추가했다.
+
+## 2026-11-13 개설 요청 백엔드
+
+`feature/club-request-backend`에서 다음을 검증했다. 운영 Firebase에 배포하지 않았다.
+
+- `npm run test:rules`: 총 29개 통과(개설 요청 6개 추가). 본인 생성/목록, 운영 권한 claim, 위조·필드 경계, 상태 불변성·검토 전이·삭제 금지.
+- `npm run test:auth:android`: XML tests=25, failures=0, errors=0, skipped=1 → 실제 통과 24개. 기존 인증 7개·채팅 12개와 신규 개설 요청 5개. 프로세스 재시작 단계는 별도 실행용이므로 일반 실행에서 건너뛴다.
+- 신규 Android 검증: 중복 제출 transaction·처리 후 제출 재시도, 실시간 본인/대기 목록, 승인 결과와 원본 시각 보존, 동시 승인/반려의 단일 승자, 비운영자 거절, 입력/계정 경계, 로그아웃 구독 종료·취소 후 재접속, 손상 문서 거절, 앱 공통 인증 주입.
+- 동시 검토 테스트에서 늦은 transaction이 Rules의 pending 조건 때문에 PERMISSION_DENIED를 받는 현상을 재현했다. 운영 권한과 서버의 처리 완료 상태를 재확인해 CONFLICT로 구분한 뒤 전체 Android 회귀를 통과했다. 권한 규칙은 완화하지 않았다.
+- Mock 단위 43개·assembleDebug·lintDebug 모두 통과했다.
+
+테스트의 operator claim은 localhost Auth Emulator의 owner fixture로만 부여한다. 제품 코드에 운영자 권한 부여 기능은 없다. 복합 인덱스 설정은 저장소에 추적하지만 Emulator 테스트만으로 실제 프로젝트의 인덱스 배포를 검증하지는 않는다. UI·ViewModel·Navigation은 수정하지 않았다.
