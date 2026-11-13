@@ -13,7 +13,10 @@
     "dev:firebase": "firebase emulators:start --only auth,firestore --project demo-mope",
     "seed:chat:demo": "node scripts/seed-chat-demo.mjs",
     "test:chat:demo": "firebase emulators:exec --only auth,firestore --project demo-mope \"node --test tests/demo/chat-demo.test.mjs\"",
-    "test:request:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator -Pandroid.testInstrumentationRunnerArguments.class=com.mope.app.data.FirestoreClubRequestRepositoryTest :app:connectedDebugAndroidTest\""
+    "test:request:android": "firebase emulators:exec --only auth,firestore --project demo-mope \"./gradlew -PmopeBackend=emulator -Pandroid.testInstrumentationRunnerArguments.class=com.mope.app.data.FirestoreClubRequestRepositoryTest :app:connectedDebugAndroidTest\"",
+    "check:firebase": "node scripts/check-firebase-config.mjs",
+    "test:tooling": "node --test tests/tooling/*.test.mjs",
+    "verify:backend": "node scripts/verify-backend.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",
