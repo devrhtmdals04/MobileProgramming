@@ -89,6 +89,7 @@ class AuthViewModelTest {
             override suspend fun signUp(email: String, password: String, displayName: String) =
                 fake.signUp(email, password, displayName)
             override suspend fun signOut() = fake.signOut()
+            override suspend fun requestPasswordReset(email: String) = fake.requestPasswordReset(email)
         }
         val vm = AuthViewModel(repository)
         fake.completeRestoration()

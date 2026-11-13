@@ -42,7 +42,7 @@ Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지
 
 실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. Mock에서는 인증 저장소 없이 둘러보기만 가능하고, emulator/firebase에서는 AuthViewModel이 로그인·가입·로그아웃을 연결합니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
-users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages와 로그인 사용자의 clubs 단건 조회를 구현했습니다. 다른 컬렉션과 동아리 목록·쓰기는 접근을 거절합니다. 채팅 UI 송수신 연결은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
+users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages·공개 연락처·clubRequests와 로그인 사용자의 clubs 단건 조회를 구현했습니다. 그 외 컬렉션과 동아리 목록·쓰기는 접근을 거절합니다. 채팅 UI 송수신 연결은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
 
 채팅 Repository는 Android 에뮬레이터를 부팅한 뒤 `npm run test:chat:android`로 검증합니다. 방 생성·목록 구독, 두 계정 메시지 교환, 같은 ID 재전송, 최신 50개 정렬, 비참여자 접근 거절과 로그아웃을 실제 SDK로 검사합니다. 재시도 시에는 첫 전송 전에 `newMessageId()`로 만든 ID를 보관해야 합니다. [채팅 구현 계약](docs/architecture.md#채팅-repository-구현)을 참고하세요.
 
@@ -103,10 +103,12 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 - [아키텍처](docs/architecture.md), [Firestore 설계](docs/firestore-schema.md)
 - [화면 흐름](docs/screen-flow.md), [Figma 참고](docs/figma-reference.md)
 - [Issue 후보](docs/issues.md), [테스트·검증 기록](docs/testing.md)
-- [Figma 원본](https://www.figma.com/design/vUavTwW7VuTMCQojbNkrJT/모프?node-id=0-1): 현재 구조 접근 불가, 실제 디자인 일치 여부 미확인
+- [Figma 원본](https://www.figma.com/design/vUavTwW7VuTMCQojbNkrJT/모프?node-id=0-1): 7개 프레임 확인 기록과 지원 범위는 백엔드 연결 점검 문서 참고
 
 초기 검증: Mock APK 빌드·단위 테스트·Lint 실행 기록은 `docs/testing.md`가 기준입니다. 원격 Issue/PR 생성과 Firebase 배포는 수행하지 않았습니다. 초기 템플릿·테스트·문서는 `feature/mope-setup` 브랜치에서 검토하며 실제 커밋 이력은 Git 로그를 참고하세요.
 
 문의 헤더 백엔드: [공개 정보 조회 계약](docs/chat-public-context-contract.md). 화면 연결과 공개 정보 운영 게시는 별도다.
 
 개설 요청 백엔드: [저장·본인 내역·운영 검토 계약](docs/club-request-backend-contract.md). 수요조사·가입 신청과는 별도 기능이다.
+
+우리 담당의 구현 상태·전체 검증 명령·Firebase 연결 전 남은 항목은 [백엔드 인계 기준](docs/backend-ready.md)에 모았습니다. `npm run verify:backend`로 전체 로컬 검증을 실행합니다.

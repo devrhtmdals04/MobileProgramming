@@ -244,6 +244,22 @@ class FirestoreChatRepositoryTest {
         }
     }
 
+    @Test fun offlineSendFailsAndSameIdRecoversWithoutDuplicates() = runBlocking {
+        withTimeout(60_000) {
+            val room = student.getOrCreateRoom(clubId)
+            val messageId = student.newMessageId()
+            withoutEmulatorNetwork {
+                failure(ChatFailureReason.NETWORK) { student.sendMessage(room, "복구 후 전송", messageId) }
+                failure(ChatFailureReason.NETWORK) { student.getRoomContext(room) }
+            }
+            student.sendMessage(room, "복구 후 전송", messageId)
+            student.sendMessage(room, "복구 후 전송", messageId)
+            val messages = admin.observeMessages(room).first { it.any { message -> message.id == messageId } }
+            assertEquals(1, messages.count { it.id == messageId })
+            assertEquals("복구 후 전송", messages.single { it.id == messageId }.text)
+        }
+    }
+
     @Test fun roomContextUsesPublishedContactRatherThanPrivateProfile() = runBlocking {
         withTimeout(60_000) {
             val room = student.getOrCreateRoom(clubId)
