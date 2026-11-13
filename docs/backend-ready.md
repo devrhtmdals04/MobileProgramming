@@ -36,6 +36,8 @@ GitHub `Backend checks` workflow는 push/PR에서 핵심 검증을 실행하며 
 
 최종 로컬 검증: 단위 43개, Rules 29개, 설정 도구 3개, 데모 1개, Android 26개 통과(프로세스 단계 1개 의도적 skip). 실제 프로세스 재시작 seed/restored/signOut/loggedOut 네 단계도 통과했다. 네트워크 검증은 테스트 에뮬레이터의 Wi-Fi·데이터를 잠시 끄고 원래 상태로 복원한다. Google APIs sdk_gphone 에뮬레이터에서 실행하며 호스트 네트워크는 변경하지 않는다.
 
+원격 핵심 CI도 [실행 #43413453571](https://github.com/devrhtmdals04/MobileProgramming/actions/runs/43413453571)에서 통과했다. 로컬 전체 검증과 원격 핵심 검증의 범위는 위 구분을 따른다.
+
 ## 실제 Firebase 연결·배포 전 남은 항목
 
 로컬 구현/Emulator 검증과 실제 환경 검증은 다른 완료 조건이다. 현재 저장소에는 app/google-services.json이 없고 운영 프로젝트·메일·실제 인덱스 쿼리를 검증하지 않았다.

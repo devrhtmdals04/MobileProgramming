@@ -168,3 +168,5 @@ feature/chat-public-context에서 Rules 23개 통과, Android SDK 통합 19개 �
 - SDK disableNetwork()만으로는 이 환경의 transaction 통신이 차단되지 않는 것을 확인했다. 해당 방식의 실패 결과를 완료 근거로 사용하지 않고 실제 Emulator 연결 차단으로 바꿔 통과했다.
 - Firebase 설정 점검 도구는 대상 프로젝트·앱 ID/패키지 일치·필수 설정을 검사한다. 설정이 없으면 명확히 실패하며 키/JSON 원문을 출력하지 않는다. 실제 계정·메일·Rules/인덱스 배포는 검사하지 않는다.
 - CI는 Backend checks workflow의 원격 실행 결과를 별도로 확인한다. 로컬 검증 완료를 원격 CI 통과로 대신하지 않는다. 운영 연결·프론트 연결·상대 리뷰의 미완료 항목은 backend-ready.md에 기록했다.
+
+최종 원격 CI: [Backend checks #43413453571](https://github.com/devrhtmdals04/MobileProgramming/actions/runs/43413453571) 성공(33cd7f4). 새 Ubuntu 환경에서 Mock APK·단위/Lint·설정 도구·Rules·데모 반복 생성 검증을 통과했다. 첫 실행에서 폐기된 SDK tools 패키지 설치 요청을 수정했고, 다음 새 컴파일에서 AuthViewModelTest의 익명 인증 대역에 재설정 메서드가 누락된 것을 찾아 수정했다. 로컬에서도 `-Pkotlin.incremental=false --rerun-tasks`로 모든 55개 작업을 다시 실행해 단위 43개·APK·Lint 통과를 확인했다. 기존 증분 빌드 결과만으로 새 환경의 컴파일 성공을 추정하지 않는다.
