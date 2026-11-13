@@ -108,3 +108,5 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 초기 검증: Mock APK 빌드·단위 테스트·Lint 실행 기록은 `docs/testing.md`가 기준입니다. 원격 Issue/PR 생성과 Firebase 배포는 수행하지 않았습니다. 초기 템플릿·테스트·문서는 `feature/mope-setup` 브랜치에서 검토하며 실제 커밋 이력은 Git 로그를 참고하세요.
 
 문의 헤더 백엔드: [공개 정보 조회 계약](docs/chat-public-context-contract.md). 화면 연결과 공개 정보 운영 게시는 별도다.
+
+개설 요청 백엔드: [저장·본인 내역·운영 검토 계약](docs/club-request-backend-contract.md). 수요조사·가입 신청과는 별도 기능이다.

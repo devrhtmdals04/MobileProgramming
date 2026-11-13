@@ -48,6 +48,44 @@ service cloud.firestore {
           && data.responseHint.size() >= 1 && data.responseHint.size() <= 120
           && data.responseHint.matches('(?s).*[^\\s].*')));
     }
+    function isOperator() {
+      return request.auth != null && request.auth.token.get('operator', false) == true;
+    }
+    function validRequestId(id, uid) {
+      let parts = id.split('__');
+      return id.size() <= 256 && parts.size() == 2 && parts[0] == uid
+        && validChatId(parts[0]) && validChatId(parts[1]);
+    }
+    function validClubRequest(data) {
+      return data.keys().hasAll(['applicantId', 'name', 'purpose', 'status', 'createdAt', 'reviewedBy', 'reviewedAt'])
+        && data.keys().hasOnly(['applicantId', 'name', 'purpose', 'status', 'createdAt', 'reviewedBy', 'reviewedAt'])
+        && data.applicantId is string
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 50
+        && data.name.matches('(?s).*[^\\s].*')
+        && data.purpose is string && data.purpose.size() >= 1 && data.purpose.size() <= 2000
+        && data.purpose.matches('(?s).*[^\\s].*')
+        && data.status in ['pending', 'approved', 'rejected'] && data.createdAt is timestamp;
+    }
+    match /clubRequests/{id} {
+      allow get: if request.auth != null && (isOperator()
+        || resource.data.applicantId == request.auth.uid
+        || (!exists(/databases/$(database)/documents/clubRequests/$(id))
+          && validRequestId(id, request.auth.uid)));
+      allow list: if request.auth != null && (isOperator() || resource.data.applicantId == request.auth.uid);
+      allow create: if request.auth != null && validRequestId(id, request.auth.uid)
+        && validClubRequest(request.resource.data)
+        && request.resource.data.applicantId == request.auth.uid
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && request.resource.data.status == 'pending' && request.resource.data.createdAt == request.time
+        && request.resource.data.reviewedBy == null && request.resource.data.reviewedAt == null;
+      allow update: if isOperator() && validClubRequest(request.resource.data)
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['approved', 'rejected']
+        && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reviewedBy', 'reviewedAt']);
+      // 신청자 수정·삭제와 처리 완료 후 재변경은 허용하지 않는다.
+    }
     function isParticipant(room) {
       return request.auth != null && request.auth.uid in room.participantIds;
     }

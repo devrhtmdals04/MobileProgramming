@@ -22,7 +22,7 @@
 
 - 김민성: 전체 Screen·ViewModel·Navigation·테마·UI 테스트. 동아리·홍보·검색·가입 신청의 원격 구현과 해당 DB 설계·테스트.
 - 고승민: 인증·세션·프로필·채팅·개설 요청의 원격 구현과 해당 DB 설계·테스트. Firebase 의존성·실행 모드·공통 오류 타입.
-- RequestRepository 구현은 고승민의 `FirestoreClubRequestDataSource`와 김민성의 `FirestoreMembershipApplicationDataSource`로 나눈다. 고승민이 `FirestoreRequestRepository`에서 두 구현을 조립한다. 현재는 예정 클래스이며 아직 생성하지 않았다.
+- 개설 전용 `ClubRequestRepository`와 `FirestoreClubRequestRepository`는 고승민이 구현했다. 공유 `RequestRepository`는 개설 계약을 상속하고 가입 계약을 유지한다. 김민성의 가입 구현이 준비되면 전체 RequestRepository를 조립한다. 가입 기능의 가짜 구현은 제공하지 않는다.
 - 통합 `firestore.rules`, `firestore.indexes.json`, Emulator 설정은 고승민이 취합한다. 김민성은 clubs·promotions·membershipApplications 규칙·인덱스·테스트를 작성해 전달하고, 고승민은 나머지 컬렉션을 작성한다.
 - 상대 담당 영역의 변경은 해당 담당자가 리뷰한다. 통합 검증·시연·발표는 공동 담당이다.
 

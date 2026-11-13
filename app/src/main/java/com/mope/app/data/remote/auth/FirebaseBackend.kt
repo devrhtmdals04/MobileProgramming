@@ -9,10 +9,12 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.MemoryCacheSettings
 import com.mope.app.BuildConfig
 import com.mope.app.data.repository.AuthRepository
+import com.mope.app.data.repository.ClubRequestRepository
+import com.mope.app.data.remote.request.FirestoreClubRequestRepository
 import com.mope.app.data.repository.ChatRepository
 import com.mope.app.data.remote.chat.FirestoreChatRepository
 
-data class FirebaseRepositories(val auth: AuthRepository, val chat: ChatRepository)
+data class FirebaseRepositories(val auth: AuthRepository, val chat: ChatRepository, val clubRequests: ClubRequestRepository)
 
 object FirebaseBackend {
     fun createRepositories(context: Context): FirebaseRepositories {
@@ -39,8 +41,8 @@ object FirebaseBackend {
         }
         val logoutPreferences = context.getSharedPreferences("auth-logout-${app.name}", Context.MODE_PRIVATE)
         val authRepository = FirebaseAuthRepository(auth, firestore, logoutPreferences)
-        return FirebaseRepositories(authRepository, FirestoreChatRepository(auth, firestore) {
-            if (logoutPreferences.getBoolean("signedOut", false)) null else auth.currentUser?.uid
-        })
+        val sessionUid = { if (logoutPreferences.getBoolean("signedOut", false)) null else auth.currentUser?.uid }
+        return FirebaseRepositories(authRepository, FirestoreChatRepository(auth, firestore, sessionUid),
+            FirestoreClubRequestRepository(auth, firestore, sessionUid))
     }
 }

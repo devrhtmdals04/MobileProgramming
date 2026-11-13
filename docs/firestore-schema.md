@@ -1,6 +1,6 @@
 # Firestore 데이터·접근 권한 설계 (v1 초안)
 
-**설계 문서이며 배포된 스키마가 아니다.** users·chatRooms/messages 규칙과 Emulator 테스트는 저장소에 구현했다. 채팅 생성의 관리자 확인을 위해 로그인 사용자의 clubs 단건 조회도 허용한다. clubs 목록·쓰기와 나머지 컬렉션 규칙은 후속 작업이며 현재 접근 거절된다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
+**설계 문서이며 배포된 스키마가 아니다.** users·chatRooms/messages·공개 연락처·clubRequests 규칙과 Emulator 테스트는 저장소에 구현했다. 채팅 생성의 관리자 확인을 위해 로그인 사용자의 clubs 단건 조회도 허용한다. clubs 목록·쓰기와 나머지 컬렉션 규칙은 후속 작업이며 현재 접근 거절된다. 클라이언트 화면의 버튼 숨김은 보안 검증을 대체하지 않는다.
 
 ## DB 담당과 작업 순서
 
@@ -123,7 +123,7 @@ MVP는 소규모 대학 동아리 목록(가정: 100개 이하)을 읽어 앱 �
 | 필드 초과·잘못된 타입·빈 본문·길이 초과·시간 위조 | 거절 |
 | 동일 방/가입 동시 생성·메시지 재시도 | 중복 문서 없음 |
 
-users와 채팅 범위는 `firestore.rules` 및 `tests/firestore/{users,chat}.test.mjs`에 구현한다. 나머지 표 항목은 미구현이며 실제 데이터베이스의 보안 검증 완료를 뜻하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
+users·채팅·개설 요청 범위는 `firestore.rules` 및 `tests/firestore/{users,chat,requests}.test.mjs`에 구현한다. 나머지 표 항목은 미구현이며 실제 데이터베이스의 보안 검증 완료를 뜻하지 않는다. [조건 검증](https://firebase.google.com/docs/firestore/security/rules-conditions) 및 [Emulator 테스트](https://firebase.google.com/docs/firestore/security/test-rules-emulator)를 기준으로 구현한다.
 
 ## users 로컬 검증
 
@@ -167,3 +167,7 @@ clubs 목록·쓰기와 실시간 UI 송수신 연결은 아직 미구현이다.
 ## 문의 공개 정보 구현
 
 [공개 정보 계약](chat-public-context-contract.md)에 따라 clubs의 선택 모집 제목/마감과 publicContacts 하위 문서를 조회한다. 공개 연락처는 인증 사용자 단건 조회만 가능하며 허용 키 밖의 정보가 있으면 거절한다. 클라이언트 쓰기·목록은 금지한다. 사적 users 권한은 유지한다.
+
+## 개설 요청 구현 (2026-11-13)
+
+[개설 요청 계약](club-request-backend-contract.md)에 따라 본인 작성/조회·운영자 단회 검토를 구현했다. `{uid}__{UUID}` 문서 ID, 허용 필드·서버 시각·불변 신청 내용, boolean operator custom claim을 검증한다. 관련 복합 인덱스 두 개를 firestore.indexes.json에 추가했다. Emulator Rules 총 29개가 통과했다. 승인만으로 clubs 문서를 생성하지 않으며 운영 배포는 수행하지 않았다.
