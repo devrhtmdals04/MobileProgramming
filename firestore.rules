@@ -28,10 +28,15 @@ service cloud.firestore {
       return value is string && value.size() >= 1 && value.size() <= 128
         && value.split('__').size() == 1 && value.split('/').size() == 1;
     }
-    // 채팅방 생성 시 현재 관리자 확인에 필요한 최소 단건 조회.
-    // 동아리 목록·생성·수정 권한은 별도 담당 작업으로 남긴다.
+    // Published club documents contain public fields only; management is scoped to the assigned owner.
     match /clubs/{clubId} {
-      allow get: if request.auth != null;
+      allow get, list: if request.auth != null;
+      allow create: if validManagedClub(request.resource.data, clubId)
+        && verifiedFirstGrant(clubId, request.resource.data);
+      allow update: if validManagedClub(request.resource.data, clubId) && (
+        (resource.data.get('adminId', '') == '' && verifiedFirstGrant(clubId, request.resource.data))
+        || (request.auth != null && resource.data.adminId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'recruitment', 'updatedAt'])));
       match /publicContacts/{contactId} {
         // 공개용 필드만 읽는다. 클라이언트의 편집·목록 조회는 허용하지 않는다.
         allow get: if request.auth != null
@@ -49,7 +54,85 @@ service cloud.firestore {
           && data.responseHint.matches('(?s).*[^\\s].*')));
     }
     function isOperator() {
-      return request.auth != null && request.auth.token.get('operator', false) == true;
+      return request.auth != null && (request.auth.token.get('operator', false) == true
+        || (exists(/databases/$(database)/documents/operators/$(request.auth.uid))
+          && get(/databases/$(database)/documents/operators/$(request.auth.uid)).data.get('enabled', false) == true));
+    }
+    // Only the trusted project administrator can register/revoke dedicated operators.
+    match /operators/{uid} {
+      allow get: if isOwner(uid);
+    }
+    function canonicalClubId(id) {
+      return id is string && id.matches('ssu-[1-9][0-9]{0,8}');
+    }
+    function unassignedClub(id) {
+      return !exists(/databases/$(database)/documents/clubs/$(id))
+        || get(/databases/$(database)/documents/clubs/$(id)).data.get('adminId', '') == '';
+    }
+    function validManagedClub(data, id) {
+      return canonicalClubId(id)
+        && data.keys().hasAll(['name', 'category', 'description', 'recruitment', 'adminId', 'sourceUrl', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'category', 'description', 'recruitment', 'adminId', 'sourceUrl', 'updatedAt'])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 100
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 30
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 2000
+        && data.description.matches('(?s).*[^\\s].*')
+        && data.recruitment is string && data.recruitment.size() <= 1000
+        && validChatId(data.adminId)
+        && data.sourceUrl == 'https://clubunion.ssu.ac.kr/clubs/' + id.split('-')[1]
+        && data.updatedAt == request.time;
+    }
+    function verifiedFirstGrant(id, data) {
+      let requestId = id + '__' + data.adminId;
+      let before = get(/databases/$(database)/documents/clubAdminRequests/$(requestId)).data;
+      let after = getAfter(/databases/$(database)/documents/clubAdminRequests/$(requestId)).data;
+      return isOperator() && before.status == 'pending'
+        && before.clubId == id && before.applicantId == data.adminId
+        && after.status == 'approved' && after.reviewedBy == request.auth.uid
+        && after.reviewedAt == request.time;
+    }
+    function validAdminApplication(data, id) {
+      return data.keys().hasAll(['clubId', 'clubName', 'applicantId', 'reason', 'status', 'createdAt',
+          'reviewedBy', 'reviewedAt', 'verifiedChannel', 'reviewNote'])
+        && data.keys().hasOnly(['clubId', 'clubName', 'applicantId', 'reason', 'status', 'createdAt',
+          'reviewedBy', 'reviewedAt', 'verifiedChannel', 'reviewNote'])
+        && canonicalClubId(data.clubId) && validChatId(data.applicantId)
+        && id == data.clubId + '__' + data.applicantId
+        && data.clubName is string && data.clubName.size() >= 1 && data.clubName.size() <= 100
+        && data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 1000
+        && data.reason.matches('(?s).*[^\\s].*') && data.createdAt is timestamp
+        && data.status in ['pending', 'approved', 'rejected']
+        && ((data.status == 'pending' && data.reviewedBy == null && data.reviewedAt == null
+            && data.verifiedChannel == '' && data.reviewNote == '')
+          || (data.status != 'pending' && data.reviewedBy is string && data.reviewedAt is timestamp
+            && data.reviewNote is string && data.reviewNote.size() >= 1 && data.reviewNote.size() <= 1000
+            && data.reviewNote.matches('(?s).*[^\\s].*')
+            && data.verifiedChannel is string && data.verifiedChannel.size() <= 500
+            && ((data.status == 'approved' && data.verifiedChannel.matches('https://[^\\s]+'))
+              || (data.status == 'rejected' && data.verifiedChannel == ''))));
+    }
+    match /clubAdminRequests/{id} {
+      allow get: if request.auth != null && (isOperator()
+        || (exists(/databases/$(database)/documents/clubAdminRequests/$(id)) && resource.data.applicantId == request.auth.uid)
+        || (!exists(/databases/$(database)/documents/clubAdminRequests/$(id))
+          && id.split('__').size() == 2 && canonicalClubId(id.split('__')[0]) && id.split('__')[1] == request.auth.uid));
+      allow list: if request.auth != null && (isOperator() || resource.data.applicantId == request.auth.uid);
+      allow create: if request.auth != null && validAdminApplication(request.resource.data, id)
+        && request.resource.data.applicantId == request.auth.uid
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && unassignedClub(request.resource.data.clubId)
+        && request.resource.data.status == 'pending' && request.resource.data.createdAt == request.time;
+      allow update: if request.auth != null && validAdminApplication(request.resource.data, id) && (
+        (resource.data.applicantId == request.auth.uid && resource.data.status == 'rejected'
+          && request.resource.data.status == 'pending' && unassignedClub(resource.data.clubId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reason', 'status', 'reviewedBy', 'reviewedAt', 'verifiedChannel', 'reviewNote']))
+        || (isOperator() && request.auth.uid != resource.data.applicantId
+          && resource.data.status == 'pending' && request.resource.data.status in ['approved', 'rejected']
+          && request.resource.data.reviewedBy == request.auth.uid && request.resource.data.reviewedAt == request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reviewedBy', 'reviewedAt', 'verifiedChannel', 'reviewNote'])
+          && (request.resource.data.status == 'rejected'
+            || (getAfter(/databases/$(database)/documents/clubs/$(resource.data.clubId)).data.adminId == resource.data.applicantId
+              && getAfter(/databases/$(database)/documents/clubs/$(resource.data.clubId)).data.updatedAt == request.time))));
     }
     function validRequestId(id, uid) {
       let parts = id.split('__');

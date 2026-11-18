@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
                     repository = app.clubRepository,
                     authRepository = app.authRepository,
                     clubRequestRepository = app.clubRequestRepository,
+                    clubAdminRepository = app.clubAdminRepository,
                 )
             }
         }

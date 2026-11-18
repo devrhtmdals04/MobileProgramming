@@ -31,6 +31,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mope.app.data.repository.ClubAdminRepository
+import com.mope.app.ui.screens.admin.ClubAdminScreen
+import com.mope.app.ui.screens.admin.ClubAdminViewModel
 import com.mope.app.data.repository.ClubRequestRepository
 import com.mope.app.ui.screens.request.ClubRequestScreen
 import com.mope.app.ui.screens.request.ClubRequestState
@@ -64,9 +67,10 @@ fun MopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository? = null,
     clubRequestRepository: ClubRequestRepository? = null,
+    clubAdminRepository: ClubAdminRepository? = null,
 ) {
     if (authRepository != null) {
-        AuthenticatedMopeNavHost(repository, authRepository, clubRequestRepository)
+        AuthenticatedMopeNavHost(repository, authRepository, clubRequestRepository, clubAdminRepository)
     } else {
         MockMopeNavHost(repository)
     }
@@ -77,6 +81,7 @@ private fun AuthenticatedMopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository,
     clubRequestRepository: ClubRequestRepository?,
+    clubAdminRepository: ClubAdminRepository?,
 ) {
     val nav = rememberNavController()
     val authViewModel: AuthViewModel = viewModel(
@@ -134,13 +139,14 @@ private fun AuthenticatedMopeNavHost(
                     },
                 )
             }
-            clubRoutes(nav, repository, authRepository, clubRequestRepository) {
+            clubRoutes(nav, repository, authRepository, clubRequestRepository, clubAdminRepository) {
                 mockExploring = false
                 nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } }
             }
             composable("profile") {
                 ProfileScreen(
                     user = (authSession as? AuthSessionUiState.SignedIn)?.user,
+                    onManageClubs = if (clubAdminRepository != null) ({ nav.navigate("club-admin") }) else null,
                     onSignOut = {
                         mockExploring = false
                         authViewModel.signOut()
@@ -247,6 +253,7 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
     repository: ClubRepository,
     authRepository: AuthRepository? = null,
     clubRequestRepository: ClubRequestRepository? = null,
+    clubAdminRepository: ClubAdminRepository? = null,
     onLogin: () -> Unit = { nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } } },
 ) {
     composable("home") {
@@ -281,7 +288,20 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
                 { nav.popBackStack() },
                 { nav.navigate("chat/${Uri.encode(it)}") },
                 { nav.navigate("apply/${Uri.encode(it)}") },
+                onAdminRequest = if (clubAdminRepository != null) ({ id -> nav.navigate("admin-apply/${Uri.encode(id)}") }) else null,
             )
+        }
+    }
+    listOf("club-admin", "admin-apply/{clubId}").forEach { target ->
+        composable(target) { entry ->
+            if (authRepository != null && clubAdminRepository != null) {
+                val vm: ClubAdminViewModel = viewModel(factory = viewModelFactory {
+                    initializer { ClubAdminViewModel(authRepository, clubAdminRepository, repository) }
+                })
+                val state by vm.state.collectAsStateWithLifecycle()
+                ClubAdminScreen(state, entry.arguments?.getString("clubId"), vm::apply, vm::review,
+                    vm::saveClub, vm::reload, { nav.popBackStack() }, onLogin)
+            }
         }
     }
     composable("chats") { ChatListScreen() }

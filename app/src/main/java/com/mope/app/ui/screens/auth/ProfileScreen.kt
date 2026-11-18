@@ -15,6 +15,7 @@ fun ProfileScreen(
     user: User?,
     onSignOut: () -> Unit,
     onExitMock: (() -> Unit)? = null,
+    onManageClubs: (() -> Unit)? = null,
 ) {
     Page("내 프로필") {
         if (user == null) {
@@ -26,6 +27,7 @@ fun ProfileScreen(
         } else {
             Text(user.displayName)
             Text(roleLabel(user.role))
+            onManageClubs?.let { Button(onClick = it) { Text("내 동아리 관리 · 관리 권한 신청 내역") } }
             OutlinedButton(onClick = onSignOut) { Text("로그아웃") }
         }
     }

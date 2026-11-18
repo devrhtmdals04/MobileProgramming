@@ -42,7 +42,7 @@ VS Code에는 `Android: Build GRU`, `Install GRU`, `Run GRU` 작업이 있습니
 
 실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. Mock에서는 인증 저장소 없이 둘러보기만 가능하고, emulator/firebase에서는 AuthViewModel이 전화번호 인증·첫 이름 등록·로그아웃을 연결합니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
-users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages·공개 연락처·clubRequests와 로그인 사용자의 clubs 단건 조회를 구현했습니다. 그 외 컬렉션과 동아리 목록·쓰기는 접근을 거절합니다. 채팅 UI 송수신 연결은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
+users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages·공개 연락처·clubRequests·clubAdminRequests·보호된 운영자 명부와 로그인 사용자의 공개 clubs 조회를 구현했습니다. 공식 채널 확인 후 승인된 관리자만 자신의 소개·모집 안내를 수정합니다. [관리자 확인과 운영자 계정](docs/club-admin-verification.md)을 참고하세요. 그 외 컬렉션은 접근을 거절합니다. 채팅 UI 송수신 연결은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
 
 채팅 Repository는 Android 에뮬레이터를 부팅한 뒤 `npm run test:chat:android`로 검증합니다. 방 생성·목록 구독, 두 계정 메시지 교환, 같은 ID 재전송, 최신 50개 정렬, 비참여자 접근 거절과 로그아웃을 실제 SDK로 검사합니다. 재시도 시에는 첫 전송 전에 `newMessageId()`로 만든 ID를 보관해야 합니다. [채팅 구현 계약](docs/architecture.md#채팅-repository-구현)을 참고하세요.
 

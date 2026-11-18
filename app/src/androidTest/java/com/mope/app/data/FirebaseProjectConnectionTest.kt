@@ -117,3 +117,35 @@ class SoongsilDirectoryConnectionTest {
         }
     }
 }
+
+/** Creates only the explicitly designated development operator identity; never grants privileges. */
+@RunWith(AndroidJUnit4::class)
+class DedicatedOperatorConnectionTest {
+    @Test fun createDedicatedIdentityAndReportUid() = runBlocking {
+        val args = InstrumentationRegistry.getArguments()
+        assumeTrue(BuildConfig.BACKEND == "firebase" && args.getString("operatorConnection") == "true")
+        check(BuildConfig.DEBUG)
+        check(FirebaseApp.getInstance().options.projectId == "gru-campus")
+        val code = requireNotNull(args.getString("operatorSmsCode"))
+        require(code.matches(Regex("[0-9]{6}")))
+        val app = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as MopeApplication
+        val repo = requireNotNull(app.authRepository)
+        val sdk = FirebaseAuth.getInstance()
+        withTimeout(90_000) {
+            repo.signOut()
+            sdk.firebaseAuthSettings.setAppVerificationDisabledForTesting(true)
+            try {
+                val sent = repo.requestPhoneCode("+16505550102", null).first { it is PhoneCodeEvent.CodeSent } as PhoneCodeEvent.CodeSent
+                repo.verifyPhoneCode(sent.verificationId, code)
+                if (repo.session.first() == AuthSession.ProfileRequired) repo.completeProfile("그루 운영자")
+                val user = requireNotNull(repo.currentUser.first())
+                assertEquals("+16505550102", sdk.currentUser!!.phoneNumber)
+                InstrumentationRegistry.getInstrumentation().sendStatus(0, android.os.Bundle().apply { putString("operatorUid", user.id) })
+                if (args.getString("verifyOperator") == "true") assertTrue(requireNotNull(app.clubAdminRepository).isOperator())
+            } finally {
+                repo.signOut()
+                sdk.firebaseAuthSettings.setAppVerificationDisabledForTesting(false)
+            }
+        }
+    }
+}

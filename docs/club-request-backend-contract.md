@@ -11,7 +11,7 @@ repository.submitClubRequest("사진부", "함께 사진을 기록해요", reque
 // 통신 실패 후 같은 계정·입력·ID로 재시도
 repository.submitClubRequest("사진부", "함께 사진을 기록해요", requestId)
 repository.observeMyRequests().collect { requests -> /* 본인 내역 */ }
-// 서버가 operator=true custom claim을 부여한 계정만 가능
+// 보호된 운영자 명부 또는 서버의 operator=true custom claim이 있는 계정만 가능
 repository.observePendingRequests().collect { pending -> /* 운영 검토 목록 */ }
 repository.reviewRequest(requestId, RequestStatus.APPROVED) // 또는 REJECTED
 ```
@@ -32,7 +32,7 @@ repository.reviewRequest(requestId, RequestStatus.APPROVED) // 또는 REJECTED
 
 `clubRequests/{id}`의 필수 필드는 applicantId, name, purpose, status, createdAt, reviewedBy, reviewedAt이다. 추가 키를 허용하지 않는다. 최초 상태는 pending이며 createdAt은 서버 시각, 검토 두 필드는 명시적 null이다. 사용자 프로필이 있는 본인만 제출한다. 본인 내역 또는 신뢰된 운영자만 읽을 수 있다. 전체 목록을 일반 사용자가 읽고 로컬 필터링하는 방식은 거절한다.
 
-운영자는 **서버에서 부여한 boolean `operator=true` custom claim**으로 판단한다. `users.role=club_admin`, 이름, 클라이언트 입력, 문자열 `"true"`는 운영 권한이 아니다. 제품 코드에는 claim 부여 기능이나 운영자 계정 생성 기능이 없다. 테스트에서만 로컬 Auth Emulator owner fixture를 사용한다. 실제 claim은 신뢰된 Admin 환경에서 관리하며 변경 후 토큰 갱신이 필요하다.
+운영자는 **프로젝트 소유자가 관리하는 `operators/{uid}.enabled == true` 명부 또는 서버에서 부여한 boolean `operator=true` custom claim**으로 판단한다. `users.role=club_admin`, 이름, 클라이언트 입력, 문자열 `"true"`는 운영 권한이 아니다. 제품 코드에는 운영자 권한을 부여하는 기능이 없다. 전용 개발 계정 등록 절차는 [운영자 계정 안내](club-admin-verification.md)를 따른다. 테스트에서만 로컬 Auth Emulator owner fixture를 사용한다. 실제 claim은 신뢰된 Admin 환경에서 관리하며 변경 후 토큰 갱신이 필요하다.
 
 검토는 pending에서 approved/rejected로만 한 번 가능하다. reviewedBy는 인증 운영자 uid, reviewedAt은 서버 시각이며 이 세 필드 외 변경·문서 삭제를 금지한다. 동시 승인/반려 중 하나만 성공한다. 동시 변경 때문에 Rules가 먼저 거절한 경우에도 운영 권한과 최신 서버 상태를 재확인해 처리 완료를 CONFLICT로 분류한다. 상태 확인이 실패하면 해당 오류를 전달하며 성공으로 처리하지 않는다. 재검토는 CONFLICT이므로 통신 실패 후 상태를 다시 조회한다. 승인은 동아리 생성이나 관리자 권한 부여를 자동 수행하지 않는다.
 

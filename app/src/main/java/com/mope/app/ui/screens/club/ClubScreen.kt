@@ -9,7 +9,7 @@ import com.mope.app.ui.components.*
 import com.mope.app.ui.theme.MopeTheme
 
 @Composable
-fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String) -> Unit, onApply: (String) -> Unit) {
+fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String) -> Unit, onApply: (String) -> Unit, onAdminRequest: ((String) -> Unit)? = null) {
     val uriHandler = LocalUriHandler.current
     Page("동아리 소개") {
         TextButton(onClick = onBack) { Text("뒤로") }
@@ -21,6 +21,9 @@ fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String
             detail.club.sourceUrl?.let { url ->
                 Text("출처: 숭실대학교 동아리연합회 · 공식 공개 목록")
                 OutlinedButton(onClick = { uriHandler.openUri(url) }) { Text("공식 동아리 소개 보기") }
+                if (detail.club.adminId.isBlank() && onAdminRequest != null) {
+                    OutlinedButton(onClick = { onAdminRequest(detail.club.id) }) { Text("이 동아리 관리 권한 신청") }
+                }
             }
             val linked = detail.club.adminId.isNotBlank()
             Button(onClick = { onChat(detail.club.id) }, enabled = linked) {

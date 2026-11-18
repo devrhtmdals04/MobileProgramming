@@ -66,11 +66,12 @@ test('방 목록은 본인 participantIds 조건으로만 조회', async () => {
   await assertFails(getDocs(query(collection(db('bob'), 'chatRooms'), where('participantIds', 'array-contains', 'alice'))));
 });
 
-test('채팅 관리자 확인용 동아리 단건 조회만 허용, 목록·쓰기·비로그인 조회 거절', async () => {
+test('공개 동아리 조회 허용, 임의 권한 변경·비로그인 조회 거절', async () => {
   await assertSucceeds(getDoc(doc(db('alice'), 'clubs/club1')));
   await assertSucceeds(getDoc(doc(db('admin'), 'clubs/club1')));
   await assertFails(getDoc(doc(db(), 'clubs/club1')));
-  await assertFails(getDocs(collection(db('alice'), 'clubs')));
+  await assertSucceeds(getDocs(collection(db('alice'), 'clubs')));
+  await assertFails(getDocs(collection(db(), 'clubs')));
   await assertFails(setDoc(doc(db('alice'), 'clubs/new'), { adminId: 'alice' }));
   await assertFails(updateDoc(doc(db('admin'), 'clubs/club1'), { adminId: 'alice' }));
   await assertFails(deleteDoc(doc(db('admin'), 'clubs/club1')));

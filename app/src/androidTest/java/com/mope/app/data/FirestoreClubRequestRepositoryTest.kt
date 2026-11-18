@@ -10,6 +10,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.MemoryCacheSettings
 import com.mope.app.BuildConfig
 import com.mope.app.MopeApplication
+import com.mope.app.data.model.Club
+import com.mope.app.data.remote.admin.FirestoreClubAdminRepository
 import com.mope.app.data.model.RequestStatus
 import com.mope.app.data.remote.auth.FirebaseAuthRepository
 import com.mope.app.data.remote.request.FirestoreClubRequestRepository
@@ -160,6 +162,31 @@ class FirestoreClubRequestRepositoryTest {
                 auth.signOut()
                 failure(RequestFailureReason.UNAUTHENTICATED) { requests.observeMyRequests().first() }
             } finally { auth.signOut() }
+        }
+    }
+    @Test fun verifiedClubGrantAndOwnerEditingUseRealSdkAndRules() = runBlocking {
+        withTimeout(60_000) {
+            val applicant = FirestoreClubAdminRepository(studentSdk.auth, studentSdk.store)
+            val reviewer = FirestoreClubAdminRepository(operatorSdk.auth, operatorSdk.store)
+            val other = FirestoreClubAdminRepository(outsiderSdk.auth, outsiderSdk.store)
+            val clubId = "ssu-${System.currentTimeMillis() % 100000000 + 1}"
+            val source = Club(clubId, "로컬 검증 동아리", "학술", "소개", "모집", "",
+                "https://clubunion.ssu.ac.kr/clubs/${clubId.removePrefix("ssu-")}")
+            assertFalse(applicant.isOperator())
+            assertTrue(reviewer.isOperator())
+            applicant.apply(source, "대표자로 신청합니다")
+            applicant.apply(source, "대표자로 신청합니다")
+            val application = applicant.observeMyApplications().first { list -> list.any { it.clubId == clubId } }.single { it.clubId == clubId }
+            assertTrue(reviewer.observePendingApplications().first().any { it.id == application.id })
+            failure(RequestFailureReason.PERMISSION_DENIED) { other.review(application.id, true, source, source.sourceUrl!!, "확인") }
+            reviewer.review(application.id, true, source, source.sourceUrl!!, "로컬 fixture에서 공식 확인 절차 검증")
+            assertEquals(RequestStatus.APPROVED, applicant.observeMyApplications().first { list -> list.any { it.id == application.id && it.status == RequestStatus.APPROVED } }.single { it.id == application.id }.status)
+            applicant.updateClub(clubId, "수정한 소개", "수정한 모집")
+            val published = applicant.observeLinkedClubs().first { list -> list.any { it.id == clubId && it.description == "수정한 소개" } }.single { it.id == clubId }
+            assertEquals(studentSdk.auth.currentUser!!.uid, published.adminId)
+            failure(RequestFailureReason.PERMISSION_DENIED) { other.updateClub(clubId, "변조", "모집") }
+            failure(RequestFailureReason.CONFLICT) { other.apply(source, "탈취 시도") }
+            failure(RequestFailureReason.CONFLICT) { reviewer.review(application.id, false, null, "", "재검토") }
         }
     }
     private suspend fun failure(reason: RequestFailureReason, block: suspend () -> Unit) {
