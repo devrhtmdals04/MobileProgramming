@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
                 MopeNavHost(
                     repository = app.clubRepository,
                     authRepository = app.authRepository,
+                    clubRequestRepository = app.clubRequestRepository,
                 )
             }
         }

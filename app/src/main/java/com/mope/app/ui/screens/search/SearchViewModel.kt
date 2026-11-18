@@ -19,7 +19,10 @@ class SearchViewModel(private val repository: ClubRepository) : ViewModel() {
         repository.observeClubs().map<List<Club>, LoadState<List<Club>>> { LoadState.Content(it) }
             .onStart { emit(LoadState.Loading) }
             .catch { emit(LoadState.Error("동아리를 불러오지 못했어요.")) }
-    }
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
+    val categories = clubs.map { source ->
+        (source as? LoadState.Content)?.value?.map { it.category }?.distinct()?.sorted().orEmpty()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val state = combine(clubs, query, category) { source, text, selected ->
         if (source is LoadState.Content) {
             val result = filterClubs(source.value, text, selected)

@@ -14,11 +14,11 @@ import com.mope.app.ui.components.*
 import com.mope.app.ui.theme.MopeTheme
 
 @Composable
-fun SearchScreen(state: LoadState<List<Club>>, query: String, category: String?, onQuery: (String) -> Unit, onCategory: (String?) -> Unit, onRetry: () -> Unit, onClub: (String) -> Unit) {
+fun SearchScreen(state: LoadState<List<Club>>, query: String, category: String?, onQuery: (String) -> Unit, onCategory: (String?) -> Unit, onRetry: () -> Unit, onClub: (String) -> Unit, categories: List<String> = listOf("문화", "학술", "운동")) {
     Page("동아리 탐색") {
         OutlinedTextField(value = query, onValueChange = onQuery, label = { Text("이름 또는 키워드") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(null, "문화", "학술", "운동").forEach { item ->
+            (listOf<String?>(null) + (categories + listOfNotNull(category)).distinct()).forEach { item ->
                 FilterChip(selected = category == item, onClick = { onCategory(item) }, label = { Text(item ?: "전체") })
             }
         }

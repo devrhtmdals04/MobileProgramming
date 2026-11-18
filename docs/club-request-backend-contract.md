@@ -1,6 +1,6 @@
 # 개설 요청 백엔드 인계 계약
 
-2026-11-13 구현. 동아리 개설 요청은 Figma의 설문형 수요조사·동아리 가입 신청과 별도 기능이다. 화면·ViewModel·Route는 추가하지 않았다. `MopeApplication.clubRequestRepository`는 emulator/firebase 모드에서 제공되고 Mock에서는 null이다.
+2026-11-13 구현. 동아리 개설 요청은 Figma의 설문형 수요조사·동아리 가입 신청과 별도 기능이다. 초기 백엔드 구현에 이어 2026-11-18 `ClubRequestScreen`·`ClubRequestViewModel`·개설 탭 Route를 연결했다. `MopeApplication.clubRequestRepository`는 emulator/firebase 모드에서 제공되고 Mock에서는 null이다.
 
 ## 사용 방법
 
@@ -45,3 +45,20 @@ repository.reviewRequest(requestId, RequestStatus.APPROVED) // 또는 REJECTED
 `RequestFailure.reason`: INVALID_INPUT(형식·길이), UNAUTHENTICATED(로그아웃/다른 계정의 ID), PERMISSION_DENIED(서버 권한 거절), NOT_FOUND(운영 검토 대상 없음), CONFLICT(내용 충돌/이미 검토), NETWORK(연결·일시 장애), INVALID_DATA(손상 문서), UNKNOWN(나머지). Firebase 예외는 원인으로 보존하고 공개 계약은 SDK에 의존하지 않는다.
 
 실행은 `npm run test:rules`, `npm run test:request:android`를 사용한다. 후자는 부팅된 Android 에뮬레이터와 JDK가 필요하다. 전체 인증·채팅 회귀는 `npm run test:auth:android`로 실행한다.
+
+
+## 개설 탭 연결 (2026-11-18)
+
+`MainActivity` → `MopeNavHost` → 개설 탭에서 앱 범위 `clubRequestRepository`와
+`authRepository`를 전달한다. 로그인 사용자는 제출과 본인 내역을 사용할 수 있으며,
+Mock 방문자는 로그인 안내를 받는다. 제출 중 입력과 중복 클릭을 막고 서버 저장 확인 뒤에만
+접수 완료를 표시한다. 재시도 ID와 제출 내용을 NavBackStackEntry의 SavedStateHandle에
+보관해 화면 회전·프로세스 복원 후 같은 입력의 재시도에 재사용한다. 계정이 바뀌면 폐기한다.
+로그아웃 시 초안과 개인 내역을 지우고 리스너를 취소한다. 내역 조회 실패는 별도로 재시도한다.
+
+그루 내부 등록 요청이며 학교·동아리연합회의 공식 등록 절차를 대신하지 않는다.
+승인에 따른 동아리 자동 생성·관리자 계정 권한 부여·운영 검토 UI는 이번 연결에 포함하지 않는다.
+
+검증: ViewModel 단위 5개(중복 제출·응답 유실 재시도/복원·로그아웃·조회 재시도·계정 격리),
+`gru-campus` 실제 Firebase에서 앱 ViewModel로 제출 → 서버 확인 → 본인 내역 조회 통과.
+후자는 가상 인증 계정으로 수행했고 구분 가능한 개발 검증 요청을 남겼다.

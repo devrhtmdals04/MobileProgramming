@@ -31,6 +31,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mope.app.data.repository.ClubRequestRepository
+import com.mope.app.ui.screens.request.ClubRequestScreen
+import com.mope.app.ui.screens.request.ClubRequestState
+import com.mope.app.ui.screens.request.ClubRequestViewModel
 import com.mope.app.data.repository.AuthRepository
 import com.mope.app.data.repository.ClubRepository
 import com.mope.app.ui.screens.auth.AuthScreen
@@ -59,9 +63,10 @@ private val mainTabs = listOf(
 fun MopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository? = null,
+    clubRequestRepository: ClubRequestRepository? = null,
 ) {
     if (authRepository != null) {
-        AuthenticatedMopeNavHost(repository, authRepository)
+        AuthenticatedMopeNavHost(repository, authRepository, clubRequestRepository)
     } else {
         MockMopeNavHost(repository)
     }
@@ -71,6 +76,7 @@ fun MopeNavHost(
 private fun AuthenticatedMopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository,
+    clubRequestRepository: ClubRequestRepository?,
 ) {
     val nav = rememberNavController()
     val authViewModel: AuthViewModel = viewModel(
@@ -128,7 +134,10 @@ private fun AuthenticatedMopeNavHost(
                     },
                 )
             }
-            clubRoutes(nav, repository)
+            clubRoutes(nav, repository, authRepository, clubRequestRepository) {
+                mockExploring = false
+                nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } }
+            }
             composable("profile") {
                 ProfileScreen(
                     user = (authSession as? AuthSessionUiState.SignedIn)?.user,
@@ -236,6 +245,9 @@ private fun MopeScaffold(
 private fun androidx.navigation.NavGraphBuilder.clubRoutes(
     nav: NavHostController,
     repository: ClubRepository,
+    authRepository: AuthRepository? = null,
+    clubRequestRepository: ClubRequestRepository? = null,
+    onLogin: () -> Unit = { nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } } },
 ) {
     composable("home") {
         val vm: HomeViewModel = viewModel(
@@ -251,9 +263,9 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
         val state by vm.state.collectAsStateWithLifecycle()
         val query by vm.query.collectAsStateWithLifecycle()
         val category by vm.category.collectAsStateWithLifecycle()
-        SearchScreen(state, query, category, vm::setQuery, vm::setCategory, vm::reload) {
-            nav.navigate("club/${Uri.encode(it)}")
-        }
+        val categories by vm.categories.collectAsStateWithLifecycle()
+        SearchScreen(state, query, category, vm::setQuery, vm::setCategory, vm::reload,
+            onClub = { nav.navigate("club/${Uri.encode(it)}") }, categories = categories)
     }
     listOf("club", "promotion").forEach { kind ->
         composable("$kind/{id}") { backStack ->
@@ -276,7 +288,17 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
     composable("chat/{clubId}") {
         ChatScreen(it.arguments?.getString("clubId").orEmpty()) { nav.popBackStack() }
     }
-    composable("requests") { RequestScreen() }
+    composable("requests") { entry ->
+        if (authRepository != null && clubRequestRepository != null) {
+            val vm: ClubRequestViewModel = viewModel(factory = viewModelFactory {
+                initializer { ClubRequestViewModel(authRepository, clubRequestRepository, entry.savedStateHandle) }
+            })
+            val state by vm.state.collectAsStateWithLifecycle()
+            ClubRequestScreen(state, vm::onNameChange, vm::onPurposeChange, vm::submit, vm::reloadHistory, onLogin)
+        } else {
+            ClubRequestScreen(ClubRequestState(), {}, {}, {}, {}, onLogin)
+        }
+    }
     composable("apply/{clubId}") {
         RequestScreen(it.arguments?.getString("clubId").orEmpty()) { nav.popBackStack() }
     }

@@ -1,6 +1,14 @@
 package com.mope.app.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelStore
+import com.mope.app.ui.screens.request.ClubRequestViewModel
+import com.mope.app.ui.components.LoadState
+import com.mope.app.data.remote.club.SoongsilClubRepository
+import com.mope.app.domain.filterClubs
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -62,6 +70,27 @@ class FirebaseProjectConnectionTest {
                 } catch (failure: FirebaseFirestoreException) {
                     assertEquals(FirebaseFirestoreException.Code.PERMISSION_DENIED, failure.code)
                 }
+                if (args.getString("clubRequestConnection") == "true") {
+                    val requests = requireNotNull(app.clubRequestRepository)
+                    val owner = ViewModelStore()
+                    val vm = withContext(Dispatchers.Main) {
+                        ClubRequestViewModel(repository, requests, SavedStateHandle()).also { owner.put("request", it) }
+                    }
+                    try {
+                        vm.state.first { it.userId == user.id }
+                        val title = "연결 검증 ${System.currentTimeMillis()}"
+                        withContext(Dispatchers.Main) {
+                            vm.onNameChange(title)
+                            vm.onPurposeChange("개설 요청 화면의 제출·본인 내역 연결을 확인하는 개발 테스트입니다.")
+                            vm.submit()
+                        }
+                        vm.state.first { !it.isSubmitting && (it.submitted || it.error != null) }
+                        assertTrue(vm.state.value.error, vm.state.value.submitted)
+                        vm.state.first { state ->
+                            (state.history as? LoadState.Content)?.value?.any { it.name == title } == true
+                        }
+                    } finally { withContext(Dispatchers.Main) { owner.clear() } }
+                }
                 repository.signOut()
                 assertEquals(AuthSession.SignedOut, repository.session.first())
                 authenticate()
@@ -70,6 +99,21 @@ class FirebaseProjectConnectionTest {
                 repository.signOut()
                 sdk.firebaseAuthSettings.setAppVerificationDisabledForTesting(false)
             }
+        }
+    }
+}
+
+@RunWith(AndroidJUnit4::class)
+class SoongsilDirectoryConnectionTest {
+    @Test fun officialDirectoryLoadsAndSupportsKoreanSearch() = runBlocking {
+        assumeTrue(InstrumentationRegistry.getArguments().getString("officialDirectory") == "true")
+        withTimeout(45_000) {
+            val clubs = SoongsilClubRepository().observeClubs().first()
+            assertTrue(clubs.isNotEmpty())
+            assertEquals(clubs.size, clubs.map { it.id }.distinct().size)
+            assertTrue(clubs.all { it.adminId.isEmpty() && it.sourceUrl?.startsWith("https://clubunion.ssu.ac.kr/clubs/") == true })
+            val hangul = clubs.first { it.name.any { char -> char in '가'..'힣' } }
+            assertTrue(filterClubs(clubs, hangul.name, null).any { it.id == hangul.id })
         }
     }
 }

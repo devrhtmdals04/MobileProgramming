@@ -28,4 +28,17 @@ class SearchViewModelTest {
         runCurrent()
         assertEquals(listOf("run"), (vm.state.value as LoadState.Content).value.map { it.id })
     }
+    @Test fun categoryOptionsRemainAvailableWhenSearchHasNoResults() = runTest {
+        val vm = SearchViewModel(MockClubRepository())
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.categories.collect {} }
+        runCurrent()
+        val options = vm.categories.value
+        assertTrue(options.isNotEmpty())
+        vm.setQuery("존재하지 않는 동아리")
+        runCurrent()
+        assertEquals(LoadState.Empty, vm.state.value)
+        assertEquals(options, vm.categories.value)
+    }
+
 }
