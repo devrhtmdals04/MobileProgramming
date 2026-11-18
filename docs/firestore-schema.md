@@ -35,7 +35,7 @@ membershipApplications/{applicationId}
 
 | 경로 | 필드·타입 | 제약·설명 |
 |---|---|---|
-| users/{uid} | displayName: string, role: string, createdAt: timestamp | 이름 1~30자, role=`student` 또는 `club_admin`; uid는 Auth uid. email/password는 별도 Firestore 저장하지 않음 |
+| users/{uid} | displayName: string, role: string, createdAt: timestamp | 이름 1~30자, role=`student` 또는 `club_admin`; uid는 Auth uid. 전화번호·인증번호는 별도 Firestore 저장하지 않음 |
 | clubs/{clubId} | name: string, category: string, description: string, recruitment: string, adminId: string, createdAt: timestamp | 이름 1~50자, 소개 1~2000자, 모집 1~1000자, 카테고리 문화/학술/운동 초기값; adminId는 유효 사용자 |
 | promotions/{id} | clubId: string, authorId: string, title: string, body: string, createdAt: timestamp | 제목 1~100자, 본문 1~5000자, 작성자=인증 uid=해당 club.adminId |
 | chatRooms/{roomId} | clubId: string, studentId: string, adminId: string, participantIds: list<string>, createdAt: timestamp | 참여자 정확히 2명, studentId != adminId, adminId는 해당 동아리 관리자, 생성자=studentId |

@@ -34,7 +34,7 @@ class AuthProcessRestartTest {
             when (stage) {
                 "seed" -> {
                     repository.signOut()
-                    repository.signUp("restart-${UUID.randomUUID()}@example.com", "restart123", "재실행 검증")
+                    repository.createPhoneTestUser("재실행 검증")
                     val user = repository.currentUser.first()!!
                     assertTrue(prefs.edit().putString("uid", user.id).commit())
                 }

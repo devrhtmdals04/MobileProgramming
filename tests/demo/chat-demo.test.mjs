@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { collection, doc, getDocs, getDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, query, where } from 'firebase/firestore';
 
 test('로컬 데모를 반복 준비해도 같은 방·두 메시지·생성 시각을 유지한다', async () => {
   const environment = await initializeTestEnvironment({ projectId: 'demo-mope',
@@ -15,7 +15,7 @@ test('로컬 데모를 반복 준비해도 같은 방·두 메시지·생성 시
   async function inspect() {
     return environment.withSecurityRulesDisabled(async context => {
       const db = context.firestore();
-      const rooms = await getDocs(collection(db, 'chatRooms'));
+      const rooms = await getDocs(query(collection(db, 'chatRooms'), where('clubId', '==', 'photo')));
       assert.equal(rooms.size, 1);
       const room = rooms.docs[0];
       const messages = await getDocs(collection(db, 'chatRooms', room.id, 'messages'));

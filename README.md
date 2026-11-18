@@ -20,7 +20,7 @@ Kotlin · Jetpack Compose / Material 3 · Navigation Compose · ViewModel / Stat
 2. SDK Manager에서 Android SDK 36.1과 Build Tools 36.1.0을 설치합니다. minSdk 24, targetSdk 36입니다.
 3. Android Studio가 생성하는 `local.properties`에 자신의 `sdk.dir`을 사용합니다. 파일은 Git 제외 대상입니다.
 4. Gradle Sync 후 실행 구성 `app`과 API 24 이상 에뮬레이터/기기를 선택하여 Run합니다. 첫 빌드는 의존성 다운로드가 필요합니다.
-5. 시작 화면의 **Mock 화면 둘러보기**로 들어갑니다. 이메일/비밀번호 입력은 인증에 사용되지 않습니다.
+5. 시작 화면의 **Mock 화면 둘러보기**로 들어갑니다. Mock 모드에서는 전화번호 인증을 사용할 수 없습니다.
 6. 홈 → 홍보 상세, 탐색 → 검색/필터 → 동아리 상세 → 문의/가입 화면을 확인합니다. 하단 탭에서 개설 요청과 내 정보를 볼 수 있습니다.
 7. Screen 파일의 `@Preview`를 Android Studio Split/Design에서 확인합니다. Preview 실제 렌더링은 아직 수동 검증 대상입니다.
 
@@ -38,9 +38,9 @@ APK: `app/build/outputs/apk/debug/app-debug.apk` (debug 서명, 제출용 최종
 Lint: `app/build/reports/lint-results-debug.html`.
 VS Code에는 `Android: Build GRU`, `Install GRU`, `Run GRU` 작업이 있습니다. Install/Run 작업은 에뮬레이터 한 대를 가정합니다.
 
-Firebase 프로젝트나 `google-services.json`은 현재 빌드에 필요하지 않습니다. 설정 파일만 추가해도 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
+기본 Mock 빌드는 Firebase 설정 없이 가능합니다. 개발 Firebase 프로젝트는 **GRU Campus (`gru-campus`)**이며 실제 연결 실행은 `app/google-services.json`을 별도로 받은 뒤 VS Code의 **Android: Run GRU (Firebase)** 작업 또는 `./gradlew -PmopeBackend=firebase :app:installDebug`를 사용합니다. 설정 파일은 Git에 올리지 않습니다. 설정 파일만 추가해도 기본 Mock 빌드는 원격 모드로 전환되지 않습니다. [Firebase 연동 절차](docs/architecture.md#firebase-도입-절차)를 먼저 확인하세요.
 
-실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. Mock에서는 인증 저장소 없이 둘러보기만 가능하고, emulator/firebase에서는 AuthViewModel이 로그인·가입·로그아웃을 연결합니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
+실행 모드: 기본 `mock`, 로컬 테스트 `-PmopeBackend=emulator`, 실제 프로젝트 `-PmopeBackend=firebase`입니다. 실제 모드는 콘솔에서 발급한 `app/google-services.json`이 필요합니다. Emulator는 debug 전용이며 Android 에뮬레이터에서 호스트의 Auth·Firestore에 연결합니다. Mock에서는 인증 저장소 없이 둘러보기만 가능하고, emulator/firebase에서는 AuthViewModel이 전화번호 인증·첫 이름 등록·로그아웃을 연결합니다. Android 에뮬레이터 한 대를 부팅하고 `npm ci` 후 `npm run test:auth:android`로 실제 Android 인증 Repository를 검증할 수 있습니다. Java 경로와 상세 절차는 [인증 통합 테스트](docs/architecture.md#인증-원격-구현과-통합-테스트)를 참고하세요.
 
 users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Node.js 22 이상과 Java 21 이상에서 `npm ci` 후 `npm run test:rules`를 실행하세요. 최초 실행에는 Emulator 다운로드가 필요합니다. `demo-mope` 프로젝트를 사용하며 실제 Firebase 프로젝트 설정이나 로그인이 필요하지 않습니다. 현재 규칙은 users·chatRooms/messages·공개 연락처·clubRequests와 로그인 사용자의 clubs 단건 조회를 구현했습니다. 그 외 컬렉션과 동아리 목록·쓰기는 접근을 거절합니다. 채팅 UI 송수신 연결은 후속 작업입니다. 자세한 범위는 [DB 설계](docs/firestore-schema.md#채팅-rules-로컬-검증)를 참고하세요.
 
@@ -50,7 +50,7 @@ users·채팅 접근 규칙은 로컬 Firestore Emulator로 검증합니다. Nod
 
 현재 추가 작업 범위는 백엔드·DB입니다. 실제 Figma 7개 화면과 데이터 계약을 대조한 [백엔드 연결 점검](docs/figma-backend-contract.md)에 가입 폼·수요조사·채팅 헤더 등 미지원 항목과 담당/범위 결정을 기록했습니다. 기존 채팅 지원 코드가 있다는 사실을 Figma 전체 지원 완료로 해석하지 않습니다.
 
-비밀번호 찾기 백엔드는 `AuthRepository.requestPasswordReset(email)`로 제공하며 가입 여부를 UI 결과로 구분하지 않습니다. [재설정 계약](docs/auth-password-reset-contract.md)을 참고하세요. 비밀번호 찾기 버튼과 화면 연결은 프론트 후속 작업입니다.
+**인증은 전화번호로 완전히 대체했습니다.** 번호 입력 → 인증번호 확인 → 첫 가입 시 이름 등록 순서이며, 같은 번호로 다시 인증하면 기존 프로필로 로그인합니다. [전화번호 인증 실행 안내](docs/phone-auth.md)를 참고하세요. 이메일 로그인과 비밀번호 재설정은 제공하지 않습니다.
 
 실제 앱 프로세스를 종료한 뒤 로그인·로그아웃 상태가 유지되는지는 `npm run test:auth:restart`로 검증합니다. 완전히 부팅된 Android 에뮬레이터 한 대와 위의 JDK 설정이 필요합니다. 가입 → 재실행 복원 → 로그아웃 → 재실행 미인증의 네 단계에서 PID 변경을 확인합니다.
 

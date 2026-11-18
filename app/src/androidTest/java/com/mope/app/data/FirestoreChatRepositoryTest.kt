@@ -56,7 +56,7 @@ class FirestoreChatRepositoryTest {
         withTimeout(60_000) {
             listOf(studentSdk, adminSdk, outsiderSdk).forEachIndexed { index, sdk ->
                 sdk.auth.signOut()
-                FirebaseAuthRepository(sdk.auth, sdk.store).signUp("$index-${UUID.randomUUID()}@example.com", "chat12345", "채팅 $index")
+                FirebaseAuthRepository(sdk.auth, sdk.store).createPhoneTestUser("채팅 $index")
             }
             // 테스트 fixture만 Emulator의 owner 권한으로 준비. Repository 요청은 실제 Rules 적용.
             val connection = URL("http://10.0.2.2:8080/v1/projects/demo-mope/databases/(default)/documents/clubs/$clubId")
@@ -157,7 +157,7 @@ class FirestoreChatRepositoryTest {
             assertEquals(ChatFailureReason.UNAUTHENTICATED, rooms.await())
             assertEquals(ChatFailureReason.UNAUTHENTICATED, messages.await())
             failure(ChatFailureReason.UNAUTHENTICATED) { student.sendMessage(room, "로그아웃") }
-            FirebaseAuthRepository(studentSdk.auth, studentSdk.store).signUp("new-${UUID.randomUUID()}@example.com", "chat12345", "다른 사용자")
+            FirebaseAuthRepository(studentSdk.auth, studentSdk.store).createPhoneTestUser("다른 사용자")
             assertTrue(student.observeMyRooms().first().isEmpty())
             failure(ChatFailureReason.PERMISSION_DENIED) { student.observeMessages(room).first() }
         }
@@ -199,7 +199,7 @@ class FirestoreChatRepositoryTest {
             val auth = requireNotNull(app.authRepository)
             val chat = requireNotNull(app.chatRepository)
             try {
-                auth.signUp("wired-${UUID.randomUUID()}@example.com", "chat12345", "연결 확인")
+                auth.createPhoneTestUser("연결 확인")
                 val room = chat.getOrCreateRoom(clubId)
                 chat.sendMessage(room, "앱 연결 메시지")
                 assertEquals("앱 연결 메시지", admin.observeMessages(room).first { it.isNotEmpty() }.last().text)

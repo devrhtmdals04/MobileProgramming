@@ -1,37 +1,38 @@
 import { initializeApp, deleteApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, PhoneAuthCredential, signInWithCredential } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, doc, runTransaction, updateDoc, serverTimestamp, terminate } from 'firebase/firestore';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 
 // 고정된 localhost demo 프로젝트만 사용한다. 운영 환경 주소·자격 증명은 받지 않는다.
 const projectId = 'demo-mope';
-const password = 'gru-demo-1234';
 const clients = [];
 let environment;
-async function account(name, email, displayName) {
+async function account(name, phoneNumber, displayName) {
   const app = initializeApp({ projectId, apiKey: 'demo-mope-api-key', appId: '1:1234567890:web:gru-demo' }, name);
   const auth = getAuth(app);
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   const store = getFirestore(app);
   connectFirestoreEmulator(store, '127.0.0.1', 8080);
   clients.push({ app, store });
-  let user;
-  try { user = (await createUserWithEmailAndPassword(auth, email, password)).user; }
-  catch (error) {
-    if (error.code !== 'auth/email-already-in-use') throw error;
-    user = (await signInWithEmailAndPassword(auth, email, password)).user;
-  }
+  const response = await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:sendVerificationCode?key=demo-mope-api-key', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phoneNumber }),
+  });
+  if (!response.ok) throw new Error('Local phone verification request failed');
+  const { sessionInfo } = await response.json();
+  const codes = await fetch('http://127.0.0.1:9099/emulator/v1/projects/demo-mope/verificationCodes').then(r => r.json());
+  const { code } = codes.verificationCodes.find(item => item.sessionInfo === sessionInfo);
+  const { user } = await signInWithCredential(auth, PhoneAuthCredential.fromJSON({ verificationId: sessionInfo, verificationCode: code }));
   const profile = doc(store, 'users', user.uid);
   await runTransaction(store, async tx => {
     if (!(await tx.get(profile)).exists()) tx.set(profile, { displayName, role: 'student', createdAt: serverTimestamp() });
   });
-  return { store, uid: user.uid, email };
+  return { store, uid: user.uid, phoneNumber };
 }
 
 try {
   environment = await initializeTestEnvironment({ projectId, firestore: { host: '127.0.0.1', port: 8080 } });
-  const student = await account('demo-student', 'student@gru.example', '그루 데모 학생');
-  const admin = await account('demo-admin', 'admin@gru.example', '사진부 데모 관리자');
+  const student = await account('demo-student', '+16505550101', '그루 데모 학생');
+  const admin = await account('demo-admin', '+16505550102', '사진부 데모 관리자');
   await environment.withSecurityRulesDisabled(async context => {
     const store = context.firestore();
     const club = doc(store, 'clubs/photo');
@@ -64,7 +65,7 @@ try {
       if (!(await tx.get(ref)).exists()) tx.set(ref, { senderId: actor.uid, text, createdAt: serverTimestamp() });
     });
   }
-  process.stdout.write(`GRU local demo ready\nstudent: ${student.email}\nadmin: ${admin.email}\npassword: ${password}\nclubId: photo\nroomId: ${roomId}\n`);
+  process.stdout.write(`GRU local demo ready\nstudent: ${student.phoneNumber}\nadmin: ${admin.phoneNumber}\nclubId: photo\nroomId: ${roomId}\n`);
 } finally {
   for (const { app, store } of clients) { await terminate(store); await deleteApp(app); }
   await environment?.cleanup();

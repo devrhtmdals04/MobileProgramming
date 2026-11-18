@@ -3,32 +3,25 @@ package com.mope.app.domain
 import com.mope.app.data.repository.AuthFailure
 import com.mope.app.data.repository.AuthFailureReason
 
-/** 비밀번호는 공백을 포함한 원문을 보존한다. 이메일의 대소문자도 변경하지 않는다. */
-data class SignInInput(val email: String, val password: String)
-data class SignUpInput(val email: String, val password: String, val displayName: String)
-
 object AuthInput {
-    fun signIn(email: String, password: String): SignInInput {
-        val normalizedEmail = normalizeEmail(email)
-        // 기존 계정의 로그인에는 신규 가입 비밀번호 정책을 강제하지 않는다.
-        requireInput(password.isNotEmpty())
-        return SignInInput(normalizedEmail, password)
-    }
-
-    fun passwordReset(email: String): String = normalizeEmail(email)
-
-    private fun normalizeEmail(email: String): String {
-        val normalized = email.trim()
-        requireInput(normalized.matches(Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")))
+    /** Korean mobile numbers may be entered locally; other countries use E.164. */
+    fun phoneNumber(value: String): String {
+        requireInput(value.trim().matches(Regex("[+0-9() -]+")))
+        val compact = value.trim().replace(Regex("[() -]"), "")
+        val normalized = if (compact.startsWith("010") && compact.length == 11) {
+            "+82" + compact.drop(1)
+        } else compact
+        requireInput(normalized.matches(Regex("\\+[1-9][0-9]{7,14}")))
         return normalized
     }
 
-    fun signUp(email: String, password: String, displayName: String): SignUpInput {
-        val credentials = signIn(email, password)
-        val name = displayName.trim()
-        requireInput(password.length >= 6 && password.isNotBlank())
-        requireInput(name.length in 1..30)
-        return SignUpInput(credentials.email, credentials.password, name)
+    fun verificationCode(value: String): String {
+        requireInput(value.matches(Regex("[0-9]{6}")))
+        return value
+    }
+
+    fun displayName(value: String): String = value.trim().also {
+        requireInput(it.length in 1..30)
     }
 
     private fun requireInput(valid: Boolean) {

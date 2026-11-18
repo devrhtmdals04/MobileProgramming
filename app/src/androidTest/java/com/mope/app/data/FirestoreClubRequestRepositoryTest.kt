@@ -46,7 +46,7 @@ class FirestoreClubRequestRepositoryTest {
         withTimeout(60_000) {
             listOf(studentSdk, operatorSdk, outsiderSdk).forEach { sdk ->
                 sdk.auth.signOut()
-                FirebaseAuthRepository(sdk.auth, sdk.store).signUp("request-${UUID.randomUUID()}@example.com", "request123", "개설 요청")
+                FirebaseAuthRepository(sdk.auth, sdk.store).createPhoneTestUser("개설 요청")
             }
             // 로컬 Emulator fixture에만 운영 권한 부여. 제품 코드에서는 claim을 부여하지 않는다.
             request("http://10.0.2.2:9099/identitytoolkit.googleapis.com/v1/accounts:update", "POST", JSONObject()
@@ -135,7 +135,7 @@ class FirestoreClubRequestRepositoryTest {
             studentSdk.auth.signOut()
             assertEquals(RequestFailureReason.UNAUTHENTICATED, ended.await())
             failure(RequestFailureReason.UNAUTHENTICATED) { student.submitClubRequest("제목", "목적", oldId) }
-            FirebaseAuthRepository(studentSdk.auth, studentSdk.store).signUp("new-${UUID.randomUUID()}@example.com", "request123", "새 계정")
+            FirebaseAuthRepository(studentSdk.auth, studentSdk.store).createPhoneTestUser("새 계정")
             failure(RequestFailureReason.UNAUTHENTICATED) { student.submitClubRequest("제목", "목적", oldId) }
             val listening = CompletableDeferred<Unit>()
             val job = launch { student.observeMyRequests().collect { listening.complete(Unit) } }
@@ -154,7 +154,7 @@ class FirestoreClubRequestRepositoryTest {
             val auth = requireNotNull(app.authRepository)
             val requests = requireNotNull(app.clubRequestRepository)
             try {
-                auth.signUp("wired-${UUID.randomUUID()}@example.com", "request123", "앱 연결")
+                auth.createPhoneTestUser("앱 연결")
                 val wiredId = requests.submitClubRequest("앱 요청", "공유 세션")
                 assertTrue(requests.observeMyRequests().first().any { it.id == wiredId })
                 auth.signOut()

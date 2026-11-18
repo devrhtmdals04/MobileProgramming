@@ -109,9 +109,9 @@ npm run seed:chat:demo
 
 | 구분 | 로컬 데모 값 |
 |---|---|
-| 학생 | student@gru.example |
-| 관리자 | admin@gru.example |
-| 공통 비밀번호 | gru-demo-1234 |
+| 학생 | +16505550101 |
+| 관리자 | +16505550102 |
+| 인증번호 | 앱에서 요청 후 로컬 Firebase 터미널의 6자리 코드 확인 |
 | 동아리 | photo / 찰칵 사진부 |
 | 방 ID | seed 출력의 roomId |
 

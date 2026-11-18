@@ -1,12 +1,21 @@
 package com.mope.app.data.remote.auth
 
+import android.app.Activity
 import android.content.SharedPreferences
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.mope.app.data.repository.AuthSession
+import com.mope.app.data.repository.PhoneCodeEvent
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,13 +50,14 @@ class FirebaseAuthRepository(
 ) : AuthRepository {
     private val mutation = Mutex()
     private val revision = MutableStateFlow(0L)
+    @Volatile private var lastCodeRequest: Pair<String, PhoneAuthProvider.ForceResendingToken>? = null
 
     init {
         // 앱의 명시적 로그아웃을 SDK의 이전 영속 세션보다 우선한다.
         if (wasExplicitlySignedOut()) auth.signOut()
     }
 
-    override val currentUser: Flow<User?> = combine(
+    override val session: Flow<AuthSession> = combine(
         callbackFlow {
             val listener = FirebaseAuth.AuthStateListener { trySend(Unit) }
             auth.addAuthStateListener(listener)
@@ -56,46 +66,80 @@ class FirebaseAuthRepository(
         revision,
     ) { _, _ -> Unit }.mapLatest {
         mutation.withLock {
-            (if (wasExplicitlySignedOut()) null else auth.currentUser)?.let { account ->
-                profileOperation {
-                    decodeProfile(firestore.collection("users").document(account.uid).get(Source.SERVER).await())
+            val account = if (wasExplicitlySignedOut()) null else auth.currentUser
+            if (account == null) AuthSession.SignedOut else {
+                // Email-only legacy sessions must not bypass the new phone sign-in.
+                if (account.phoneNumber == null) {
+                    auth.signOut()
+                    AuthSession.SignedOut
+                } else profileOperation {
+                    val document = firestore.collection("users").document(account.uid).get(Source.SERVER).await()
+                    if (document.exists()) AuthSession.SignedIn(decodeProfile(document))
+                    else AuthSession.ProfileRequired
                 }
             }
         }
     }.distinctUntilChanged()
 
-    override suspend fun signUp(email: String, password: String, displayName: String) {
-        val input = AuthInput.signUp(email, password, displayName)
+    override fun requestPhoneCode(phoneNumber: String, activity: Activity?): Flow<PhoneCodeEvent> = callbackFlow {
+        val normalized = AuthInput.phoneNumber(phoneNumber)
+        val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                launch {
+                    try {
+                        authenticate(credential)
+                        trySend(PhoneCodeEvent.AutomaticallyVerified)
+                        close()
+                    } catch (failure: Exception) { close(failure) }
+                }
+            }
+            override fun onVerificationFailed(failure: FirebaseException) {
+                close(AuthFailure(authFailureReason(failure), failure))
+            }
+            override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
+                if (isActive) {
+                    lastCodeRequest = normalized to token
+                    trySend(PhoneCodeEvent.CodeSent(id))
+                }
+            }
+            override fun onCodeAutoRetrievalTimeOut(id: String) { close() }
+        }
+        try {
+            val options = PhoneAuthOptions.newBuilder(auth)
+                .setPhoneNumber(normalized)
+                .setTimeout(60L, TimeUnit.SECONDS)
+                .setCallbacks(callbacks)
+            lastCodeRequest?.takeIf { it.first == normalized }?.let { options.setForceResendingToken(it.second) }
+            if (activity != null) options.setActivity(activity)
+            PhoneAuthProvider.verifyPhoneNumber(options.build())
+        } catch (failure: Exception) { close(AuthFailure(authFailureReason(failure), failure)) }
+        awaitClose { /* Firebase callbacks are Activity-scoped; a cancelled flow ignores late events. */ }
+    }
+
+    override suspend fun verifyPhoneCode(verificationId: String, code: String) {
+        if (verificationId.isBlank()) throw AuthFailure(AuthFailureReason.CODE_EXPIRED)
+        val input = AuthInput.verificationCode(code)
+        authenticate(PhoneAuthProvider.getCredential(verificationId, input))
+    }
+
+    private suspend fun authenticate(credential: PhoneAuthCredential) {
         mutation.withLock {
             try {
-                val account = authOperation {
-                    auth.createUserWithEmailAndPassword(input.email, input.password).await().user
-                        ?: throw AuthFailure(AuthFailureReason.UNKNOWN)
-                }
+                authOperation { auth.signInWithCredential(credential).await() }
                 authOperation { persistLogout(false) }
-                profileOperation {
-                    account.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(input.displayName).build()).await()
-                    ensureProfile(account, input.displayName)
-                }
-            } finally {
-                revision.value++
-            }
+                // The session flow keeps new users on name entry until profile creation succeeds.
+            } finally { revision.value++ }
         }
     }
 
-    override suspend fun signIn(email: String, password: String) {
-        val input = AuthInput.signIn(email, password)
+    override suspend fun completeProfile(displayName: String) {
+        val name = AuthInput.displayName(displayName)
         mutation.withLock {
             try {
-                val account = authOperation {
-                    auth.signInWithEmailAndPassword(input.email, input.password).await().user
-                        ?: throw AuthFailure(AuthFailureReason.UNKNOWN)
-                }
-                authOperation { persistLogout(false) }
-                profileOperation { ensureProfile(account, recoveryName(account)) }
-            } finally {
-                revision.value++
-            }
+                val account = auth.currentUser?.takeIf { !wasExplicitlySignedOut() && it.phoneNumber != null }
+                    ?: throw AuthFailure(AuthFailureReason.PERMISSION_DENIED)
+                profileOperation { ensureProfile(account, name) }
+            } finally { revision.value++ }
         }
     }
 
@@ -110,18 +154,6 @@ class FirebaseAuthRepository(
     }
 
     private fun wasExplicitlySignedOut(): Boolean = logoutPreferences?.getBoolean("signedOut", false) == true
-
-    override suspend fun requestPasswordReset(email: String) {
-        val normalized = AuthInput.passwordReset(email)
-        authOperation {
-            try {
-                auth.sendPasswordResetEmail(normalized).await()
-            } catch (failure: FirebaseAuthException) {
-                // 프로젝트의 이메일 열거 방지 설정과 관계없이 가입 여부를 UI에 노출하지 않는다.
-                if (failure.errorCode != "ERROR_USER_NOT_FOUND") throw failure
-            }
-        }
-    }
 
     private suspend fun persistLogout(signedOut: Boolean) {
         val preferences = logoutPreferences ?: return
@@ -162,12 +194,6 @@ class FirebaseAuthRepository(
         return User(document.id, name, role)
     }
 
-    // Auth 표시 이름 저장 자체가 실패했어도 다음 로그인에서 프로필을 복구할 수 있다.
-    private fun recoveryName(account: FirebaseUser): String =
-        account.displayName?.trim()?.takeIf { it.isNotBlank() }?.take(30)
-            ?: account.email?.substringBefore('@')?.trim()?.takeIf { it.isNotBlank() }?.take(30)
-            ?: "학생"
-
     private suspend fun <T> profileOperation(block: suspend () -> T): T = try {
         block()
     } catch (cancelled: CancellationException) {
@@ -189,12 +215,13 @@ class FirebaseAuthRepository(
 
 internal fun authFailureReason(failure: Exception): AuthFailureReason = when (failure) {
     is FirebaseNetworkException -> AuthFailureReason.NETWORK
-    is FirebaseTooManyRequestsException -> AuthFailureReason.PERMISSION_DENIED
+    is FirebaseTooManyRequestsException -> AuthFailureReason.TOO_MANY_REQUESTS
     is FirebaseAuthException -> when (failure.errorCode) {
-        "ERROR_EMAIL_ALREADY_IN_USE" -> AuthFailureReason.ACCOUNT_ALREADY_EXISTS
-        "ERROR_INVALID_EMAIL", "ERROR_WEAK_PASSWORD", "ERROR_MISSING_PASSWORD" -> AuthFailureReason.INVALID_INPUT
-        "ERROR_INVALID_CREDENTIAL", "ERROR_INVALID_LOGIN_CREDENTIALS", "ERROR_WRONG_PASSWORD", "ERROR_USER_NOT_FOUND" -> AuthFailureReason.INVALID_CREDENTIALS
-        "ERROR_USER_DISABLED", "ERROR_OPERATION_NOT_ALLOWED", "ERROR_TOO_MANY_REQUESTS" -> AuthFailureReason.PERMISSION_DENIED
+        "ERROR_INVALID_PHONE_NUMBER", "ERROR_MISSING_PHONE_NUMBER", "ERROR_MISSING_VERIFICATION_CODE" -> AuthFailureReason.INVALID_INPUT
+        "ERROR_INVALID_VERIFICATION_CODE", "ERROR_INVALID_CREDENTIAL" -> AuthFailureReason.INVALID_CREDENTIALS
+        "ERROR_SESSION_EXPIRED", "ERROR_INVALID_VERIFICATION_ID" -> AuthFailureReason.CODE_EXPIRED
+        "ERROR_TOO_MANY_REQUESTS", "ERROR_QUOTA_EXCEEDED" -> AuthFailureReason.TOO_MANY_REQUESTS
+        "ERROR_USER_DISABLED", "ERROR_OPERATION_NOT_ALLOWED" -> AuthFailureReason.PERMISSION_DENIED
         else -> AuthFailureReason.UNKNOWN
     }
     is FirebaseFirestoreException -> when (failure.code) {

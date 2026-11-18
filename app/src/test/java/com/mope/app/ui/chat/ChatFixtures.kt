@@ -4,6 +4,10 @@ import com.mope.app.data.model.ChatRoom
 import com.mope.app.data.model.Message
 import com.mope.app.data.model.User
 import com.mope.app.data.repository.AuthRepository
+import com.mope.app.data.repository.AuthSession
+import com.mope.app.data.repository.PhoneCodeEvent
+import android.app.Activity
+import kotlinx.coroutines.flow.map
 import com.mope.app.data.repository.ChatRepository
 import com.mope.app.data.repository.ChatFailure
 import com.mope.app.data.repository.ChatFailureReason
@@ -21,10 +25,11 @@ internal class ChatAuthFixture : AuthRepository {
         failure?.let { throw it }
         emitAll(users)
     }
-    override suspend fun signIn(email: String, password: String) = error("Not used by chat tests")
-    override suspend fun signUp(email: String, password: String, displayName: String) = error("Not used by chat tests")
+    override val session: Flow<AuthSession> get() = currentUser.map { if (it == null) AuthSession.SignedOut else AuthSession.SignedIn(it) }
+    override fun requestPhoneCode(phoneNumber: String, activity: Activity?): Flow<PhoneCodeEvent> = error("Not used by chat tests")
+    override suspend fun verifyPhoneCode(verificationId: String, code: String) = error("Not used by chat tests")
+    override suspend fun completeProfile(displayName: String) = error("Not used by chat tests")
     override suspend fun signOut() { users.value = null }
-    override suspend fun requestPasswordReset(email: String) = error("Not used by chat tests")
 }
 
 internal class ChatFixture(private val auth: ChatAuthFixture) : ChatRepository {

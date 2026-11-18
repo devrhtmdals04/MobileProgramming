@@ -28,6 +28,53 @@
             "args": ["-e", "shell", "am", "start", "-S", "-W", "-n", "com.mope.app/.MainActivity"],
             "dependsOn": "Android: Install GRU",
             "problemMatcher": []
+        },
+        {
+            "label": "Android: Build GRU (Firebase)",
+            "type": "shell",
+            "command": "./gradlew",
+            "args": [
+                "-PmopeBackend=firebase",
+                ":app:assembleDebug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "JAVA_HOME": "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Android: Install GRU (Firebase)",
+            "type": "process",
+            "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
+            "args": [
+                "-e",
+                "install",
+                "--no-streaming",
+                "-r",
+                "${workspaceFolder}/app/build/outputs/apk/debug/app-debug.apk"
+            ],
+            "dependsOn": "Android: Build GRU (Firebase)",
+            "problemMatcher": []
+        },
+        {
+            "label": "Android: Run GRU (Firebase)",
+            "type": "process",
+            "command": "${env:HOME}/Library/Android/sdk/platform-tools/adb",
+            "args": [
+                "-e",
+                "shell",
+                "am",
+                "start",
+                "-S",
+                "-W",
+                "-n",
+                "com.mope.app/.MainActivity"
+            ],
+            "dependsOn": "Android: Install GRU (Firebase)",
+            "problemMatcher": []
         }
     ]
 }

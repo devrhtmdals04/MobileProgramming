@@ -43,7 +43,7 @@ Screen ← collectAsStateWithLifecycle ← StateFlow<LoadState<T>>
 | 계약 | 현재 메서드 | 연결 책임 |
 |---|---|---|
 | ClubRepository | observeClubs, observePromotions | 김민성 UI·ViewModel·원격 구현 |
-| AuthRepository | currentUser, signIn, signUp, signOut | 고승민 Repository / 김민성 UI·ViewModel |
+| AuthRepository | session/currentUser, requestPhoneCode, verifyPhoneCode, completeProfile, signOut | 고승민 Repository / 김민성 UI·ViewModel |
 | ChatRepository | observeMyRooms, getOrCreateRoom, observeMessages, newMessageId, sendMessage | 고승민 Repository / 김민성 UI·ViewModel |
 | RequestRepository | submitClubRequest, observeMyRequests, observePendingRequests, reviewRequest, applyToClub, observeMyApplications | 고승민 개설 Repository / 김민성 가입 Repository 및 전체 UI·ViewModel |
 
@@ -70,7 +70,7 @@ Firebase Auth·Firestore SDK와 users Rules를 추가했다. 기본값은 Mock�
 
 1. 팀이 사용할 Firebase 프로젝트를 만들거나 선택하고 두 팀원의 적절한 콘솔 권한을 부여한다. 프로젝트 ID·담당자는 문서에 기록하되 서비스 계정 비밀은 기록하지 않는다.
 2. Android 앱 `com.mope.app`을 등록한다. Firebase에서 발급받은 `google-services.json`을 로컬 `app/`에 둔다. 파일·키를 직접 만들어 넣지 않는다.
-3. 이메일/비밀번호 Authentication을 활성화한다. Firestore 데이터베이스를 만들고 팀의 지역을 결정한다. 광범위한 허용 규칙을 배포하지 않는다.
+3. Phone Authentication을 활성화하고 앱 SHA-256·SHA-1과 SMS 허용 지역을 설정한다. Firestore 데이터베이스를 만들고 팀의 지역을 결정한다. 광범위한 허용 규칙을 배포하지 않는다.
 4. 버전 카탈로그에 Firebase BoM 34.14.0, `firebase-auth`, `firebase-firestore`, `kotlinx-coroutines-play-services`, Google Services 플러그인 4.4.4를 고정했다. 기존 minSdk 24를 유지하며 분리된 `-ktx` 모듈은 사용하지 않는다.
 5. 기본 `-PmopeBackend=mock`은 설정 파일 없이 실행한다. `emulator`는 debug 전용 `demo-mope` 설정으로 Auth 9099·Firestore 8080에 연결하고, `firebase`는 실제 `app/google-services.json`이 없으면 Gradle 구성 단계에서 실패한다. Google Services 플러그인은 firebase 모드에서만 적용한다.
 6. 인터넷 권한과 `FirebaseAuthRepository`를 추가했다. `MopeApplication.authRepository`는 Mock에서 null, 나머지 모드에서는 실제 Repository를 지연 생성한다. 동아리 Repository와 화면 이동은 여전히 Mock이다. 화면은 null을 인증 성공으로 취급하지 않아야 한다.
@@ -99,75 +99,48 @@ RequestRepository의 개설/가입 공유 계약은 유지하되 구현 클래�
 
 ## AUTH-01 인증 기반 구현
 
-인증 입력 검증은 `domain/AuthInput.kt`, SDK와 무관한 오류는
-`data/repository/AuthFailure.kt`에 정의한다. 이메일·표시 이름의 앞뒤 공백은
-제거하고 비밀번호 원문은 유지한다. 가입 시 이름은 trim 후 1~30 UTF-16
-코드 단위, 비밀번호는 6자 이상이며 공백만으로 구성할 수 없다. 로그인은
-기존 계정 정책과의 충돌을 피하기 위해 비밀번호 길이 대신 비어 있는지만 검사한다.
-이는 앱의 초기 입력 정책이며 서버 검증을 대체하지 않는다.
+이메일·비밀번호 인증은 전화번호 인증으로 대체했다. 현재 계약과 실행 절차는
+[전화번호 인증](phone-auth.md)을 따른다. `AuthInput`은 국내 010 번호를 +82로
+정규화하고 국제 번호는 E.164 형식, 인증번호는 ASCII 숫자 6자리, 이름은 trim 후
+1~30 UTF-16 코드 단위로 검증한다.
 
-`AuthRepository.currentUser`는 복원 중 최초 값을 보류하고, 복원 완료 후
-미인증일 때 null을 발행한다. 인증 계정이 있지만 프로필을 읽을 수 없으면
-PROFILE_UNAVAILABLE 오류로 구분한다. UI는 최초 발행 전 로딩 상태를 유지하고
-오류 시 재구독한다. 가입 프로필 저장 실패 후 다음 로그인에서 누락 프로필
-생성을 재시도하며, 기존 프로필의 역할·생성 시각은 덮어쓰지 않는다.
-
-현재 입력 검증·오류 타입·계약 문서와 입력 경계 테스트를 구현했다.
-테스트 소스의 `FakeAuthRepository`와 `FakeAuthStore`로 복원 대기·가입·로그인·
-로그아웃·프로필 저장 실패·재로그인 복구·취소 전파를 검증한다. fake는 앱에
-주입하지 않는다. 새 Repository에 같은 메모리 저장소를 전달하는 복원 테스트는
-실제 프로세스 재시작이나 Firebase 영속 세션 검증을 대신하지 않는다.
-복원 완료는 `completeRestoration()`으로 테스트에서 명시적으로 제어한다.
-users Rules와 Emulator 테스트는 `firestore.rules` 및 `tests/firestore/`에 구현했다.
-Firebase 인증 구현은 `data/remote/auth/`에 추가했다. users·채팅 규칙은 구현했고 인증 UI는 연결했고 나머지 컬렉션 규칙과 채팅 UI 연결은 후속 작업이다.
-AUTH-01, AUTH-02, SET-03은 아직 DONE이 아니다.
+`AuthRepository.session`은 SignedOut / ProfileRequired / SignedIn을 구분한다.
+복원 완료 전에는 최초 값을 보류한다. `currentUser`는 완성된 프로필만 반환하며
+신규 가입의 ProfileRequired 상태는 null이다. 프로필 조회 실패는
+PROFILE_UNAVAILABLE 오류이며 로그아웃으로 취급하지 않는다.
 
 ## 인증 원격 구현과 통합 테스트
 
-`FirebaseAuthRepository`는 Auth 변경 리스너를 구독하고 `awaitClose`에서 해제한다.
-프로필은 서버에서 읽으며 캐시의 오래된 사용자를 복원 성공으로 취급하지 않는다.
-변경 작업과 프로필 조회를 Mutex로 직렬화해 가입 중 부분 완료 사용자 발행을 막는다.
-가입은 Auth 표시 이름 저장과 Firestore transaction의 프로필 생성이 완료된 후 반환한다.
-로그인은 누락 프로필만 student로 생성하며 기존 이름·역할·생성 시각을 덮어쓰지 않는다.
-프로필 실패는 PROFILE_UNAVAILABLE로 전달하고 원인을 cause에 보존한다.
-Auth 표시 이름 저장도 실패했다면 복구 이름은 이메일의 @ 앞부분(최대 30자), 없으면
-`학생`이다. 프로필 복구가 필요한 계정은 재가입 대신 기존 자격 증명으로 로그인한다.
+`FirebaseAuthRepository`는 `PhoneAuthProvider`로 번호를 인증한다. 수동 인증번호와
+자동 인증 콜백 모두 동일한 Firebase credential 경로를 사용한다. 프로필 조회·가입 완료·
+로그아웃은 Mutex로 직렬화하며 users는 서버에서 읽는다. `completeProfile`은
+transaction으로 누락된 본인 프로필만 student로 생성하고 기존 이름·역할·생성 시각을
+덮어쓰지 않는다. 전화번호는 Firebase Auth에만 보관하고 Firestore 프로필에 복사하지 않는다.
+이메일만 연결된 이전 SDK 세션은 로그아웃해 전화번호 인증으로 진입시킨다.
+기존 이메일 계정의 자동 병합이나 UID 이관은 수행하지 않는다.
 
-`currentUser` Flow 오류는 구독을 종료하므로 UI는 복구/재시도 시 다시 구독해야 한다.
-Firebase SDK 객체는 이 계층 내부에서만 사용하고 CancellationException은 변환하지 않는다.
-운영 권한 claim·프로필 편집 기능은 이 작업 범위에 포함하지 않는다.
-
-Android 에뮬레이터 한 대를 부팅한 후 실행한다. 호스트 주소 `10.0.2.2`는 Android
-에뮬레이터용이다. 물리 기기 연결 설정은 별도로 필요하며 이번 검증 범위 밖이다.
+Android 에뮬레이터 한 대를 부팅한 후 실행한다. 다른 로컬 Firebase 서버가 있으면
+먼저 종료해 8080/9099 포트 충돌을 피한다.
 
 ```sh
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 npm ci
 npm run test:auth:android
+npm run test:auth:restart
 ```
 
-이 명령은 Auth·Firestore Emulator를 함께 실행하고 Android instrumentation 테스트를
-실행한 뒤 종료한다. 테스트 계정은 매번 고유 이메일을 사용한다. 초기화·네트워크·로컬
-저장은 실제 Android SDK를 사용하며 users 규칙을 우회하지 않는다.
+Android 테스트는 고유 전화번호로 SDK 인증번호 요청 → Emulator 전용 REST API로 코드
+확인 → SDK 인증 → 프로필 생성/재로그인을 검증한다. 실제 SMS는 보내지 않는다.
+프로세스 검증은 가입·복원·로그아웃·미인증 확인을 각각 force-stop 후 별도 PID에서
+실행한다. 일반 Android 테스트에서는 이 단계 한 개를 의도적으로 skip한다.
 
-실제 프로세스 재실행 검증은 `npm run test:auth:restart`로 실행한다. Android 에뮬레이터가
-완전히 부팅된 상태에서 실행하며 여러 기기가 있으면 `ANDROID_SERIAL`로 선택한다.
-`ANDROID_HOME` 또는 `local.properties`의 sdk.dir에서 adb를 찾는다. 호스트 스크립트가
-가입·복원·로그아웃·미인증 확인을 각각 force-stop 후 별도 instrumentation 실행으로
-검증하고 이전 단계와 PID가 다른지도 확인한다. Firebase Emulator는 네 단계 동안 유지한다.
-일반 `test:auth:android` 실행에서는 이 단계 테스트 한 개가 의도적으로 skip된다.
+명시적 로그아웃 표시는 앱 소유 SharedPreferences에 IO 스레드에서 commit하며 재실행 시
+SDK의 이전 영속 세션보다 우선한다. 전화번호·인증번호·verification ID·토큰은 여기에
+저장하지 않는다. 가입 도중 종료했다면 다음 복원에서 ProfileRequired로 이름 입력을 재개한다.
+인증번호 입력 도중 프로세스를 종료했다면 번호부터 다시 인증한다.
 
-이 검증에서 SDK signOut 호출 후 즉시 종료하면 이전 사용자로 복원되는 현상을 재현했다.
-`FirebaseBackend`가 주입하는 앱 소유 SharedPreferences에 명시적 로그아웃 표시를
-IO 스레드에서 commit한 후 SDK signOut을 호출한다. 재실행 시에는 이 표시를 우선해
-SDK의 이전 세션을 로그아웃시키고 currentUser도 null로 처리한다. 새 가입·로그인이
-인증 계정을 얻었을 때만 표시를 해제하며, 비밀번호나 토큰은 이 저장소에 기록하지 않는다.
-이름이 다른 FirebaseApp의 로그아웃 표시는 서로 분리한다. 직접 Repository를 생성하는
-테스트 fixture는 선택 인자인 로그아웃 저장소를 생략하며, 실제 앱은 항상 저장소를 주입한다.
-
-공식 근거: [Android SDK 릴리스](https://firebase.google.com/support/release-notes/android),
-[Auth Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_auth),
-[Firestore Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_firestore).
+공식 근거: [Android 전화번호 인증](https://firebase.google.com/docs/auth/android/phone-auth),
+[Auth Emulator 연결](https://firebase.google.com/docs/emulator-suite/connect_auth).
 
 ## 채팅 Repository 구현
 

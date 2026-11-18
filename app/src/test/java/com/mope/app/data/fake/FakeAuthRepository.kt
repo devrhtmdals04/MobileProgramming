@@ -1,102 +1,50 @@
 package com.mope.app.data.fake
 
+import android.app.Activity
 import com.mope.app.data.model.User
-import com.mope.app.data.repository.AuthFailure
-import com.mope.app.data.repository.AuthFailureReason
-import com.mope.app.data.repository.AuthRepository
+import com.mope.app.data.repository.*
 import com.mope.app.domain.AuthInput
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.*
 
-/** 테스트 전용 메모리 저장소. 실제 앱의 비밀번호 저장에 사용하지 않는다. */
 class FakeAuthStore {
-    data class Account(val uid: String, val password: String, val displayName: String)
-    val accounts = mutableMapOf<String, Account>()
+    val accounts = mutableMapOf<String, String>()
     val profiles = mutableMapOf<String, User>()
     var sessionUid: String? = null
-    internal var nextId = 1
 }
 
-/** 앱에는 주입하지 않는 인증 계약 테스트용 fake. 복원 완료는 테스트에서 제어한다. */
 class FakeAuthRepository(val store: FakeAuthStore = FakeAuthStore()) : AuthRepository {
-    private sealed interface Session {
-        data object Restoring : Session
-        data class Ready(val user: User?) : Session
-        data class Failed(val failure: AuthFailure) : Session
-    }
-
-    private val session = MutableStateFlow<Session>(Session.Restoring)
+    private val state = MutableStateFlow<AuthSession?>(null)
+    override val session: Flow<AuthSession> = state.filterNotNull()
+    var requests = 0
+    var verifications = 0
     var nextProfileFailure: Throwable? = null
-    val passwordResetRequests = mutableListOf<String>()
-    var nextPasswordResetFailure: Throwable? = null
-
-    override val currentUser: Flow<User?> = session.transform { state ->
-        when (state) {
-            Session.Restoring -> Unit
-            is Session.Ready -> emit(state.user)
-            is Session.Failed -> throw state.failure
-        }
-    }
-
+    private val challenges = mutableMapOf<String, String>()
     fun completeRestoration() {
         val uid = store.sessionUid
-        session.value = when {
-            uid == null -> Session.Ready(null)
-            store.profiles[uid] != null -> Session.Ready(store.profiles.getValue(uid))
-            else -> Session.Failed(AuthFailure(AuthFailureReason.PROFILE_UNAVAILABLE))
-        }
+        state.value = if (uid == null) AuthSession.SignedOut else store.profiles[uid]?.let { AuthSession.SignedIn(it) } ?: AuthSession.ProfileRequired
     }
-
-    override suspend fun signUp(email: String, password: String, displayName: String) {
-        val input = AuthInput.signUp(email, password, displayName)
-        val key = input.email.lowercase(java.util.Locale.ROOT)
-        if (key in store.accounts) fail(AuthFailureReason.ACCOUNT_ALREADY_EXISTS)
-        val account = FakeAuthStore.Account("fake-${store.nextId++}", input.password, input.displayName)
-        store.accounts[key] = account
-        store.sessionUid = account.uid
-        publishProfile(account)
+    override fun requestPhoneCode(phoneNumber: String, activity: Activity?): Flow<PhoneCodeEvent> = flow {
+        val phone = AuthInput.phoneNumber(phoneNumber)
+        requests++
+        val id = "challenge-$requests"
+        challenges[id] = phone
+        emit(PhoneCodeEvent.CodeSent(id))
     }
-
-    override suspend fun signIn(email: String, password: String) {
-        val input = AuthInput.signIn(email, password)
-        val account = store.accounts[input.email.lowercase(java.util.Locale.ROOT)]
-        if (account == null || account.password != input.password) {
-            fail(AuthFailureReason.INVALID_CREDENTIALS)
-        }
-        store.sessionUid = account.uid
-        publishProfile(account)
+    override suspend fun verifyPhoneCode(verificationId: String, code: String) {
+        verifications++
+        AuthInput.verificationCode(code)
+        val phone = challenges[verificationId] ?: throw AuthFailure(AuthFailureReason.CODE_EXPIRED)
+        if (code != "123456") throw AuthFailure(AuthFailureReason.INVALID_CREDENTIALS)
+        challenges.remove(verificationId)
+        store.sessionUid = store.accounts.getOrPut(phone) { "fake-${store.accounts.size + 1}" }
+        completeRestoration()
     }
-
-    private fun publishProfile(account: FakeAuthStore.Account) {
-        // 이전 계정의 사용자 정보를 실패 후에도 노출하지 않는다.
-        session.value = Session.Restoring
-        val failure = nextProfileFailure
-        nextProfileFailure = null
-        if (failure != null) {
-            if (failure is kotlinx.coroutines.CancellationException) throw failure
-            val unavailable = AuthFailure(AuthFailureReason.PROFILE_UNAVAILABLE, failure)
-            session.value = Session.Failed(unavailable)
-            throw unavailable
-        }
-        val user = store.profiles.getOrPut(account.uid) {
-            User(account.uid, account.displayName)
-        }
-        session.value = Session.Ready(user)
+    override suspend fun completeProfile(displayName: String) {
+        val name = AuthInput.displayName(displayName)
+        val uid = store.sessionUid ?: throw AuthFailure(AuthFailureReason.PERMISSION_DENIED)
+        nextProfileFailure?.let { nextProfileFailure = null; throw it }
+        store.profiles.getOrPut(uid) { User(uid, name) }
+        completeRestoration()
     }
-
-    override suspend fun signOut() {
-        store.sessionUid = null
-        session.value = Session.Ready(null)
-    }
-
-    override suspend fun requestPasswordReset(email: String) {
-        val normalized = AuthInput.passwordReset(email)
-        val failure = nextPasswordResetFailure
-        nextPasswordResetFailure = null
-        if (failure != null) throw failure
-        passwordResetRequests.add(normalized)
-    }
-
-    private fun fail(reason: AuthFailureReason): Nothing = throw AuthFailure(reason)
+    override suspend fun signOut() { store.sessionUid = null; completeRestoration() }
 }

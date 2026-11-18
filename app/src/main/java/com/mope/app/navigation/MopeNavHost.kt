@@ -1,6 +1,11 @@
 package com.mope.app.navigation
 
 import android.net.Uri
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.ui.platform.LocalContext
+import com.mope.app.BuildConfig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -71,6 +76,7 @@ private fun AuthenticatedMopeNavHost(
     val authViewModel: AuthViewModel = viewModel(
         factory = viewModelFactory { initializer { AuthViewModel(authRepository) } },
     )
+    val activity = LocalContext.current.findActivity()
     val authSession by authViewModel.session.collectAsStateWithLifecycle()
     var mockExploring by rememberSaveable { mutableStateOf(false) }
     val route = currentRoute(nav)
@@ -107,9 +113,12 @@ private fun AuthenticatedMopeNavHost(
                 AuthScreen(
                     form = form,
                     session = authSession,
-                    onModeChange = authViewModel::setMode,
-                    onEmailChange = authViewModel::onEmailChange,
-                    onPasswordChange = authViewModel::onPasswordChange,
+                    onPhoneNumberChange = authViewModel::onPhoneNumberChange,
+                    onCodeChange = authViewModel::onCodeChange,
+                    onRequestCode = { authViewModel.requestCode(activity) },
+                    onChangePhoneNumber = authViewModel::changePhoneNumber,
+                    onCancelProfile = authViewModel::signOut,
+                    emulatorMode = BuildConfig.BACKEND == "emulator",
                     onDisplayNameChange = authViewModel::onDisplayNameChange,
                     onSubmit = authViewModel::submit,
                     onRetrySession = authViewModel::retrySession,
@@ -271,4 +280,10 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
     composable("apply/{clubId}") {
         RequestScreen(it.arguments?.getString("clubId").orEmpty()) { nav.popBackStack() }
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
