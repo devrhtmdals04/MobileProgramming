@@ -1,5 +1,9 @@
 {
   "indexes": [
+    { "collectionGroup": "membershipApplications", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "applicantId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ] },
     { "collectionGroup": "clubRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "applicantId", "order": "ASCENDING" },
       { "fieldPath": "createdAt", "order": "DESCENDING" }

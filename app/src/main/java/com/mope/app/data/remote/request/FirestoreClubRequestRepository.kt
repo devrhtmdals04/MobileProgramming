@@ -10,12 +10,18 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.Source
 import com.mope.app.data.model.ClubRequest
 import com.mope.app.data.model.RequestStatus
-import com.mope.app.data.repository.ClubRequestRepository
+import com.mope.app.data.model.MembershipApplication
+import com.mope.app.data.model.Promotion
+import com.mope.app.data.repository.RequestRepository
 import com.mope.app.data.repository.RequestFailure
 import com.mope.app.data.repository.RequestFailureReason
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,7 +33,7 @@ class FirestoreClubRequestRepository(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val sessionUid: () -> String? = { auth.currentUser?.uid },
-) : ClubRequestRepository {
+) : RequestRepository {
     override fun newRequestId(): String = "${requireUser()}__${UUID.randomUUID()}"
 
     override suspend fun submitClubRequest(name: String, purpose: String, requestId: String): String = operation {
@@ -56,13 +62,82 @@ class FirestoreClubRequestRepository(
         requestId
     }
 
-    override fun observeMyRequests(): Flow<List<ClubRequest>> = observe { uid ->
+    override suspend fun applyToClub(clubId: String, introduction: String): String = operation {
+        val uid = requireUser()
+        val id = "${clubId}__${uid}"
+        checkId(id)
+        val text = checkedText(introduction, 1000)
+        val ref = firestore.collection("membershipApplications").document(id)
+        firestore.runTransaction { tx ->
+            sameUser(uid)
+            if (tx.get(ref).exists()) fail(RequestFailureReason.CONFLICT)
+            if (!tx.get(firestore.collection("clubs").document(clubId)).exists()) fail(RequestFailureReason.NOT_FOUND)
+            tx.set(ref, mapOf("clubId" to clubId, "applicantId" to uid, "introduction" to text,
+                "status" to "pending", "createdAt" to FieldValue.serverTimestamp()))
+        }.await()
+        sameUser(uid)
+        id
+    }
+
+    override fun observeMyApplications() = observe({ doc ->
+        if (doc.getString("status") != "pending") fail(RequestFailureReason.INVALID_DATA)
+        MembershipApplication(doc.id, requiredText(doc, "clubId"), requiredText(doc, "applicantId"),
+            requiredText(doc, "introduction"), RequestStatus.PENDING)
+    }) { uid ->
+        firestore.collection("membershipApplications").whereEqualTo("applicantId", uid)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+    }
+
+    override suspend fun publishPromotion(clubId: String, title: String, body: String, postId: String): String = operation {
+        val uid = requireUser()
+        checkId(postId)
+        checkId("${clubId}__${uid}")
+        if (postId.substringBefore("__") != uid) fail(RequestFailureReason.UNAUTHENTICATED)
+        val headline = checkedText(title, 100)
+        val content = checkedText(body, 5000)
+        val ref = firestore.collection("promotions").document(postId)
+        firestore.runTransaction { tx ->
+            sameUser(uid)
+            val existing = tx.get(ref)
+            if (existing.exists()) {
+                if (existing.getString("authorId") != uid || existing.getString("clubId") != clubId
+                    || existing.getString("title") != headline || existing.getString("body") != content)
+                    fail(RequestFailureReason.CONFLICT)
+            } else {
+                tx.set(ref, mapOf("clubId" to clubId, "authorId" to uid, "title" to headline,
+                    "body" to content, "createdAt" to FieldValue.serverTimestamp()))
+            }
+        }.await()
+        sameUser(uid)
+        postId
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override fun observePromotionFeed(): Flow<List<Promotion>> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { trySend(sessionUid()) }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }.distinctUntilChanged().flatMapLatest { uid ->
+        if (uid == null) flowOf(emptyList()) else observe({ doc ->
+            Promotion(doc.id, requiredText(doc, "clubId"), requiredText(doc, "title"), requiredText(doc, "body"))
+        }) { firestore.collection("promotions").orderBy("createdAt", Query.Direction.DESCENDING).limit(20) }
+            .catch { error ->
+                if (sessionUid() != uid) emit(emptyList()) else throw error
+            }
+    }
+
+    private fun requiredText(doc: DocumentSnapshot, field: String): String =
+        doc.getString(field)?.takeIf { it.isNotBlank() } ?: fail(RequestFailureReason.INVALID_DATA)
+
+    private fun checkedText(input: String, maxLength: Int): String =
+        input.trim().takeIf { it.isNotBlank() && it.length <= maxLength } ?: fail(RequestFailureReason.INVALID_INPUT)
+
+    override fun observeMyRequests(): Flow<List<ClubRequest>> = observe(::decode) { uid ->
         firestore.collection("clubRequests").whereEqualTo("applicantId", uid)
             .orderBy("createdAt", Query.Direction.DESCENDING)
     }
 
-    override fun observePendingRequests(): Flow<List<ClubRequest>> = observe {
-        // 권한은 users.role이 아닌 신뢰된 operator custom claim을 Rules에서 확인한다.
+    override fun observePendingRequests(): Flow<List<ClubRequest>> = observe(::decode) {
         firestore.collection("clubRequests").whereEqualTo("status", "pending").orderBy("createdAt")
     }
 
@@ -89,7 +164,10 @@ class FirestoreClubRequestRepository(
             sameUser(uid)
             val claims = auth.currentUser?.getIdToken(false)?.await()?.claims
             sameUser(uid)
-            if (claims?.get("operator") == true) {
+            val operator = claims?.get("operator") == true ||
+                firestore.collection("operators").document(uid).get(Source.SERVER).await().getBoolean("enabled") == true
+            sameUser(uid)
+            if (operator) {
                 val latest = ref.get(Source.SERVER).await()
                 sameUser(uid)
                 if (latest.exists() && decode(latest).status != RequestStatus.PENDING) fail(RequestFailureReason.CONFLICT)
@@ -99,14 +177,14 @@ class FirestoreClubRequestRepository(
         sameUser(uid)
     }
 
-    private fun observe(query: (String) -> Query): Flow<List<ClubRequest>> = callbackFlow<Pair<String, List<ClubRequest>>> {
+    private fun <T> observe(decodeDocument: (DocumentSnapshot) -> T, query: (String) -> Query): Flow<List<T>> = callbackFlow<Pair<String, List<T>>> {
         val uid = requireUser()
         val listener = query(uid).addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
             when {
                 sessionUid() != uid -> close(RequestFailure(RequestFailureReason.UNAUTHENTICATED))
                 error != null -> close(mapped(error))
                 snapshot != null && !snapshot.metadata.isFromCache && !snapshot.metadata.hasPendingWrites() -> try {
-                    trySend(uid to snapshot.documents.map(::decode))
+                    trySend(uid to snapshot.documents.map(decodeDocument))
                 } catch (failure: Exception) { close(mapped(failure)) }
             }
         }

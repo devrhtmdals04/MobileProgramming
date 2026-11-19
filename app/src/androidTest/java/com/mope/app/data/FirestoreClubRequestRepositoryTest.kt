@@ -184,6 +184,16 @@ class FirestoreClubRequestRepositoryTest {
             applicant.updateClub(clubId, "수정한 소개", "수정한 모집")
             val published = applicant.observeLinkedClubs().first { list -> list.any { it.id == clubId && it.description == "수정한 소개" } }.single { it.id == clubId }
             assertEquals(studentSdk.auth.currentUser!!.uid, published.adminId)
+            val postId = student.newRequestId()
+            student.publishPromotion(clubId, "신입 모집", "함께해요", postId)
+            student.publishPromotion(clubId, "신입 모집", "함께해요", postId)
+            val feed = outsider.observePromotionFeed().first { posts -> posts.any { it.id == postId } }
+            assertEquals("신입 모집", feed.single { it.id == postId }.title)
+            failure(RequestFailureReason.PERMISSION_DENIED) { outsider.publishPromotion(clubId, "모집", "본문") }
+            val joinId = outsider.applyToClub(clubId, "가입합니다")
+            assertEquals(joinId, outsider.observeMyApplications().first().single().id)
+            failure(RequestFailureReason.CONFLICT) { outsider.applyToClub(clubId, "다시 신청") }
+            assertTrue(student.observeMyApplications().first().isEmpty())
             failure(RequestFailureReason.PERMISSION_DENIED) { other.updateClub(clubId, "변조", "모집") }
             failure(RequestFailureReason.CONFLICT) { other.apply(source, "탈취 시도") }
             failure(RequestFailureReason.CONFLICT) { reviewer.review(application.id, false, null, "", "재검토") }

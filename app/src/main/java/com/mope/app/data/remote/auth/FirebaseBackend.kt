@@ -11,12 +11,12 @@ import com.mope.app.BuildConfig
 import com.mope.app.data.repository.AuthRepository
 import com.mope.app.data.repository.ClubAdminRepository
 import com.mope.app.data.remote.admin.FirestoreClubAdminRepository
-import com.mope.app.data.repository.ClubRequestRepository
+import com.mope.app.data.repository.RequestRepository
 import com.mope.app.data.remote.request.FirestoreClubRequestRepository
 import com.mope.app.data.repository.ChatRepository
 import com.mope.app.data.remote.chat.FirestoreChatRepository
 
-data class FirebaseRepositories(val auth: AuthRepository, val chat: ChatRepository, val clubRequests: ClubRequestRepository, val clubAdmins: ClubAdminRepository)
+data class FirebaseRepositories(val auth: AuthRepository, val chat: ChatRepository, val clubRequests: RequestRepository, val clubAdmins: ClubAdminRepository)
 
 object FirebaseBackend {
     fun createRepositories(context: Context): FirebaseRepositories {

@@ -44,6 +44,30 @@ service cloud.firestore {
             || validPublicContact(resource.data));
       }
     }
+    function nonBlankText(value, limit) {
+      return value is string && value.size() <= limit && value.matches('(?s).*[^\\s].*');
+    }
+    match /promotions/{id} {
+      allow read: if request.auth != null;
+      allow create: if isOwner(request.resource.data.authorId)
+        && request.resource.data.keys().hasOnly(['authorId', 'clubId', 'title', 'body', 'createdAt'])
+        && validChatId(request.resource.data.clubId)
+        && get(/databases/$(database)/documents/clubs/$(request.resource.data.clubId)).data.adminId == request.auth.uid
+        && nonBlankText(request.resource.data.title, 100) && nonBlankText(request.resource.data.body, 5000)
+        && request.resource.data.createdAt == request.time;
+    }
+    match /membershipApplications/{id} {
+      allow get: if request.auth != null && (resource == null || isOwner(resource.data.applicantId));
+      allow list: if isOwner(resource.data.applicantId);
+      allow create: if isOwner(request.resource.data.applicantId)
+        && validChatId(request.auth.uid) && validChatId(request.resource.data.clubId)
+        && id == request.resource.data.clubId + '__' + request.auth.uid
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && exists(/databases/$(database)/documents/clubs/$(request.resource.data.clubId))
+        && request.resource.data.keys().hasOnly(['applicantId', 'clubId', 'introduction', 'status', 'createdAt'])
+        && nonBlankText(request.resource.data.introduction, 1000)
+        && request.resource.data.status == 'pending' && request.resource.data.createdAt == request.time;
+    }
     function validPublicContact(data) {
       return data.keys().hasAll(['displayName', 'updatedAt'])
         && data.keys().hasOnly(['displayName', 'responseHint', 'updatedAt'])

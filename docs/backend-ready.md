@@ -1,6 +1,6 @@
 # 우리 담당 백엔드 완료 기준과 인계
 
-담당 범위는 고승민의 인증·세션·프로필 조회/생성, 채팅·공개 문의 정보, 동아리 개설 요청·운영 검토 및 해당 DB 규칙이다. 전체 앱 또는 Figma 전체 구현 완료와 구분한다.
+MVP 백엔드는 인증·프로필, 채팅, 동아리 목록·검색·관리자 연결, 개설 요청·운영 검토, 홍보글, 가입 신청과 권한 규칙을 제공한다. 전체 앱 또는 Figma 전체 구현 완료와 구분한다.
 
 ## 구현 상태
 
@@ -11,6 +11,9 @@
 | 채팅 | 참여자 전용 방/메시지 구독·서버 시각·동일 ID 재시도·로그아웃 정리 | ChatRepository, chat-ui-handoff.md |
 | 문의 헤더 | 동아리명·선택 모집 정보·별도 공개 담당 정보, 사적 프로필 접근 금지 | chat-public-context-contract.md |
 | 개설 요청 | 저장·본인 내역·운영 대기 목록·단회 승인/반려·동시 처리 충돌 | club-request-backend-contract.md |
+| 동아리·검색 | 공식 목록과 관리자 소개·모집 정보 병합, 이름·소개 검색과 카테고리 필터 | ClubRepository, club-admin-verification.md |
+| 홍보글 | 연결된 관리자의 글 등록·같은 ID 재시도, 최신 20개 구독과 홈 피드 연결 | RequestRepository.publishPromotion, ClubRepository.observePromotions |
+| 가입 신청 | Firestore에 등록된 동아리에 신청, 동아리·회원별 중복 차단, 본인 내역 최신순 조회 | RequestRepository.applyToClub, observeMyApplications |
 | DB | 본인/참여자/운영 권한, 필드·시각·상태 전이 검증, 요청 인덱스 | firestore.rules, firestore.indexes.json |
 
 `MopeApplication.authRepository`, `chatRepository`, `clubRequestRepository`를 앱 범위에서 제공한다. Mock 모드의 null은 미연동이며 저장 성공으로 취급하지 않는다. UI는 SDK를 직접 호출하지 않고 해당 인터페이스를 사용한다. 로그아웃 시 개인 상태를 지우고 다른 계정으로 로그인한 뒤 다시 구독한다.
@@ -45,11 +48,15 @@ GitHub `Backend checks` workflow는 push/PR에서 핵심 검증을 실행하며 
 1. 팀의 대상 개발 Firebase 프로젝트에 Android 패키지 `com.mope.app`를 등록하고 콘솔의 설정 파일을 app/google-services.json에 둔다. 이 파일·관리자 자격 증명은 Git에 올리지 않는다.
 2. `npm run check:firebase -- --project 실제-project-id`로 대상 프로젝트·패키지·앱 ID의 정적 일치를 검사한다. 이 명령은 읽기 전용이며 키나 JSON 원문을 출력하지 않는다. 정적 통과가 유효한 계정/키·Auth 활성화·서버 권한을 보장하지 않는다.
 3. Firebase 콘솔에서 Phone 인증·Firestore·SHA-256/SHA-1·SMS 허용 지역·Blaze 결제를 준비하고 `./gradlew -PmopeBackend=firebase :app:assembleDebug`로 실제 설정 빌드를 확인한다. 전화번호 인증은 학교 재학 인증을 대신하지 않는다. 학교 인증 정책은 별도 미확정이다.
-4. 팀의 다른 DB 규칙과 합쳐 검토한 후 명시적 프로젝트 대상으로 `npx firebase deploy --project 실제-project-id --only firestore:rules,firestore:indexes`를 실행한다. 현재 파일은 우리 담당 컬렉션과 로그인 사용자의 clubs 단건 조회만 허용한다. 다른 담당 규칙을 누락한 채 전체 서비스에 배포하지 않는다. 자동 배포는 추가하지 않았다.
+4. 팀의 다른 DB 규칙과 합쳐 검토한 후 명시적 프로젝트 대상으로 `npx firebase deploy --project 실제-project-id --only firestore:rules,firestore:indexes`를 실행한다. 현재 규칙에는 운영자 명부 조회, 관리자 연결 신청·검토, 승인된 관리자의 동아리 소개·모집 정보 수정도 포함한다. 다른 담당 규칙을 누락한 채 전체 서비스에 배포하지 않는다. 자동 배포는 추가하지 않았다.
 5. 실제 프로젝트에서 본인/타인 권한·양방향 채팅·같은 ID 재시도·운영 검토·두 요청 쿼리 인덱스 사용을 확인한다. Emulator는 실제 복합 인덱스 배포를 검증하지 않는다. 실제 SMS 수신·인증번호 확인·재로그인도 확인한다.
-6. 운영 권한은 신뢰된 Admin 환경에서 `operator: true` custom claim으로만 부여한다. users.role의 club_admin과 다르다. claim 변경 후 토큰 갱신이 필요하며 제품 클라이언트에 Admin SDK/서비스 키를 넣지 않는다. 공개 연락 문서도 공개 필드만 신뢰된 환경에서 게시한다.
+6. 전용 운영자 계정은 프로젝트 소유자가 `operators/{uid}` 문서에 boolean `enabled: true`를 설정해 등록한다. 서버에서 부여한 기존 `operator: true` custom claim도 허용한다. [운영자 등록 절차](club-admin-verification.md)를 따른다. users.role의 club_admin과 다르다. claim 변경 후 토큰 갱신이 필요하며 제품 클라이언트에 Admin SDK/서비스 키를 넣지 않는다. 공개 연락 문서도 공개 필드만 신뢰된 환경에서 게시한다.
 7. 프론트 담당과 실제 UI 연결 후 오류/로딩/중복 제출/로그아웃 상태 폐기를 검증하고 상대 리뷰를 기록한다.
 
-이번 인계에 포함하지 않는 항목: 다른 담당의 동아리·홍보·검색·가입 신청 원격 구현, 설문형 수요조사·댓글·찜·알림의 범위 확대, 오래된 메시지 페이지·오프라인 전송 큐, 물리 기기/운영 배포 검증. 개설 요청 승인은 동아리 생성·권한 부여를 자동 수행하지 않는다.
+이번 인계에 포함하지 않는 항목: 설문형 수요조사·댓글·찜·알림의 범위 확대, 오래된 메시지 페이지·오프라인 전송 큐, 물리 기기/운영 배포 검증. 개설 요청 승인은 동아리 생성·권한 부여를 자동 수행하지 않는다.
 
 2026-11-18 추가 연결: 개설 요청 탭 제출·본인 내역을 연결하고 실제 Firebase에서 검증했다. Firebase 모드의 공개 동아리 목록은 숭실 동아리연합회 공개 API에서 읽는다. 학교 공식 등록·동아리 운영자 계정 연결과 그루 개설 요청은 별도다.
+
+2026-11-19 관리자 연결 회귀 검증에서 Firestore Emulator 규칙 테스트 36개가 통과했다. 관리자 관련 7개 테스트는 신청·승인·편집, 타인 편집 및 자기 승인 차단, 반려 후 재신청, 운영 권한 회수를 포함한다. 개발 Firebase의 최신 규칙 게시와 전용 운영자 등록 상태는 별도 확인이 필요하다.
+
+같은 날 홍보글과 가입 신청 추가 후 `npm run verify:backend` 전체 통과. Rules 38개, Pixel 4 Android 통합 25개 통과(조건부 테스트 4개 건너뜀), 별도 프로세스 재시작 검사와 Firebase 모드 APK 빌드 성공. Android 통합에서 관리자 승인 후 홍보글 등록·재시도, 다른 회원의 피드 조회·가입 신청·중복 거절을 확인했다. 개발 콘솔에서 확인한 게시 규칙의 시각은 11월 18일 12:37이며 기존 개설 요청 색인 2개가 활성 상태였다. 새 기능을 개발 서버에서 사용하려면 저장소의 규칙과 가입 신청 복합 색인을 반영해야 한다.

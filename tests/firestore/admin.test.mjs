@@ -77,3 +77,35 @@ test('운영자 명부 해제 즉시 검토 권한 회수', async () => {
   await assertFails(approve());
   await assertFails(getDoc(doc(db('operator'),path('alice'))));
 });
+
+test('홍보글 등록은 연결된 관리자만 가능하고 등록 후 수정할 수 없다', async () => {
+  await apply('alice');
+  await approve();
+  const post = { clubId: 'ssu-1', authorId: 'alice', title: '신입 모집', body: '소개', createdAt: serverTimestamp() };
+  const ref = uid => doc(db(uid), 'promotions/post');
+  await assertFails(setDoc(ref('bob'), post));
+  await assertFails(setDoc(ref('bob'), { ...post, authorId: 'bob' }));
+  await assertFails(setDoc(ref('alice'), { ...post, title: '  ' }));
+  await assertSucceeds(setDoc(ref('alice'), post));
+  await assertSucceeds(getDoc(ref('bob')));
+  await assertFails(getDoc(ref()));
+  await assertFails(updateDoc(ref('alice'), { title: '변경' }));
+});
+
+test('가입 신청은 존재하는 동아리에 한 번만 저장하고 본인만 조회한다', async () => {
+  await apply('alice');
+  await approve();
+  const application = { clubId: 'ssu-1', applicantId: 'bob', introduction: '가입하고 싶어요',
+    status: 'pending', createdAt: serverTimestamp() };
+  const ref = uid => doc(db(uid), 'membershipApplications/ssu-1__bob');
+  await assertSucceeds(getDoc(ref('bob')));
+  await assertFails(setDoc(ref('alice'), application));
+  await assertFails(setDoc(ref('bob'), { ...application, status: 'approved' }));
+  await assertFails(setDoc(ref('bob'), { ...application, introduction: '  ' }));
+  await assertFails(setDoc(doc(db('bob'), 'membershipApplications/ssu-2__bob'), { ...application, clubId: 'ssu-2' }));
+  await assertSucceeds(setDoc(ref('bob'), application));
+  await assertFails(setDoc(ref('bob'), application));
+  await assertSucceeds(getDocs(query(collection(db('bob'), 'membershipApplications'), where('applicantId', '==', 'bob'))));
+  await assertFails(getDoc(ref('alice')));
+  await assertFails(deleteDoc(ref('bob')));
+});
