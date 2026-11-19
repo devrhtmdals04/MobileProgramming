@@ -16,7 +16,7 @@ class MopeApplication : Application() {
         val services = backend
         if (services == null) MockClubRepository() else LinkedClubRepository(
             if (BuildConfig.BACKEND == "firebase") SoongsilClubRepository() else MockClubRepository(),
-            services.clubAdmins, services.clubRequests::observePromotionFeed
+            services.clubAdmins, services.clubRequests::observePromotionFeed, includeLocalClubs = BuildConfig.BACKEND == "emulator"
         )
     }
     private val backend by lazy {

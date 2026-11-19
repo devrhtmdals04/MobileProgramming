@@ -15,6 +15,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MopeTheme {
                 MopeNavHost(
+                    chatRepository = app.chatRepository,
                     repository = app.clubRepository,
                     authRepository = app.authRepository,
                     clubRequestRepository = app.clubRequestRepository,

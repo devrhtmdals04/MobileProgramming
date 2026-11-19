@@ -79,7 +79,7 @@ fun AuthScreen(
                 }
                 if (form.step == AuthStep.Profile) TextButton(onClick = onCancelProfile, enabled = !form.isSubmitting) { Text("다른 번호로 시작") }
                 if (!authenticationEnabled) Text("전화번호 인증은 Firebase 연결 후 사용할 수 있어요.")
-                if (onExplore != null && form.step != AuthStep.Profile) OutlinedButton(onClick = onExplore, enabled = !form.isSubmitting) { Text("Mock 화면 둘러보기") }
+                if (onExplore != null && form.step != AuthStep.Profile) OutlinedButton(onClick = onExplore, enabled = !form.isSubmitting) { Text("동아리 둘러보기") }
             }
         }
     }

@@ -9,14 +9,16 @@ import com.mope.app.ui.components.*
 import com.mope.app.ui.theme.MopeTheme
 
 @Composable
-fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String) -> Unit, onApply: (String) -> Unit, onAdminRequest: ((String) -> Unit)? = null) {
+fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String) -> Unit, onApply: (String) -> Unit, onAdminRequest: ((String) -> Unit)? = null,
+    currentUid: String? = null, onPublish: ((String) -> Unit)? = null, onRetry: () -> Unit = onBack) {
     val uriHandler = LocalUriHandler.current
     Page("동아리 소개") {
         TextButton(onClick = onBack) { Text("뒤로") }
-        StateContent(state, onBack) { detail ->
+        StateContent(state, onRetry) { detail ->
             Text(detail.promotion?.title ?: detail.club.name, style = MaterialTheme.typography.headlineSmall)
             Text(detail.club.name + " · " + detail.club.category)
-            Text(if (detail.club.sourceUrl != null) detail.club.description else detail.promotion?.body ?: detail.club.description)
+            detail.promotion?.takeUnless { it.id == "directory-${detail.club.id}" }?.let { Text(it.body) }
+            Text(detail.club.description)
             Text(detail.club.recruitment)
             detail.club.sourceUrl?.let { url ->
                 Text("출처: 숭실대학교 동아리연합회 · 공식 공개 목록")
@@ -26,6 +28,10 @@ fun ClubScreen(state: LoadState<ClubDetail>, onBack: () -> Unit, onChat: (String
                 }
             }
             val linked = detail.club.adminId.isNotBlank()
+            if (currentUid == detail.club.adminId && onPublish != null) {
+                Button(onClick = { onPublish(detail.club.id) }) { Text("홍보글 작성") }
+                return@StateContent
+            }
             Button(onClick = { onChat(detail.club.id) }, enabled = linked) {
                 Text(if (linked) "관리자에게 문의" else "관리자 계정 연동 전")
             }

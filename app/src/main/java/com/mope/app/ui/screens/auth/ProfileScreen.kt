@@ -15,18 +15,20 @@ fun ProfileScreen(
     user: User?,
     onSignOut: () -> Unit,
     onExitMock: (() -> Unit)? = null,
+    onHistory: (() -> Unit)? = null,
     onManageClubs: (() -> Unit)? = null,
 ) {
     Page("내 프로필") {
         if (user == null) {
-            Text("Mock 방문자 · 실제 로그인 상태가 아닙니다.")
-            Text("프로필과 로그아웃은 인증 연결 후 사용할 수 있어요.")
+            Text("방문자로 둘러보는 중이에요.")
+            Text("로그인하면 내 신청과 대화를 확인할 수 있어요.")
             if (onExitMock != null) {
                 Button(onClick = onExitMock) { Text("둘러보기 종료") }
             }
         } else {
             Text(user.displayName)
             Text(roleLabel(user.role))
+            onHistory?.let { OutlinedButton(onClick = it) { Text("내 가입 신청") } }
             onManageClubs?.let { Button(onClick = it) { Text("내 동아리 관리 · 관리 권한 신청 내역") } }
             OutlinedButton(onClick = onSignOut) { Text("로그아웃") }
         }

@@ -34,7 +34,15 @@ import androidx.navigation.compose.rememberNavController
 import com.mope.app.data.repository.ClubAdminRepository
 import com.mope.app.ui.screens.admin.ClubAdminScreen
 import com.mope.app.ui.screens.admin.ClubAdminViewModel
-import com.mope.app.data.repository.ClubRequestRepository
+import com.mope.app.data.repository.RequestRepository
+import com.mope.app.data.repository.ChatRepository
+import com.mope.app.ui.screens.chat.*
+import com.mope.app.ui.screens.request.PendingClubRequests
+import com.mope.app.ui.screens.request.ClubActionScreen
+import com.mope.app.ui.components.Page
+import androidx.compose.material3.*
+import androidx.compose.runtime.remember
+import kotlinx.coroutines.flow.catch
 import com.mope.app.ui.screens.request.ClubRequestScreen
 import com.mope.app.ui.screens.request.ClubRequestState
 import com.mope.app.ui.screens.request.ClubRequestViewModel
@@ -66,11 +74,12 @@ private val mainTabs = listOf(
 fun MopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository? = null,
-    clubRequestRepository: ClubRequestRepository? = null,
+    clubRequestRepository: RequestRepository? = null,
     clubAdminRepository: ClubAdminRepository? = null,
+    chatRepository: ChatRepository? = null,
 ) {
     if (authRepository != null) {
-        AuthenticatedMopeNavHost(repository, authRepository, clubRequestRepository, clubAdminRepository)
+        AuthenticatedMopeNavHost(repository, authRepository, clubRequestRepository, clubAdminRepository, chatRepository)
     } else {
         MockMopeNavHost(repository)
     }
@@ -80,8 +89,9 @@ fun MopeNavHost(
 private fun AuthenticatedMopeNavHost(
     repository: ClubRepository,
     authRepository: AuthRepository,
-    clubRequestRepository: ClubRequestRepository?,
+    clubRequestRepository: RequestRepository?,
     clubAdminRepository: ClubAdminRepository?,
+    chatRepository: ChatRepository?,
 ) {
     val nav = rememberNavController()
     val authViewModel: AuthViewModel = viewModel(
@@ -115,7 +125,7 @@ private fun AuthenticatedMopeNavHost(
 
     MopeScaffold(
         route = route,
-        title = if (authSession is AuthSessionUiState.SignedIn) "GRU" else "GRU · Mock 미리보기",
+        title = if (authSession is AuthSessionUiState.SignedIn) "GRU" else "GRU · 둘러보기",
         nav = nav,
     ) {
         NavHost(navController = nav, startDestination = "auth") {
@@ -139,13 +149,14 @@ private fun AuthenticatedMopeNavHost(
                     },
                 )
             }
-            clubRoutes(nav, repository, authRepository, clubRequestRepository, clubAdminRepository) {
+            clubRoutes(nav, repository, authRepository, clubRequestRepository, clubAdminRepository, chatRepository) {
                 mockExploring = false
                 nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } }
             }
             composable("profile") {
                 ProfileScreen(
                     user = (authSession as? AuthSessionUiState.SignedIn)?.user,
+                    onHistory = { nav.navigate("memberships") },
                     onManageClubs = if (clubAdminRepository != null) ({ nav.navigate("club-admin") }) else null,
                     onSignOut = {
                         mockExploring = false
@@ -252,8 +263,9 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
     nav: NavHostController,
     repository: ClubRepository,
     authRepository: AuthRepository? = null,
-    clubRequestRepository: ClubRequestRepository? = null,
+    clubRequestRepository: RequestRepository? = null,
     clubAdminRepository: ClubAdminRepository? = null,
+    chatRepository: ChatRepository? = null,
     onLogin: () -> Unit = { nav.navigate("auth") { popUpTo(nav.graph.id) { inclusive = true } } },
 ) {
     composable("home") {
@@ -283,11 +295,15 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
                 },
             )
             val state by vm.state.collectAsStateWithLifecycle()
+            val user = authRepository?.let { remember(it) { it.currentUser }.collectAsStateWithLifecycle(null).value }
             ClubScreen(
                 state,
                 { nav.popBackStack() },
                 { nav.navigate("chat/${Uri.encode(it)}") },
                 { nav.navigate("apply/${Uri.encode(it)}") },
+                currentUid = user?.id,
+                onPublish = { nav.navigate("publish/${Uri.encode(it)}") },
+                onRetry = vm::retry,
                 onAdminRequest = if (clubAdminRepository != null) ({ id -> nav.navigate("admin-apply/${Uri.encode(id)}") }) else null,
             )
         }
@@ -300,13 +316,46 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
                 })
                 val state by vm.state.collectAsStateWithLifecycle()
                 ClubAdminScreen(state, entry.arguments?.getString("clubId"), vm::apply, vm::review,
-                    vm::saveClub, vm::reload, { nav.popBackStack() }, onLogin)
+                    vm::saveClub, vm::reload, { nav.popBackStack() }, onLogin,
+                    onPublish = { nav.navigate("publish/${Uri.encode(it)}") }) {
+                    if (clubRequestRepository != null) PendingClubRequests(clubRequestRepository)
+                }
             }
         }
     }
-    composable("chats") { ChatListScreen() }
-    composable("chat/{clubId}") {
-        ChatScreen(it.arguments?.getString("clubId").orEmpty()) { nav.popBackStack() }
+    composable("chats") {
+        if (authRepository == null || chatRepository == null) ChatListScreen()
+        else ChatListRoute(authRepository, chatRepository) { state, retry ->
+            val clubs by remember(repository) { repository.observeClubs().catch { emit(emptyList()) } }
+                .collectAsStateWithLifecycle(emptyList())
+            Page("내 대화") {
+                if (state.isLoading) CircularProgressIndicator()
+                state.error?.let { error ->
+                    Text(error.message)
+                    TextButton(onClick = if (error.requiresSignIn) onLogin else retry) {
+                        Text(if (error.requiresSignIn) "로그인" else "다시 시도")
+                    }
+                }
+                if (state.isEmpty) Text("아직 대화가 없어요. 동아리 소개에서 관리자에게 문의해 보세요.")
+                state.rooms.forEach { room ->
+                    OutlinedButton(onClick = { nav.navigate("room/${Uri.encode(room.id)}") }) {
+                        Text(clubs.find { it.id == room.clubId }?.name ?: room.clubId)
+                    }
+                }
+            }
+        }
+    }
+    listOf("chat/{clubId}", "room/{roomId}").forEach { route ->
+        composable(route) { entry ->
+            val clubId = entry.arguments?.getString("clubId")
+            if (authRepository == null || chatRepository == null) ChatScreen(clubId.orEmpty()) { nav.popBackStack() }
+            else {
+                val target = clubId?.let { ChatTarget.Club(it) } ?: ChatTarget.Room(entry.arguments?.getString("roomId").orEmpty())
+                ChatRoomRoute(target, authRepository, chatRepository) { state, actions ->
+                    LiveChatScreen(state, actions, { nav.popBackStack() }, onLogin)
+                }
+            }
+        }
     }
     composable("requests") { entry ->
         if (authRepository != null && clubRequestRepository != null) {
@@ -319,8 +368,16 @@ private fun androidx.navigation.NavGraphBuilder.clubRoutes(
             ClubRequestScreen(ClubRequestState(), {}, {}, {}, {}, onLogin)
         }
     }
-    composable("apply/{clubId}") {
-        RequestScreen(it.arguments?.getString("clubId").orEmpty()) { nav.popBackStack() }
+    listOf("apply/{clubId}", "publish/{clubId}", "memberships").forEach { route ->
+        composable(route) { entry ->
+            val clubId = entry.arguments?.getString("clubId")
+            if (authRepository == null || clubRequestRepository == null) RequestScreen(clubId) { nav.popBackStack() }
+            else {
+                val user by remember(authRepository) { authRepository.currentUser }.collectAsStateWithLifecycle(null)
+                ClubActionScreen(clubId, route == "publish/{clubId}", user?.id, repository,
+                    clubRequestRepository, { nav.popBackStack() }, onLogin)
+            }
+        }
     }
 }
 

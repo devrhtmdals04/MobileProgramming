@@ -22,7 +22,10 @@ fun SearchScreen(state: LoadState<List<Club>>, query: String, category: String?,
                 FilterChip(selected = category == item, onClick = { onCategory(item) }, label = { Text(item ?: "전체") })
             }
         }
-        StateContent(state, onRetry) { clubs -> clubs.forEach { InfoCard(it.name, "${it.category} · ${it.description}") { onClub(it.id) } } }
+        if (state == LoadState.Empty && (query.isNotBlank() || category != null)) {
+            Text("검색 결과가 없어요. 다른 키워드나 분류로 찾아보세요.")
+            TextButton(onClick = { onQuery(""); onCategory(null) }) { Text("검색 조건 초기화") }
+        } else StateContent(state, onRetry) { clubs -> clubs.forEach { InfoCard(it.name, "${it.category} · ${it.description}") { onClub(it.id) } } }
     }
 }
 @Preview(showBackground = true)

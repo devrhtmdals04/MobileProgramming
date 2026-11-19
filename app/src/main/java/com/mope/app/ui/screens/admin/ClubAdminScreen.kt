@@ -24,6 +24,8 @@ fun ClubAdminScreen(
     onReload: () -> Unit,
     onBack: () -> Unit,
     onLogin: () -> Unit,
+    onPublish: ((String) -> Unit)? = null,
+    openingRequests: @Composable () -> Unit = {},
 ) {
     val uri = LocalUriHandler.current
     val clubs = (state.clubs as? LoadState.Content)?.value.orEmpty()
@@ -61,7 +63,12 @@ fun ClubAdminScreen(
                 StateContent(state.clubs, onReload) { entries ->
                     val owned = entries.filter { it.adminId == state.userId }
                     if (owned.isEmpty()) Text("아직 연결된 동아리가 없어요. 탐색 → 동아리 소개에서 관리 권한을 신청해 주세요.")
-                    owned.forEach { club -> ClubEditor(club, state.busy) { description, recruitment -> onSave(club.id, description, recruitment) } }
+                    owned.forEach { club ->
+                        ClubEditor(club, state.busy) { description, recruitment -> onSave(club.id, description, recruitment) }
+                        onPublish?.let { publish ->
+                            OutlinedButton(onClick = { publish(club.id) }) { Text("${club.name} 홍보글 작성") }
+                        }
+                    }
                 }
             }
             Text("내 관리 권한 신청", style = MaterialTheme.typography.titleLarge)
@@ -78,6 +85,7 @@ fun ClubAdminScreen(
                 }
             }
             if (state.isOperator && targetClubId == null) {
+                key(state.userId) { openingRequests() }
                 Text("그루 운영자 · 관리 권한 검토", style = MaterialTheme.typography.titleLarge)
                 Text("신청자가 제시한 연락처를 그대로 신뢰하지 말고, 공식 소개에 등록된 채널을 직접 확인해 주세요.")
                 StateContent(state.pending, onReload) { entries ->

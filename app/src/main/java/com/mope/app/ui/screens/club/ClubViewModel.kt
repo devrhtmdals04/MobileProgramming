@@ -10,10 +10,17 @@ import kotlinx.coroutines.flow.*
 
 data class ClubDetail(val club: Club, val promotion: Promotion? = null)
 class ClubViewModel(repository: ClubRepository, id: String, isPromotion: Boolean) : ViewModel() {
-    val state = combine(repository.observeClubs(), repository.observePromotions()) { clubs, posts ->
-        val post = if (isPromotion) posts.find { it.id == id } else null
-        val club = clubs.find { it.id == if (isPromotion) post?.clubId else id }
-        if (club == null) LoadState.Empty else LoadState.Content(ClubDetail(club, post))
-    }.catch { emit(LoadState.Error("상세 정보를 불러오지 못했어요. 뒤로 간 뒤 다시 열어 주세요.")) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LoadState.Loading)
+    private val refresh = MutableStateFlow(0)
+    fun retry() { refresh.value++ }
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val state = refresh.flatMapLatest {
+        val posts = if (isPromotion) repository.observePromotions() else flowOf(emptyList())
+        combine(repository.observeClubs(), posts) { clubs, promotions ->
+            val post = promotions.find { it.id == id }
+            val clubId = if (isPromotion) post?.clubId else id
+            val club = clubs.find { it.id == clubId }
+            if (club == null) LoadState.Empty else LoadState.Content(ClubDetail(club, post))
+        }.onStart { emit(LoadState.Loading) }
+            .catch { emit(LoadState.Error("상세 정보를 불러오지 못했어요. 연결을 확인해 주세요.")) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LoadState.Loading)
 }
